@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:obdv2/pages/home_page.dart';
 import 'package:obdv2/pages/login_page.dart';
 import 'package:obdv2/pages/register_page.dart';
+import 'package:obdv2/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,8 +16,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Login',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: LoginPage(),
+      theme: ThemeData(
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: Colors.black,
+      ),
+      home: HomeScreen(),
     );
   }
 }

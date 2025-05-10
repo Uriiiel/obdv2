@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:obdv2/pages/register_page.dart';
-import 'home_page.dart'; // Asegúrate de importar HomePage
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Para íconos modernos
+import 'home_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:obdv2/screens/home_screen.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(user: userCredential.user),
+          builder: (context) => HomeScreen(),
         ),
       );
     } on FirebaseAuthException catch (e) {

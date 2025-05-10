@@ -41,50 +41,53 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDEfi4pfxgxbZCmOZnOQA8P-GRBtPHT3sw',
-    appId: '1:496119517970:web:e1f6372d42f9c5624b19cb',
-    messagingSenderId: '496119517970',
-    projectId: 'automotrizprueba',
-    authDomain: 'automotrizprueba.firebaseapp.com',
-    storageBucket: 'automotrizprueba.firebasestorage.app',
-    measurementId: 'G-TJD96MKMRM',
+    apiKey: 'AIzaSyBt8_gnkchNhFJRSlciwl-25nERVhA0xO8',
+    appId: '1:802711499708:web:50ac8b17ebff17afb631b9',
+    messagingSenderId: '802711499708',
+    projectId: 'automotrizapp',
+    authDomain: 'automotrizapp.firebaseapp.com',
+    databaseURL: 'https://automotrizapp-default-rtdb.firebaseio.com',
+    storageBucket: 'automotrizapp.firebasestorage.app',
+    measurementId: 'G-Y01G3KVBLF',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBAsMl4rl4d5iCFXtV_CHCHWXogx8_k7ms',
-    appId: '1:496119517970:android:d7eb0c24052712064b19cb',
-    messagingSenderId: '496119517970',
-    projectId: 'automotrizprueba',
-    storageBucket: 'automotrizprueba.firebasestorage.app',
+    apiKey: 'AIzaSyDiDoAPa9lDpSaAZwmQ0RHn7a7M6gq7UCU',
+    appId: '1:802711499708:android:75640bc14ff16f57b631b9',
+    messagingSenderId: '802711499708',
+    projectId: 'automotrizapp',
+    databaseURL: 'https://automotrizapp-default-rtdb.firebaseio.com',
+    storageBucket: 'automotrizapp.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA4zGFbRiRQ9IPI0s3_2FltD1YI-jVUbHM',
-    appId: '1:496119517970:ios:4a4b0468042a30084b19cb',
-    messagingSenderId: '496119517970',
-    projectId: 'automotrizprueba',
-    storageBucket: 'automotrizprueba.firebasestorage.app',
-    iosClientId: '496119517970-d0su6o60ocfdaseodumhkpidh553v79a.apps.googleusercontent.com',
-    iosBundleId: 'com.example.proyectoAuto',
+    apiKey: 'AIzaSyB2PZG1yBdKgs6j6sEFV9CIxMYak_2T7q8',
+    appId: '1:802711499708:ios:cc30d5521b4be487b631b9',
+    messagingSenderId: '802711499708',
+    projectId: 'automotrizapp',
+    databaseURL: 'https://automotrizapp-default-rtdb.firebaseio.com',
+    storageBucket: 'automotrizapp.firebasestorage.app',
+    iosBundleId: 'com.example.obdv2',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA4zGFbRiRQ9IPI0s3_2FltD1YI-jVUbHM',
-    appId: '1:496119517970:ios:4a4b0468042a30084b19cb',
-    messagingSenderId: '496119517970',
-    projectId: 'automotrizprueba',
-    storageBucket: 'automotrizprueba.firebasestorage.app',
-    iosClientId: '496119517970-d0su6o60ocfdaseodumhkpidh553v79a.apps.googleusercontent.com',
-    iosBundleId: 'com.example.proyectoAuto',
+    apiKey: 'AIzaSyB2PZG1yBdKgs6j6sEFV9CIxMYak_2T7q8',
+    appId: '1:802711499708:ios:cc30d5521b4be487b631b9',
+    messagingSenderId: '802711499708',
+    projectId: 'automotrizapp',
+    databaseURL: 'https://automotrizapp-default-rtdb.firebaseio.com',
+    storageBucket: 'automotrizapp.firebasestorage.app',
+    iosBundleId: 'com.example.obdv2',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDEfi4pfxgxbZCmOZnOQA8P-GRBtPHT3sw',
-    appId: '1:496119517970:web:6c1b0d3987f9fd544b19cb',
-    messagingSenderId: '496119517970',
-    projectId: 'automotrizprueba',
-    authDomain: 'automotrizprueba.firebaseapp.com',
-    storageBucket: 'automotrizprueba.firebasestorage.app',
-    measurementId: 'G-7FCRVM61R4',
+    apiKey: 'AIzaSyBt8_gnkchNhFJRSlciwl-25nERVhA0xO8',
+    appId: '1:802711499708:web:4efeb408215328d2b631b9',
+    messagingSenderId: '802711499708',
+    projectId: 'automotrizapp',
+    authDomain: 'automotrizapp.firebaseapp.com',
+    databaseURL: 'https://automotrizapp-default-rtdb.firebaseio.com',
+    storageBucket: 'automotrizapp.firebasestorage.app',
+    measurementId: 'G-M5111MPZDQ',
   );
 }
