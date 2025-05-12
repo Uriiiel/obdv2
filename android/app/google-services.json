@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "802711499708",
+    "firebase_url": "https://automotrizapp-default-rtdb.firebaseio.com",
+    "project_id": "automotrizapp",
+    "storage_bucket": "automotrizapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802711499708:android:01c867e7592d4f34b631b9",
+        "android_client_info": {
+          "package_name": "com.example.car_animation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiDoAPa9lDpSaAZwmQ0RHn7a7M6gq7UCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:802711499708:android:75640bc14ff16f57b631b9",
+        "android_client_info": {
+          "package_name": "com.example.obdv2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDiDoAPa9lDpSaAZwmQ0RHn7a7M6gq7UCU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
