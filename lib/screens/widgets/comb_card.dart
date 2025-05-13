@@ -2,26 +2,24 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:obdv2/core/constants.dart';
 
-class SensorData {
+class CombCard {
   final String nombre;
   final String valor;
 
-  SensorData({required this.nombre, required this.valor});
+  CombCard({required this.nombre, required this.valor});
 }
-
-// === Aquí se puede añadir el servicio Firebase ===
 class SensorService {
-  Stream<List<SensorData>> streamSensores() {
-    final ref = FirebaseDatabase.instance.ref('SensoresMotor');
-    return ref.onValue.map<List<SensorData>>((event) { // Especifica el tipo aquí
+  Stream<List<CombCard>> streamSensores() {
+    final ref = FirebaseDatabase.instance.ref('SensoresCombustible');
+    return ref.onValue.map<List<CombCard>>((event) {
       final data = event.snapshot.value as Map<dynamic, dynamic>?;
 
-      if (data == null) return <SensorData>[]; // Lista explícitamente tipada
+      if (data == null) return <CombCard>[];
 
-      return data.entries.map<SensorData>((entry) { // Tipo en el map interno
-        return SensorData(
+      return data.entries.map<CombCard>((entry) {
+        return CombCard(
           nombre: entry.key.toString(),
-          valor: entry.value.toString(), // Asumiendo que entry.value es el valor directo
+          valor: entry.value.toString(),
         );
       }).toList();
     }).handleError((error) {
@@ -39,16 +37,16 @@ class SensorCard extends StatelessWidget {
   }); 
 
   final bool isBottomTwoTyres;
-  final SensorData sensorData;
+  final CombCard sensorData;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white10, // Cambié la condición de alerta a un color estático
+        color: Colors.white10,
         border: Border.all(
-          color: primaryColor, // Mantengo el color primario para el borde
+          color: primaryColor,
           width: 2,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),

@@ -1,6 +1,7 @@
 import 'package:obdv2/core/constants.dart';
 import 'package:obdv2/core/home_controller.dart';
 import 'package:obdv2/core/model/tyres_model.dart';
+import 'package:obdv2/pages/dashboard/dashboard_page.dart';
 import 'package:obdv2/screens/widgets/battery_status.dart';
 import 'package:obdv2/screens/widgets/button_nav_bar.dart';
 import 'package:obdv2/screens/widgets/door_lock.dart';
@@ -35,6 +36,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   ///
   late AnimationController tempratureAnimationController;
   late Animation<double> carShiftAnimation;
+  late Animation<double> carShiftLeftAnimation;
   late Animation<double> tempratureShowInfoAnimation;
   late Animation<double> temCoolGlowAnimation;
 
@@ -98,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void setupBatteryAnimated() {
     batteryAnimatedController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 500),
+      duration: Duration(milliseconds: 1500),
     );
     batteryAnimation = CurvedAnimation(
       parent: batteryAnimatedController,
@@ -107,6 +109,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     batteryStatusAnimation = CurvedAnimation(
       parent: batteryAnimatedController,
       curve: Interval(0.6, 1),
+    );
+    carShiftLeftAnimation = CurvedAnimation(
+      parent: batteryAnimatedController,
+      curve: const Interval(0, 0.2),
     );
   }
 
@@ -143,6 +149,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         batteryAnimatedController,
         tempratureAnimationController,
         tyresAnimationController,
+        carShiftLeftAnimation,
       ]),
       builder: (context, child) => Scaffold(
         bottomNavigationBar: ButtomNavBar(
@@ -153,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             if (index == 1) {
               batteryAnimatedController.forward();
             } else if (homeController.selectedButtom == 1 && index != 1) {
-              batteryAnimatedController.reverse(from: 0.7);
+              batteryAnimatedController.reverse(from: 0.2);
             }
             // end battery screen contion
             ///
@@ -181,17 +188,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           },
         ),
         body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) => Stack(
+          child: LayoutBuilder(builder: (context, constraints) {
+            // 1) CALCULA variables ANTES de la lista de widgets:
+            final halfWidth = constraints.maxWidth / 2;
+            final shiftRight = halfWidth * carShiftAnimation.value;
+            final shiftLeft = halfWidth * carShiftLeftAnimation.value;
+
+            // 2) Decide el offset en base al botón activo:
+            double leftOffset;
+            if (homeController.selectedButtom == 2) {
+              leftOffset = shiftRight; // Temperatura → derecha
+            } else if (homeController.selectedButtom == 1) {
+              leftOffset = -shiftLeft; // Índice 1 → izquierda
+            } else {
+              leftOffset = 0; // Cualquier otro → centrado
+            }
+            return Stack(
               alignment: Alignment.center,
               children: [
                 SizedBox(
                   height: constraints.maxHeight,
                   width: constraints.maxWidth,
                 ),
-
                 Positioned(
-                  left: constraints.maxWidth / 2 * carShiftAnimation.value,
+                  left: leftOffset,
                   height: constraints.maxHeight,
                   width: constraints.maxWidth,
                   child: Padding(
@@ -199,85 +219,46 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       vertical: constraints.maxHeight * 0.1,
                     ),
                     child: SvgPicture.asset(
+                      ///
                       "assets/icons/Car.svg",
                       width: double.infinity,
                     ),
                   ),
                 ),
+                if (homeController.selectedButtom == 0)
+                Positioned.fill(
+                  child: Opacity(
+                    opacity: 1.0,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 0),
+                      child: DoorLock(),
+                    ),
+                  ),
+                ),
 
-                AnimatedPositioned(
-                  duration: defaultDuration,
-                  right: homeController.selectedButtom == 0
-                      ? constraints.maxWidth * 0.045
-                      : constraints.maxWidth / 2,
-                  child: AnimatedOpacity(
-                    duration: defaultDuration,
-                    opacity: homeController.selectedButtom == 0 ? 1 : 0,
-                    child: DoorLock(
-                      isLock: homeController.isRightDoorLock,
-                      press: homeController.updateRightDoorLock,
-                    ),
-                  ),
-                ),
-                AnimatedPositioned(
-                  duration: defaultDuration,
-                  left: homeController.selectedButtom == 0
-                      ? constraints.maxWidth * 0.045
-                      : constraints.maxWidth / 2,
-                  child: AnimatedOpacity(
-                    duration: defaultDuration,
-                    opacity: homeController.selectedButtom == 0 ? 1 : 0,
-                    child: DoorLock(
-                      isLock: homeController.isLeftDoorLock,
-                      press: homeController.updateLeftDoorLock,
-                    ),
-                  ),
-                ),
-                AnimatedPositioned(
-                  duration: defaultDuration,
-                  top: homeController.selectedButtom == 0
-                      ? constraints.maxHeight * 0.15
-                      : constraints.maxHeight / 2,
-                  child: AnimatedOpacity(
-                    duration: defaultDuration,
-                    opacity: homeController.selectedButtom == 0 ? 1 : 0,
-                    child: DoorLock(
-                      isLock: homeController.isBennetLock,
-                      press: homeController.updateBennetDoorLock,
-                    ),
-                  ),
-                ),
-                AnimatedPositioned(
-                  duration: defaultDuration,
-                  bottom: homeController.selectedButtom == 0
-                      ? constraints.maxHeight * 0.18
-                      : constraints.maxHeight / 2,
-                  child: AnimatedOpacity(
-                    duration: defaultDuration,
-                    opacity: homeController.selectedButtom == 0 ? 1 : 0,
-                    child: DoorLock(
-                      isLock: homeController.isTrunkLock,
-                      press: homeController.updateTrunkLock,
-                    ),
-                  ),
-                ),
 
                 /// Battery screen start here
                 ///
-                Opacity(
-                  opacity: batteryAnimation.value,
-                  child: SvgPicture.asset(
-                    "assets/icons/Battery.svg",
-                    width: constraints.maxWidth * 0.46,
-                  ),
-                ),
+                // Opacity(
+                //   opacity: batteryAnimation.value,
+                //   child: SvgPicture.asset(
+                //     "assets/icons/Battery.svg",
+                //     width: constraints.maxWidth * 0.46,
+                //   ),
+                // ),
                 Positioned(
                   top: 50 * (1 - batteryStatusAnimation.value),
                   height: constraints.maxHeight,
                   width: constraints.maxWidth,
                   child: Opacity(
                     opacity: batteryStatusAnimation.value,
-                    child: BatteryStatus(constraints: constraints),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: BatteryStatus(constraints: constraints),
+                      ),
+                    ),
                   ),
                 ),
 
@@ -318,68 +299,94 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 /// tyre screen start here
                 ///
                 if (homeController.isTyresStatus)
-                  StreamBuilder<List<SensorData>>(
-                    stream: SensorService().streamSensores(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return const Center(
-                            child: Text('Error al cargar sensores'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return const Center(
-                            child: Text('No hay datos disponibles'));
-                      }
+                  Positioned(
+                    child: StreamBuilder<List<SensorData>>(
+                      stream: SensorService().streamSensores(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Error al cargar sensores'));
+                        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No hay datos disponibles'));
+                        }
+                        final sensores = snapshot.data?? [];
+                        final sensoresFiltrados = sensores
+                            .where((sensor) => [
+                                  "Velocidad",
+                                  "RPM",
+                                  "Voltaje",
+                                  "Avance encendido",
+                                  "Carga del motor",
+                                  "Consumo instantáneo combustible",
+                                  "Flujo aire masivo",
+                                  "Presion barometrica",
+                                  "Presión colector admisión",
+                                  "Presión combustible",
+                                  "Temperatura aceite",
+                                  "Temperatura refrigerante",
+                                  "Tmp Funcionamiento", 
+                                  "Valvula admision",
+                                ].contains(sensor.nombre))
+                            .toList();
 
-                      final sensores = snapshot.data!;
-
-                      final sensoresFiltrados = sensores
-                          .where((sensor) => [
-                                "Velocidad",
-                                "RPM",
-                                "Avance encendido",
-                                "Carga del motor",
-                                "Consumo instantáneo combustible",
-                                "Flujo aire masivo",
-                                "Presion barometrica",
-                                "Presión colector admisión",
-                                "Presión combustible"
-                              ].contains(sensor.nombre))
-                          .toList();
-
-                      return GridView.builder(
-                        itemCount: sensoresFiltrados.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,
-                          mainAxisSpacing: 22,
-                          crossAxisSpacing: 20,
-                          childAspectRatio: constraints.maxWidth /
+                        return GridView.builder(
+                          padding: const EdgeInsets.all(8),
+                          physics: const BouncingScrollPhysics(),
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 3,
+                            mainAxisSpacing: 22,
+                            crossAxisSpacing: 20,
+                            childAspectRatio: constraints.maxWidth /
                               constraints.maxHeight /
                               0.9,
-                        ),
-                        itemBuilder: (context, index) {
-                          return ScaleTransition(
-                            scale:
-                                tyresAnimation[index % tyresAnimation.length],
-                            child: SensorCard(
-                              isBottomTwoTyres:
-                                  index >= sensoresFiltrados.length - 3,
-                              sensorData: sensoresFiltrados[index],
-                            ),
-                          );
-                        },
-                      );
-                    },
+                          ),
+                          itemCount: sensoresFiltrados.length,
+                          itemBuilder: (context, index) {
+                            final sensor = sensoresFiltrados[index];
+                            return ScaleTransition(
+                              scale:
+                                  tyresAnimation[index % tyresAnimation.length],
+                              child: InkWell(
+                                onTap: () {
+                                  if (sensor.nombre == 'Velocidad') {
+                                    showDialog(
+                                      context: context,
+                                      barrierColor: Colors.black54,
+                                      builder: (_) => Dialog(
+                                        backgroundColor: Colors.black,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                          side: BorderSide(
+                                              color: primaryColor, width: 2),
+                                        ),
+                                        insetPadding: EdgeInsets.all(20),
+                                        child: SpeedometerPage(sensor: sensor),
+                                      ),
+                                    );
+                                  }
+                                  // else if (sensor.nombre == 'RPM') { ... }
+                                },
+                                child: SensorCard(
+                                  isBottomTwoTyres:
+                                      index >= sensoresFiltrados.length - 3,
+                                  sensorData: sensor,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
                   ),
-
                 /// tyre screen end here
                 ///
                 ///
               ],
-            ),
-          ),
+            );
+          }),
         ),
       ),
     );

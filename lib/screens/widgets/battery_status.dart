@@ -10,87 +10,79 @@ class BatteryStatus extends StatefulWidget {
 }
 
 class _BatteryStatusState extends State<BatteryStatus> {
-  String voltage = "Cargando...";
+  String voltage = "...";
+  final Map<String, String> oxygenValues = {
+    'Sensor oxigeno-B1S1': '...',
+    'Sensor oxigeno-B1S2': '...',
+    'Sensor oxigeno-B1S3': '...',
+    'Sensor oxigeno-B1S4': '...',
+    'Sensor oxigeno-B2S1': '...',
+    'Sensor oxigeno-B2S2': '...',
+    'Sensor oxigeno-B2S3': '...',
+    'Sensor oxigeno-B2S4': '...',
+  };
 
   @override
   void initState() {
     super.initState();
     _getVoltage();
+    _listenOxygen();
   }
 
   void _getVoltage() {
-    final dbRef = FirebaseDatabase.instance.ref('/SensoresMotor/Voltaje');
-    dbRef.onValue.listen((event) {
-      final data = event.snapshot.value;
+    FirebaseDatabase.instance
+        .ref('/SensoresMotor/Voltaje')
+        .onValue
+        .listen((event) {
       setState(() {
-        voltage = data.toString() + " V";
+        voltage = event.snapshot.value.toString();
       });
     });
   }
 
+  void _listenOxygen() {
+    final db = FirebaseDatabase.instance.ref('SensoresOxigeno');
+    for (var key in oxygenValues.keys) {
+      db.child(key).onValue.listen((event) {
+        setState(() {
+          oxygenValues[key] = event.snapshot.value.toString();
+        });
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(25),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildDetail('Voltaje', '$voltage V', big: true),
+          const SizedBox(height: 20),
+          // luego todos los sensores de oxígeno
+          ...oxygenValues.entries.map((e) {
+            return _buildDetail(e.key, e.value +' V', big: false);
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetail(String label, String value, {bool big = false}) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
+        Text(label),
         Text(
-            "Voltaje",
-          ),
-        Text(
-          voltage,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 35,
+          value,
+          style: TextStyle(
+            fontSize: big ? 70 : 25,
             fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
         ),
-        // Text(
-        //   "65%",
-        //   style: TextStyle(
-        //     color: Colors.white,
-        //     fontSize: 25,
-        //     fontWeight: FontWeight.w600,
-        //   ),
-        // ),
-        Spacer(),
-        // Text(
-        //   "Charging".toUpperCase(),
-        //   style: TextStyle(
-        //     color: Colors.white,
-        //     fontSize: 20,
-        //     fontWeight: FontWeight.w500,
-        //   ),
-        // ),
-        // Text(
-        //   "25 min remaining",
-        //   style: TextStyle(
-        //     color: Colors.white,
-        //     fontSize: 20,
-        //     fontWeight: FontWeight.bold,
-        //   ),
-        // ),
-        SizedBox(height: widget.constraints.maxHeight * 0.13),
-        Row(
-          children: [
-            // Text(
-            //   "25 min/hr",
-            //   style: TextStyle(
-            //     color: Colors.white,
-            //     fontSize: 20,
-            //     fontWeight: FontWeight.w800,
-            //   ),
-            // ),
-            // Spacer(),
-            // Text(
-            //   "220 V",
-            //   style: TextStyle(
-            //     color: Colors.white,
-            //     fontSize: 20,
-            //     fontWeight: FontWeight.w800,
-            //   ),
-            // ),
-          ],
-        ),
-        SizedBox(height: widget.constraints.maxHeight * 0.03),
+        const SizedBox(height: 10),
       ],
     );
   }

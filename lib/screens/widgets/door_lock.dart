@@ -1,35 +1,61 @@
-import 'package:obdv2/core/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:obdv2/screens/widgets/comb_card.dart';
 
 class DoorLock extends StatelessWidget {
-  const DoorLock({super.key, required this.press, required this.isLock});
-
-  final VoidCallback press;
-  final bool isLock;
+  const DoorLock({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: press,
-      // animation lock and unlock switch
-      child: AnimatedSwitcher(
-        duration: defaultDuration,
-        switchInCurve: Curves.easeInOutBack,
-        transitionBuilder: (child, animation) {
-          return ScaleTransition(scale: animation, child: child);
-        },
-        child:
-            isLock
-                ? SvgPicture.asset(
-                  "assets/icons/door_lock.svg",
-                  key: ValueKey("lock"),
-                )
-                : SvgPicture.asset(
-                  "assets/icons/door_unlock.svg",
-                  key: ValueKey("unlock"),
-                ),
-      ),
-    );
+    return LayoutBuilder(builder: (context, constraints) {
+      // Márgenes iguales a HomeScreen
+      final horizontalMargin = 1.0;
+      final usableWidth = constraints.maxWidth - horizontalMargin * 2;
+      const desiredCardHeight = 205.0;
+      // Calcula el ancho de cada card
+      final cardWidth = (usableWidth - 2 * 20) / 3;
+      final aspect = cardWidth / desiredCardHeight;
+
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalMargin, vertical: 8),
+        child: StreamBuilder<List<CombCard>>(
+          stream: SensorService().streamSensores(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final datos = snapshot.data!
+                .where((s) => [
+                      "Consumo instantáneo de combustible",
+                      "Estado del sistema de combustible",
+                      "Nivel de combustible",
+                      "Porcentaje etanol en combustible",
+                      "Presion Riel combustible directa",
+                      "Presion Riel combustible relativa",
+                      "Presión de la bomba de combustible",
+                      "Tipo combustible",
+                    ].contains(s.nombre))
+                .toList();
+
+            return GridView.builder(
+              padding: EdgeInsets.zero,
+              physics: const BouncingScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 22,
+                crossAxisSpacing: 20,
+                childAspectRatio: aspect,
+              ),
+              itemCount: datos.length,
+              itemBuilder: (context, i) {
+                return SensorCard(
+                  isBottomTwoTyres: i >= datos.length - 3,
+                  sensorData: datos[i],
+                );
+              },
+            );
+          },
+        ),
+      );
+    });
   }
 }
