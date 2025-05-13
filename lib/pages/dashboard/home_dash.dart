@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:obdv2/pages/dashboard/dashComb_page.dart';
 import 'package:obdv2/pages/dashboard/dashOx_page.dart';
 import 'package:obdv2/pages/dashboard/dashboard_page.dart';
+import 'package:obdv2/pages/home_page.dart';
 
-final Color colorPrimary = Color(0xFF007AFF); // Azul principal
-final Color colorSecondary = Color(0xFF1E90FF); // Azul más claro
+final Color colorPrimary = Color(0xFF000000);
+final Color colorSecondary = Color(0xFF3F3F3F);
+final Color backgroundColor = Color(0xFF282728);
 
 class HomeDash extends StatelessWidget {
   @override
@@ -15,61 +17,95 @@ class HomeDash extends StatelessWidget {
           'SENSORES',
           style: TextStyle(color: Colors.white),
         ),
+        centerTitle: true,
         backgroundColor: colorPrimary,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage(user: null)),
+            );
+          },
+        ),
       ),
+      backgroundColor: backgroundColor,
       body: LayoutBuilder(
         builder: (context, constraints) {
-          double buttonWidth = constraints.maxWidth * 0.8;
-          double buttonHeight = constraints.maxHeight * 0.15;
+          // Tamaños ajustables para los GIFs
+          double gifWidth = 150.0;
+          double gifHeight = 150.0;
+
+          // Ancho de los botones basado en el espacio disponible
+          double buttonWidth = constraints.maxWidth * 0.28;
+          double buttonHeight = constraints.maxHeight * 0.25;
 
           return Center(
+            // Envuelve todo en un Center
             child: SingleChildScrollView(
-              // Evita desbordamiento
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment:
+                      MainAxisAlignment.center, // Centra verticalmente
                   children: [
-                    _HomeButton(
-                      icon: Icons.settings,
-                      label: 'Sensores del motor',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SpeedometerPage()),
-                        );
-                      },
-                      width: buttonWidth,
-                      height: buttonHeight,
-                    ),
-                    SizedBox(height: 16),
-                    _HomeButton(
-                      icon: Icons.air,
-                      label: 'Sensores de oxígeno',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DashboardOxPage()),
-                        );
-                      },
-                      width: buttonWidth,
-                      height: buttonHeight,
-                    ),
-                    SizedBox(height: 16),
-                    _HomeButton(
-                      icon: Icons.oil_barrel,
-                      label: 'Sensores de combustible',
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => DashboardCombPage()),
-                        );
-                      },
-                      width: buttonWidth,
-                      height: buttonHeight,
+                    IntrinsicWidth(
+                      // Asegura que el Row solo ocupe el espacio necesario
+                      child: Row(
+                        mainAxisAlignment:
+                            MainAxisAlignment.center, // Centra horizontalmente
+                        mainAxisSize:
+                            MainAxisSize.min, // Ocupa solo el espacio necesario
+                        children: [
+                          _HomeButton(
+                            gifAsset: 'assets/images/engranaje.gif',
+                            label: 'Sensores del motor',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => SpeedometerPage()),
+                              );
+                            },
+                            width: buttonWidth,
+                            height: buttonHeight,
+                            gifWidth: gifWidth,
+                            gifHeight: gifHeight,
+                          ),
+                          SizedBox(width: 16), // Espacio entre botones
+                          _HomeButton(
+                            gifAsset: 'assets/images/200w.gif',
+                            label: 'Sensores de oxígeno',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DashboardOxPage()),
+                              );
+                            },
+                            width: buttonWidth,
+                            height: buttonHeight,
+                            gifWidth: gifWidth,
+                            gifHeight: gifHeight,
+                          ),
+                          SizedBox(width: 16), // Espacio entre botones
+                          _HomeButton(
+                            gifAsset: 'assets/images/gas.gif',
+                            label: 'Sensores de combustible',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => DashboardCombPage()),
+                              );
+                            },
+                            width: buttonWidth,
+                            height: buttonHeight,
+                            gifWidth: gifWidth,
+                            gifHeight: gifHeight,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -83,18 +119,22 @@ class HomeDash extends StatelessWidget {
 }
 
 class _HomeButton extends StatelessWidget {
-  final IconData icon;
+  final String gifAsset;
   final String label;
   final VoidCallback onTap;
   final double width;
   final double height;
+  final double gifWidth;
+  final double gifHeight;
 
   const _HomeButton({
-    required this.icon,
+    required this.gifAsset,
     required this.label,
     required this.onTap,
     required this.width,
     required this.height,
+    required this.gifWidth,
+    required this.gifHeight,
     Key? key,
   }) : super(key: key);
 
@@ -105,7 +145,7 @@ class _HomeButton extends StatelessWidget {
       child: Container(
         width: width,
         height: height,
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: colorSecondary,
           borderRadius: BorderRadius.circular(12),
@@ -119,14 +159,24 @@ class _HomeButton extends StatelessWidget {
           ],
         ),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Icon(
-              icon,
-              size: 40,
-              color: Colors.white,
+            Image.asset(
+              gifAsset,
+              width: gifWidth, // Usa el ancho personalizado
+              height: gifHeight, // Usa el alto personalizado
+              fit: BoxFit.contain,
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (frame == null) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  );
+                }
+                return child;
+              },
             ),
-            const SizedBox(height: 8),
             Text(
               label,
               style: const TextStyle(
@@ -135,6 +185,7 @@ class _HomeButton extends StatelessWidget {
                 color: Colors.white,
               ),
               textAlign: TextAlign.center,
+              maxLines: 2,
             ),
           ],
         ),

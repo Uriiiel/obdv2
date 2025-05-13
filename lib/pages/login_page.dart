@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
                             });
                           },
                         ),
-                        labelText: 'Contraseñass',
+                        labelText: 'Contraseña',
                         labelStyle: TextStyle(color: Colors.white),
                         filled: true,
                         fillColor: Colors.white.withOpacity(0.1),

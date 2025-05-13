@@ -7,7 +7,8 @@ import 'package:obdv2/pages/login_page.dart';
 import 'package:video_player/video_player.dart';
 
 final Color colorPrimary = Color(0xFF000000);
-final Color colorSecondary = Color(0xFF2B2B2B);
+final Color colorSecondary =
+    Color(0xFF3F3F3F); // Cambiado a FF para opacidad completa
 
 class HomePage extends StatefulWidget {
   final dynamic user;
@@ -52,11 +53,33 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Monitoreo OBD',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+        title: Row(
+          children: [
+            Image.asset(
+              'assets/images/carred.png',
+              height: 150, // Reducí el tamaño para que quede mejor en el AppBar
+              width: 150,
+              fit: BoxFit.contain,
+            ),
+            Expanded(
+              child: Center(
+                child: Text(
+                  'Monitoreo OBD',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(
+                width:
+                    48), // Espacio equivalente al ancho de los iconos de acción
+          ],
         ),
         backgroundColor: colorPrimary,
+        automaticallyImplyLeading:
+            false, // Esto elimina el espacio del ícono de retroceso si lo hubiera
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -134,7 +157,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      backgroundColor: Color(0xFF282728), // Cambiado a 0xFF282728
+      backgroundColor: Color(0xFF282728),
     );
   }
 }
@@ -167,12 +190,13 @@ class _HomeButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: colorSecondary,
             borderRadius: BorderRadius.circular(12),
+            // Eliminado el BoxShadow o reducido significativamente
             boxShadow: [
               BoxShadow(
-                color: Colors.black26,
-                blurRadius: 5,
-                spreadRadius: 1,
-                offset: Offset(2, 3),
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 2, // Reducido el blur
+                spreadRadius: 0.5, // Reducido el spread
+                offset: Offset(1, 1), // Reducido el offset
               ),
             ],
           ),
