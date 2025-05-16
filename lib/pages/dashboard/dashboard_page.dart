@@ -978,146 +978,146 @@
 // //     );
 // //   }
 
-// //   Widget buildRpmGauge() {
-// //     return ValueListenableBuilder<double>(
-// //       valueListenable: _rpmNotifier,
-// //       builder: (context, rpm, child) {
-// //         if (rpm == -1) {
-// //           return Center(
-// //             child: Text(
-// //               "No soportado",
-// //               style: TextStyle(
-// //                 fontSize: 40,
-// //                 color: Colors.red,
-// //                 fontWeight: FontWeight.bold,
-// //               ),
-// //             ),
-// //           );
-// //         }
-// //         return SfRadialGauge(
-// //           axes: <RadialAxis>[
-// //             RadialAxis(
-// //               startAngle: 140,
-// //               endAngle: 40,
-// //               minimum: 0,
-// //               maximum: 8000,
-// //               radiusFactor: 0.9,
-// //               majorTickStyle: const MajorTickStyle(
-// //                 length: 12,
-// //                 thickness: 2,
-// //                 color: Colors.black,
-// //               ),
-// //               minorTicksPerInterval: 4,
-// //               minorTickStyle: const MinorTickStyle(
-// //                 length: 6,
-// //                 thickness: 1,
-// //                 color: Colors.grey,
-// //               ),
-// //               axisLineStyle: const AxisLineStyle(
-// //                 thickness: 15,
-// //                 gradient: SweepGradient(
-// //                   colors: [
-// //                     Colors.green,
-// //                     Colors.yellow,
-// //                     Colors.orange,
-// //                     Colors.red,
-// //                   ],
-// //                   stops: [0.25, 0.5, 0.75, 1],
-// //                 ),
-// //               ),
-// //               axisLabelStyle: const GaugeTextStyle(
-// //                 fontSize: 14,
-// //                 color: Colors.black,
-// //               ),
-// //               pointers: <GaugePointer>[
-// //                 NeedlePointer(
-// //                   value: rpm,
-// //                   enableAnimation: true,
-// //                   animationType: AnimationType.easeOutBack,
-// //                   needleColor: Colors.red,
-// //                   needleStartWidth: 1,
-// //                   needleEndWidth: 5,
-// //                   needleLength: 0.75,
-// //                   animationDuration: 2000,
-// //                   gradient: const LinearGradient(
-// //                     colors: [
-// //                       Colors.white,
-// //                       Colors.red,
-// //                     ],
-// //                   ),
-// //                   knobStyle: KnobStyle(
-// //                     color: Colors.transparent,
-// //                     borderColor: Colors.blue.withAlpha(100),
-// //                     borderWidth: 1,
-// //                   ),
-// //                 ),
-// //               ],
-// //               ranges: [
-// //                 GaugeRange(
-// //                   startValue: 0,
-// //                   endValue: 2000,
-// //                   color: Colors.green,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //                 GaugeRange(
-// //                   startValue: 2000,
-// //                   endValue: 5000,
-// //                   color: Colors.yellow,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //                 GaugeRange(
-// //                   startValue: 5000,
-// //                   endValue: 7000,
-// //                   color: Colors.orange,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //                 GaugeRange(
-// //                   startValue: 7000,
-// //                   endValue: 8000,
-// //                   color: Colors.red,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //               ],
-// //               annotations: [
-// //                 GaugeAnnotation(
-// //                   widget: Column(
-// //                     children: [
-// //                       const SizedBox(height: 180),
-// //                       Text(rpm.toStringAsFixed(0),
-// //                           style: TextStyle(
-// //                             fontSize: 50,
-// //                             fontWeight: FontWeight.bold,
-// //                             color: Colors.teal,
-// //                             shadows: [
-// //                               Shadow(
-// //                                 color: Colors.white,
-// //                                 blurRadius: 20,
-// //                               ),
-// //                             ],
-// //                           )),
-// //                       const Text(
-// //                         "RPM",
-// //                         style: TextStyle(
-// //                           fontSize: 18,
-// //                           color: Colors.black,
-// //                         ),
-// //                       ),
-// //                     ],
-// //                   ),
-// //                   angle: 90,
-// //                   positionFactor: 0.75,
-// //                 )
-// //               ],
-// //             ),
-// //           ],
-// //         );
-// //       },
-// //     );
-// //   }
+// Widget buildRpmGauge() {
+//   return ValueListenableBuilder<double>(
+//     valueListenable: _rpmNotifier,
+//     builder: (context, rpm, child) {
+//       if (rpm == -1) {
+//         return Center(
+//           child: Text(
+//             "No soportado",
+//             style: TextStyle(
+//               fontSize: 40,
+//               color: Colors.red,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//         );
+//       }
+//       return SfRadialGauge(
+//         axes: <RadialAxis>[
+//           RadialAxis(
+//             startAngle: 140,
+//             endAngle: 40,
+//             minimum: 0,
+//             maximum: 8000,
+//             radiusFactor: 0.9,
+//             majorTickStyle: const MajorTickStyle(
+//               length: 12,
+//               thickness: 2,
+//               color: Colors.black,
+//             ),
+//             minorTicksPerInterval: 4,
+//             minorTickStyle: const MinorTickStyle(
+//               length: 6,
+//               thickness: 1,
+//               color: Colors.grey,
+//             ),
+//             axisLineStyle: const AxisLineStyle(
+//               thickness: 15,
+//               gradient: SweepGradient(
+//                 colors: [
+//                   Colors.green,
+//                   Colors.yellow,
+//                   Colors.orange,
+//                   Colors.red,
+//                 ],
+//                 stops: [0.25, 0.5, 0.75, 1],
+//               ),
+//             ),
+//             axisLabelStyle: const GaugeTextStyle(
+//               fontSize: 14,
+//               color: Colors.black,
+//             ),
+//             pointers: <GaugePointer>[
+//               NeedlePointer(
+//                 value: rpm,
+//                 enableAnimation: true,
+//                 animationType: AnimationType.easeOutBack,
+//                 needleColor: Colors.red,
+//                 needleStartWidth: 1,
+//                 needleEndWidth: 5,
+//                 needleLength: 0.75,
+//                 animationDuration: 2000,
+//                 gradient: const LinearGradient(
+//                   colors: [
+//                     Colors.white,
+//                     Colors.red,
+//                   ],
+//                 ),
+//                 knobStyle: KnobStyle(
+//                   color: Colors.transparent,
+//                   borderColor: Colors.blue.withAlpha(100),
+//                   borderWidth: 1,
+//                 ),
+//               ),
+//             ],
+//             ranges: [
+//               GaugeRange(
+//                 startValue: 0,
+//                 endValue: 2000,
+//                 color: Colors.green,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//               GaugeRange(
+//                 startValue: 2000,
+//                 endValue: 5000,
+//                 color: Colors.yellow,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//               GaugeRange(
+//                 startValue: 5000,
+//                 endValue: 7000,
+//                 color: Colors.orange,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//               GaugeRange(
+//                 startValue: 7000,
+//                 endValue: 8000,
+//                 color: Colors.red,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//             ],
+//             annotations: [
+//               GaugeAnnotation(
+//                 widget: Column(
+//                   children: [
+//                     const SizedBox(height: 180),
+//                     Text(rpm.toStringAsFixed(0),
+//                         style: TextStyle(
+//                           fontSize: 50,
+//                           fontWeight: FontWeight.bold,
+//                           color: Colors.teal,
+//                           shadows: [
+//                             Shadow(
+//                               color: Colors.white,
+//                               blurRadius: 20,
+//                             ),
+//                           ],
+//                         )),
+//                     const Text(
+//                       "RPM",
+//                       style: TextStyle(
+//                         fontSize: 18,
+//                         color: Colors.black,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 angle: 90,
+//                 positionFactor: 0.75,
+//               )
+//             ],
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
 
 // //   Widget buildTempAceiteGauge() {
 // //     return ValueListenableBuilder<double>(
@@ -1474,148 +1474,148 @@
 // //     );
 // //   }
 
-// //   Widget buildSpeedGauge() {
-// //     return ValueListenableBuilder<double>(
-// //       valueListenable: _velocidadNotifier,
-// //       builder: (context, velocidad, child) {
-// //         if (velocidad == -1) {
-// //           return Center(
-// //             child: Text(
-// //               "No soportado",
-// //               style: TextStyle(
-// //                 fontSize: 40,
-// //                 color: Colors.red,
-// //                 fontWeight: FontWeight.bold,
-// //               ),
-// //             ),
-// //           );
-// //         }
-// //         return SfRadialGauge(
-// //           axes: <RadialAxis>[
-// //             RadialAxis(
-// //               startAngle: 140,
-// //               endAngle: 40,
-// //               minimum: 0,
-// //               maximum: 240,
-// //               radiusFactor: 0.9,
-// //               majorTickStyle: const MajorTickStyle(
-// //                 length: 12,
-// //                 thickness: 2,
-// //                 color: Colors.black,
-// //               ),
-// //               minorTicksPerInterval: 4,
-// //               minorTickStyle: const MinorTickStyle(
-// //                 length: 6,
-// //                 thickness: 1,
-// //                 color: Colors.grey,
-// //               ),
-// //               axisLineStyle: const AxisLineStyle(
-// //                 thickness: 15,
-// //                 gradient: SweepGradient(
-// //                   colors: [
-// //                     Colors.green,
-// //                     Colors.yellow,
-// //                     Colors.orange,
-// //                     Colors.red,
-// //                   ],
-// //                   stops: [0.25, 0.5, 0.75, 1],
-// //                 ),
-// //               ),
-// //               axisLabelStyle: const GaugeTextStyle(
-// //                 fontSize: 14,
-// //                 color: Colors.black,
-// //               ),
-// //               pointers: <GaugePointer>[
-// //                 NeedlePointer(
-// //                   value: velocidad,
-// //                   enableAnimation: true,
-// //                   animationType: AnimationType.easeOutBack,
-// //                   needleColor: Colors.red,
-// //                   needleStartWidth: 1,
-// //                   needleEndWidth: 5,
-// //                   needleLength: 0.75,
-// //                   animationDuration: 2000,
-// //                   gradient: const LinearGradient(
-// //                     colors: [
-// //                       Colors.white,
-// //                       Colors.red,
-// //                     ],
-// //                   ),
-// //                   knobStyle: KnobStyle(
-// //                     color: Colors.transparent,
-// //                     borderColor: Colors.blue.withAlpha(100),
-// //                     borderWidth: 1,
-// //                   ),
-// //                 ),
-// //               ],
-// //               ranges: [
-// //                 GaugeRange(
-// //                   startValue: 0,
-// //                   endValue: 30,
-// //                   color: Colors.pink,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //                 GaugeRange(
-// //                   startValue: 30,
-// //                   endValue: 80,
-// //                   color: Colors.green,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //                 GaugeRange(
-// //                   startValue: 80,
-// //                   endValue: 160,
-// //                   color: Colors.amber,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //                 GaugeRange(
-// //                   startValue: 160,
-// //                   endValue: 240,
-// //                   color: Colors.red,
-// //                   startWidth: 15,
-// //                   endWidth: 15,
-// //                 ),
-// //               ],
-// //               annotations: [
-// //                 GaugeAnnotation(
-// //                   widget: Column(
-// //                     children: [
-// //                       const SizedBox(height: 180),
-// //                       Text(
-// //                         velocidad.toStringAsFixed(0),
-// //                         style: const TextStyle(
-// //                           fontSize: 50,
-// //                           fontWeight: FontWeight.bold,
-// //                           color: Colors.teal,
-// //                           shadows: [
-// //                             Shadow(
-// //                               color: Colors.white,
-// //                               blurRadius: 20,
-// //                             ),
-// //                           ],
-// //                         ),
-// //                       ),
-// //                       const Text(
-// //                         "km/h",
-// //                         style: TextStyle(
-// //                           fontSize: 18,
-// //                           color: Colors.black,
-// //                         ),
-// //                       ),
-// //                     ],
-// //                   ),
-// //                   angle: 90,
-// //                   positionFactor: 0.75,
-// //                 )
-// //               ],
-// //             ),
-// //           ],
-// //         );
-// //       },
-// //     );
-// //   }
+// Widget buildSpeedGauge() {
+//   return ValueListenableBuilder<double>(
+//     valueListenable: _velocidadNotifier,
+//     builder: (context, velocidad, child) {
+//       if (velocidad == -1) {
+//         return Center(
+//           child: Text(
+//             "No soportado",
+//             style: TextStyle(
+//               fontSize: 40,
+//               color: Colors.red,
+//               fontWeight: FontWeight.bold,
+//             ),
+//           ),
+//         );
+//       }
+//       return SfRadialGauge(
+//         axes: <RadialAxis>[
+//           RadialAxis(
+//             startAngle: 140,
+//             endAngle: 40,
+//             minimum: 0,
+//             maximum: 240,
+//             radiusFactor: 0.9,
+//             majorTickStyle: const MajorTickStyle(
+//               length: 12,
+//               thickness: 2,
+//               color: Colors.black,
+//             ),
+//             minorTicksPerInterval: 4,
+//             minorTickStyle: const MinorTickStyle(
+//               length: 6,
+//               thickness: 1,
+//               color: Colors.grey,
+//             ),
+//             axisLineStyle: const AxisLineStyle(
+//               thickness: 15,
+//               gradient: SweepGradient(
+//                 colors: [
+//                   Colors.green,
+//                   Colors.yellow,
+//                   Colors.orange,
+//                   Colors.red,
+//                 ],
+//                 stops: [0.25, 0.5, 0.75, 1],
+//               ),
+//             ),
+//             axisLabelStyle: const GaugeTextStyle(
+//               fontSize: 14,
+//               color: Colors.black,
+//             ),
+//             pointers: <GaugePointer>[
+//               NeedlePointer(
+//                 value: velocidad,
+//                 enableAnimation: true,
+//                 animationType: AnimationType.easeOutBack,
+//                 needleColor: Colors.red,
+//                 needleStartWidth: 1,
+//                 needleEndWidth: 5,
+//                 needleLength: 0.75,
+//                 animationDuration: 2000,
+//                 gradient: const LinearGradient(
+//                   colors: [
+//                     Colors.white,
+//                     Colors.red,
+//                   ],
+//                 ),
+//                 knobStyle: KnobStyle(
+//                   color: Colors.transparent,
+//                   borderColor: Colors.blue.withAlpha(100),
+//                   borderWidth: 1,
+//                 ),
+//               ),
+//             ],
+//             ranges: [
+//               GaugeRange(
+//                 startValue: 0,
+//                 endValue: 30,
+//                 color: Colors.pink,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//               GaugeRange(
+//                 startValue: 30,
+//                 endValue: 80,
+//                 color: Colors.green,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//               GaugeRange(
+//                 startValue: 80,
+//                 endValue: 160,
+//                 color: Colors.amber,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//               GaugeRange(
+//                 startValue: 160,
+//                 endValue: 240,
+//                 color: Colors.red,
+//                 startWidth: 15,
+//                 endWidth: 15,
+//               ),
+//             ],
+//             annotations: [
+//               GaugeAnnotation(
+//                 widget: Column(
+//                   children: [
+//                     const SizedBox(height: 180),
+//                     Text(
+//                       velocidad.toStringAsFixed(0),
+//                       style: const TextStyle(
+//                         fontSize: 50,
+//                         fontWeight: FontWeight.bold,
+//                         color: Colors.teal,
+//                         shadows: [
+//                           Shadow(
+//                             color: Colors.white,
+//                             blurRadius: 20,
+//                           ),
+//                         ],
+//                       ),
+//                     ),
+//                     const Text(
+//                       "km/h",
+//                       style: TextStyle(
+//                         fontSize: 18,
+//                         color: Colors.black,
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//                 angle: 90,
+//                 positionFactor: 0.75,
+//               )
+//             ],
+//           ),
+//         ],
+//       );
+//     },
+//   );
+// }
 
 // //   Widget buildVoltajeGauge() {
 // //     return ValueListenableBuilder<double>(
@@ -1782,12 +1782,12 @@
 // //                   color: Colors.white,
 // //                   borderRadius: BorderRadius.circular(12),
 // //                   border: Border.all(
-// //                       color: Colors.blueAccent, width: 2), 
+// //                       color: Colors.blueAccent, width: 2),
 // //                   boxShadow: [
 // //                     BoxShadow(
 // //                       color: Colors.black26,
 // //                       blurRadius: 4,
-// //                       offset: Offset(2, 2), 
+// //                       offset: Offset(2, 2),
 // //                     ),
 // //                   ],
 // //                 ),
@@ -1849,161 +1849,168 @@
 // //   }
 // // }
 
-
 // import 'package:flutter/material.dart';
 // import 'package:syncfusion_flutter_gauges/gauges.dart';
-// import 'package:firebase_database/firebase_database.dart';
-// import 'package:obdv2/screens/widgets/tyres_psi_card.dart';
-// import 'package:obdv2/core/constants.dart';
 
-// class SpeedometerPage extends StatefulWidget {
-//   final SensorData sensor;
-//   const SpeedometerPage({Key? key, required this.sensor}) : super(key: key);
+// class SpeedometerPage extends StatelessWidget {
+//   final double value;
+//   final String title;
+//   final String unit;
+//   final double maxValue;
 
-//   @override
-//   _SpeedometerPageState createState() => _SpeedometerPageState();
-// }
-
-// class _SpeedometerPageState extends State<SpeedometerPage> {
-//   final ValueNotifier<double> _velocidadNotifier = ValueNotifier(-1);
-
-//   @override
-//   // void initState() {
-//   //   super.initState();
-//   //   // Escucha solo la ruta "Velocidad"
-//   //   FirebaseDatabase.instance
-//   //       .ref('SensoresMotor/Velocidad')
-//   //       .onValue
-//   //       .listen((e) {
-//   //     final v = double.tryParse(e.snapshot.value.toString()) ?? -1;
-//   //     _velocidadNotifier.value = v;
-//   //   });
-//   // }
+//   const SpeedometerPage({
+//     super.key,
+//     required this.value,
+//     required this.title,
+//     required this.unit,
+//     required this.maxValue,
+//   });
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Dialog(
-//       backgroundColor: Colors.transparent,
-//       insetPadding: EdgeInsets.all(24),
+//       backgroundColor: Colors.black.withOpacity(0.9),
+//       insetPadding: const EdgeInsets.all(20),
 //       child: Container(
 //         padding: const EdgeInsets.all(16),
 //         child: Column(
+//           mainAxisSize: MainAxisSize.min,
 //           children: [
 //             Row(
 //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
 //               children: [
-//                 Text(widget.sensor.nombre,
-//                     style:
-//                         TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+//                 Text(
+//                   title,
+//                   style: const TextStyle(
+//                     fontSize: 24,
+//                     color: Colors.white,
+//                     fontWeight: FontWeight.bold,
+//                   ),
+//                 ),
 //                 IconButton(
-//                   icon: Icon(Icons.close),
+//                   icon: const Icon(Icons.close, color: Colors.white),
 //                   onPressed: () => Navigator.of(context).pop(),
 //                 ),
 //               ],
 //             ),
-            
 //             SizedBox(
 //               width: 300,
 //               height: 300,
-              
-//               child: ValueListenableBuilder<double>(
-//                 valueListenable: _velocidadNotifier,
-//                 builder: (context, velocidad, _) {
-//                   // if (velocidad < 0) {
-//                   //   return Center(
-//                   //     child: Text(
-//                   //       "No soportado",
-//                   //       style: TextStyle(fontSize: 24, color: Colors.red),
-//                   //     ),
-//                   //   );
-//                   // }
-//                   return SfRadialGauge(
-//                     axes: <RadialAxis>[
-//                       RadialAxis(
-//                         startAngle: 140,
-//                         endAngle: 40,
-//                         minimum: 0,
-//                         maximum: 240,
-//                         radiusFactor: 0.9,
-//                         majorTickStyle:
-//                             const MajorTickStyle(length: 12, thickness: 2),
-//                         minorTicksPerInterval: 4,
-//                         minorTickStyle:
-//                             const MinorTickStyle(length: 6, thickness: 1),
-//                         axisLineStyle: const AxisLineStyle(
-//                           thickness: 15,
-//                           gradient: SweepGradient(
-//                             colors: [
-//                               Colors.green,
-//                               Colors.yellow,
-//                               Colors.orange,
-//                               Colors.red,
-//                             ],
-//                             stops: [0.25, 0.5, 0.75, 1],
-//                           ),
+//               child: SfRadialGauge(
+//                 axes: <RadialAxis>[
+//                   RadialAxis(
+//                     startAngle: 140,
+//                     endAngle: 40,
+//                     minimum: 0,
+//                     maximum: maxValue,
+//                     radiusFactor: 0.9,
+//                     majorTickStyle: const MajorTickStyle(
+//                       length: 12,
+//                       thickness: 2,
+//                       color: Colors.black,
+//                     ),
+//                     minorTicksPerInterval: 4,
+//                     minorTickStyle: const MinorTickStyle(
+//                       length: 6,
+//                       thickness: 1,
+//                       color: Colors.grey,
+//                     ),
+//                     axisLineStyle: const AxisLineStyle(
+//                       thickness: 15,
+//                       gradient: SweepGradient(
+//                         colors: [
+//                           Colors.green,
+//                           Colors.yellow,
+//                           Colors.orange,
+//                           Colors.red,
+//                         ],
+//                         stops: [0.25, 0.5, 0.75, 1],
+//                       ),
+//                     ),
+//                     pointers: <GaugePointer>[
+//                       NeedlePointer(
+//                         value: value.clamp(0, maxValue),
+//                         enableAnimation: true,
+//                         animationType: AnimationType.easeOutBack,
+//                         needleColor: Colors.red,
+//                         needleStartWidth: 1,
+//                         needleEndWidth: 5,
+//                         needleLength: 0.75,
+//                         animationDuration: 2000,
+//                         gradient: const LinearGradient(
+//                           colors: [Colors.white, Colors.red],
 //                         ),
-//                         pointers: <GaugePointer>[
-//                           NeedlePointer(
-//                             value: velocidad,
-//                             enableAnimation: true,
-//                             needleColor: Colors.red,
-//                             needleStartWidth: 1,
-//                             needleEndWidth: 5,
-//                             needleLength: 0.75,
-//                             animationDuration: 1500,
-//                             animationType: AnimationType.ease,
-//                           ),
-//                         ],
-//                         ranges: <GaugeRange>[
-//                           GaugeRange(
-//                               startValue: 0,
-//                               endValue: 30,
-//                               color: Colors.pink,
-//                               startWidth: 15,
-//                               endWidth: 15),
-//                           GaugeRange(
-//                               startValue: 30,
-//                               endValue: 80,
-//                               color: Colors.green,
-//                               startWidth: 15,
-//                               endWidth: 15),
-//                           GaugeRange(
-//                               startValue: 80,
-//                               endValue: 160,
-//                               color: Colors.amber,
-//                               startWidth: 15,
-//                               endWidth: 15),
-//                           GaugeRange(
-//                               startValue: 160,
-//                               endValue: 240,
-//                               color: Colors.red,
-//                               startWidth: 15,
-//                               endWidth: 15),
-//                         ],
-//                         annotations: <GaugeAnnotation>[
-//                           GaugeAnnotation(
-//                             widget: Column(
-//                               children: [
-//                                 SizedBox(height: 180),
-//                                 Text(
-//                                   velocidad.toStringAsFixed(0),
-//                                   style: const TextStyle(
-//                                       fontSize: 50,
-//                                       fontWeight: FontWeight.bold,
-//                                       color: Colors.teal),
-//                                 ),
-//                                 const Text("km/h",
-//                                     style: TextStyle(fontSize: 18)),
-//                               ],
-//                             ),
-//                             angle: 90,
-//                             positionFactor: 0.75,
-//                           ),
-//                         ],
+//                         knobStyle: KnobStyle(
+//                           color: Colors.transparent,
+//                           borderColor: Colors.blue.withAlpha(100),
+//                           borderWidth: 1,
+//                         ),
 //                       ),
 //                     ],
-//                   );
-//                 },
+//                     ranges: [
+//                       GaugeRange(
+//                         startValue: 0,
+//                         endValue: 30,
+//                         color: Colors.pink,
+//                         startWidth: 15,
+//                         endWidth: 15,
+//                       ),
+//                       GaugeRange(
+//                         startValue: 30,
+//                         endValue: 80,
+//                         color: Colors.green,
+//                         startWidth: 15,
+//                         endWidth: 15,
+//                       ),
+//                       GaugeRange(
+//                         startValue: 80,
+//                         endValue: 160,
+//                         color: Colors.amber,
+//                         startWidth: 15,
+//                         endWidth: 15,
+//                       ),
+//                       GaugeRange(
+//                         startValue: 160,
+//                         endValue: 240,
+//                         color: Colors.red,
+//                         startWidth: 15,
+//                         endWidth: 15,
+//                       ),
+//                     ],
+//                     annotations: <GaugeAnnotation>[
+//                       GaugeAnnotation(
+//                         widget: Column(
+//                           children: [
+//                             const SizedBox(height: 180),
+//                             Text(
+//                               value.toStringAsFixed(0),
+//                               style: const TextStyle(
+//                                 fontSize: 50,
+//                                 fontWeight: FontWeight.bold,
+//                                 color: Colors.teal,
+//                                 shadows: [
+//                                   Shadow(
+//                                     color: Colors.white,
+//                                     blurRadius: 20,
+//                                   ),
+//                                 ],
+//                               ),
+//                             ),
+//                             Text(
+//                               unit,
+//                               style: const TextStyle(
+//                                 fontSize: 18,
+//                                 color: Colors.black,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                         angle: 90,
+//                         positionFactor: 0.75,
+//                       ),
+//                     ],
+//                   ),
+//                 ],
 //               ),
 //             ),
 //           ],
@@ -2012,3 +2019,252 @@
 //     );
 //   }
 // }
+
+import 'package:flutter/material.dart';
+import 'package:obdv2/core/constants.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart';
+
+class GaugeConfig {
+  final double maxValue;
+  final List<GaugeRange> ranges;
+  final String unit;
+  final SweepGradient gradient;
+  final Color needleColor;
+
+  GaugeConfig({
+    required this.maxValue,
+    required this.ranges,
+    required this.unit,
+    required this.gradient,
+    this.needleColor = Colors.red,
+  });
+}
+
+class SpeedometerPage extends StatelessWidget {
+  final double value;
+  final String title;
+  final GaugeConfig config;
+
+  const SpeedometerPage({
+    super.key,
+    required this.value,
+    required this.title,
+    required this.config,
+  });
+
+  factory SpeedometerPage.speedometer({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Velocidad',
+      config: GaugeConfig(
+        maxValue: 240,
+        unit: 'km/h',
+        
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 30,
+            color: Colors.pink,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 30,
+            endValue: 80,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 80,
+            endValue: 160,
+            color: Colors.amber,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 160,
+            endValue: 240,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  factory SpeedometerPage.rpm({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'RPM',
+      config: GaugeConfig(
+        maxValue: 8000,
+        unit: 'RPM',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 2000,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 2000,
+            endValue: 5000,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5000,
+            endValue: 7000,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 7000,
+            endValue: 8000,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: Colors.black.withOpacity(0.9),
+      insetPadding: const EdgeInsets.all(20),
+      shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: primaryColor,
+          width: 2,
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        // constraints: const BoxConstraints(
+        //   minHeight: 500,
+        // ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+            SizedBox(
+              width: 300,
+              height: 500,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: 0,
+                    maximum: config.maxValue,
+                    radiusFactor: 0.9,
+                    majorTickStyle: const MajorTickStyle(
+                      length: 12,
+                      thickness: 2,
+                      color: Colors.black,
+                    ),
+                    minorTicksPerInterval: 4,
+                    minorTickStyle: const MinorTickStyle(
+                      length: 6,
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                    axisLineStyle: AxisLineStyle(
+                      thickness: 15,
+                      gradient: config.gradient,
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: value.clamp(0, config.maxValue),
+                        enableAnimation: true,
+                        animationType: AnimationType.easeOutBack,
+                        needleColor: config.needleColor,
+                        needleStartWidth: 1,
+                        needleEndWidth: 5,
+                        needleLength: 0.75,
+                        animationDuration: 2000,
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: Colors.transparent,
+                          borderColor: Colors.blue.withAlpha(100),
+                          borderWidth: 1,
+                        ),
+                      ),
+                    ],
+                    ranges: config.ranges,
+                    annotations: <GaugeAnnotation>[
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 110),
+                            Text(
+                              value.toStringAsFixed(0),
+                              style: const TextStyle(
+                                fontSize: 50,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.white,
+                                    blurRadius: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Text(
+                              config.unit,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
