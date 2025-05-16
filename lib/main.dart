@@ -1,5 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:obdv2/pages/dashboard/dashComb_page.dart';
+import 'package:obdv2/pages/dashboard/dashOx_page.dart';
+import 'package:obdv2/pages/dashboard/dashboard_page.dart';
 import 'package:obdv2/pages/dashboard/home_dash.dart';
 import 'package:obdv2/pages/home_page.dart';
 import 'package:obdv2/pages/login_page.dart';

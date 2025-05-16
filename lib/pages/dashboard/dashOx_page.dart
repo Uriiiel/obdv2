@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:obdv2/pages/dashboard/home_dash.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -292,8 +293,9 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               pointers: <GaugePointer>[
                 NeedlePointer(
@@ -312,9 +314,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     ],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -328,7 +332,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 50,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(
                               color: Colors.white,
@@ -338,10 +342,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B1S1",
+                        "Sensor oxígeno-B1S1",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -400,8 +405,9 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               pointers: <GaugePointer>[
                 NeedlePointer(
@@ -420,9 +426,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     ],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -435,7 +443,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                           style: TextStyle(
                             fontSize: 50,
                             fontWeight: FontWeight.bold,
-                            color: Colors.teal,
+                            color: const Color.fromARGB(255, 255, 255, 255),
                             shadows: [
                               Shadow(
                                 color: Colors.white,
@@ -444,10 +452,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                             ],
                           )),
                       const Text(
-                        "Sensor oxigeno-B1S2",
+                        "Sensor oxígeno-B1S2",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -506,9 +515,9 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: sOB1S3,
@@ -526,9 +535,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     ],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -542,7 +553,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 50,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(
                               color: Colors.white,
@@ -552,10 +563,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B1S3",
+                        "Sensor oxígeno-B1S3",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -615,8 +627,9 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               pointers: <GaugePointer>[
                 NeedlePointer(
@@ -632,9 +645,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -648,7 +663,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(
                               color: Colors.white,
@@ -658,11 +673,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B1S4",
+                        "Sensor oxígeno-B1S4",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -713,6 +728,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -732,9 +753,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -748,15 +771,18 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B2S1",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        "Sensor oxígeno-B2S1",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -807,6 +833,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -826,9 +858,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -842,15 +876,18 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B2S2",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        "Sensor oxígeno-B2S2",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -895,6 +932,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 2,
                 color: Colors.black,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               minorTicksPerInterval: 4,
               minorTickStyle: const MinorTickStyle(
                 length: 6,
@@ -920,9 +963,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -936,15 +981,18 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B2S3",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        "Sensor oxígeno-B2S3",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -995,6 +1043,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -1014,9 +1068,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -1030,15 +1086,18 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
                         ),
                       ),
                       const Text(
-                        "Sensor oxigeno-B2S4",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        "Sensor oxígeno-B2S4",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -1089,6 +1148,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -1108,9 +1173,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -1124,7 +1191,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -1132,7 +1199,10 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                       ),
                       const Text(
                         "Temp catalizador-B1S1",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -1183,6 +1253,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -1202,9 +1278,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -1218,7 +1296,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -1226,7 +1304,10 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                       ),
                       const Text(
                         "Temp catalizador-B1S2",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -1277,6 +1358,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -1296,9 +1383,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -1312,7 +1401,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -1320,7 +1409,10 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                       ),
                       const Text(
                         "Temp catalizador-B2S1",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -1371,6 +1463,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 thickness: 1,
                 color: Colors.grey,
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               axisLineStyle: const AxisLineStyle(
                 thickness: 12,
                 gradient: SweepGradient(
@@ -1390,9 +1488,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -1406,7 +1506,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -1414,7 +1514,10 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                       ),
                       const Text(
                         "Temp catalizador-B2S2",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -1432,15 +1535,25 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 188, 188, 188),
+      backgroundColor: const Color(0xFF7E7E7E),
       appBar: AppBar(
-        backgroundColor: colorPrimary,
+        backgroundColor: Colors.black,
+        centerTitle: true,
         title: const Text(
-          "Dashboard",
+          "Dashboard - Oxígeno",
           style: TextStyle(
             fontSize: 24,
-            color: Colors.black,
+            color: Color.fromARGB(255, 255, 255, 255),
           ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeDash()),
+            );
+          },
         ),
         actions: <Widget>[
           IconButton(
@@ -1461,7 +1574,8 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.blueAccent, width: 2),
+                  border: Border.all(
+                      color: const Color.fromARGB(255, 1, 23, 61), width: 4),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,

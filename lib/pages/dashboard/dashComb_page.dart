@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:obdv2/pages/dashboard/home_dash.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:firebase_core/firebase_core.dart';
 
@@ -220,8 +221,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               pointers: <GaugePointer>[
                 NeedlePointer(
@@ -240,9 +242,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     ],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -256,7 +260,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 50,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(
                               color: Colors.white,
@@ -268,9 +272,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       const Text(
                         "Consumo Instantaneo de Combustible",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -328,9 +332,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: estSisCom,
@@ -348,9 +352,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     ],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -363,7 +369,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           style: TextStyle(
                             fontSize: 50,
                             fontWeight: FontWeight.bold,
-                            color: Colors.teal,
+                            color: const Color.fromARGB(255, 255, 255, 255),
                             shadows: [
                               Shadow(
                                 color: Colors.white,
@@ -374,8 +380,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       const Text(
                         "Estado del Sistema de Combustible",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -434,9 +441,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
-                color: Colors.black,
-              ),
+                  fontSize: 18,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: nivCom,
@@ -454,9 +461,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     ],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -470,7 +479,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 50,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(
                               color: Colors.white,
@@ -482,8 +491,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       const Text(
                         "Nivel de combustible",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -543,8 +553,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                 ),
               ),
               axisLabelStyle: const GaugeTextStyle(
-                fontSize: 14,
+                fontSize: 18,
                 color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
               pointers: <GaugePointer>[
                 NeedlePointer(
@@ -561,9 +572,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -577,7 +590,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(
                               color: Colors.white,
@@ -589,8 +602,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       const Text(
                         "Porcentaje etanol en combustible",
                         style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.black,
+                          fontSize: 20,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -638,6 +652,12 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                   stops: [0.3, 0.7, 1],
                 ),
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: presRielDir.clamp(0, 300),
@@ -650,9 +670,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -666,15 +688,18 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
                         ),
                       ),
                       const Text(
-                        "Presion Riel combustible directa",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        "Presión Riel combustible directa",
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -721,6 +746,12 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                   stops: [0.3, 0.7, 1],
                 ),
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: presRielRel.clamp(0, 10),
@@ -733,9 +764,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -749,7 +782,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -757,7 +790,10 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                       const Text(
                         "Presion Riel combustible relativa",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -804,6 +840,12 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                   stops: [0.3, 0.7, 1],
                 ),
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: presBomCom.clamp(0, 10),
@@ -816,9 +858,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -832,7 +876,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -840,7 +884,10 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                       const Text(
                         "Presión de la bomba de combustible",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -887,6 +934,12 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                   stops: [0.3, 0.7, 1],
                 ),
               ),
+              axisLabelStyle: const GaugeTextStyle(
+                fontSize:
+                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
+                color: Colors.black, // Color de los números
+                fontWeight: FontWeight.bold, // Opcional: negrita
+              ),
               pointers: <GaugePointer>[
                 NeedlePointer(
                   value: tipoCom.clamp(0, 100),
@@ -899,9 +952,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     colors: [Colors.white, Colors.red],
                   ),
                   knobStyle: KnobStyle(
-                    color: Colors.transparent,
-                    borderColor: Colors.blue.withAlpha(100),
-                    borderWidth: 1,
+                    color: const Color(
+                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
+                    borderColor: const Color(0xFF3F3F3F)
+                        .withAlpha(150), // Borde con transparencia
+                    borderWidth: 2,
                   ),
                 ),
               ],
@@ -915,7 +970,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         style: const TextStyle(
                           fontSize: 45,
                           fontWeight: FontWeight.bold,
-                          color: Colors.teal,
+                          color: Color.fromARGB(255, 255, 255, 255),
                           shadows: [
                             Shadow(color: Colors.white, blurRadius: 20)
                           ],
@@ -923,7 +978,10 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                       const Text(
                         "Tipo de Combustible",
-                        style: TextStyle(fontSize: 18, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -941,15 +999,25 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 188, 188, 188),
+      backgroundColor: const Color(0xFF7E7E7E),
       appBar: AppBar(
-        backgroundColor: colorPrimary,
+        backgroundColor: Colors.black,
+        centerTitle: true,
         title: const Text(
-          "Dashboard",
+          "Dashboard - Combustible",
           style: TextStyle(
             fontSize: 24,
-            color: Colors.white,
+            color: Color.fromARGB(255, 255, 255, 255),
           ),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomeDash()),
+            );
+          },
         ),
         actions: <Widget>[
           IconButton(
@@ -971,7 +1039,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: Colors.blueAccent, width: 2), // Borde azul
+                      color: const Color.fromARGB(255, 1, 23, 61),
+                      width: 4), // Borde azul
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black26,
