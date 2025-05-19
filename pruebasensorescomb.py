@@ -21,14 +21,14 @@ def random_val(exclude_no_soportado=False):
 
 def enviar_datos():
     root_ref.update({
-        "Consumo instantáneo de combustible": random_val(),
-        "Estado del sistema de combustible": random_val(),
         "Nivel de combustible": random_val(),
-        "Porcentaje etanol en combustible": random_val(),
-        "Presion Riel combustible directa": random_val(),
-        "Presion Riel combustible relativa": random_val(),
-        "Presión de la bomba de combustible": random_val(),
-        "Tipo combustible": random_val(),
+        "Presion combustible": random_val(),
+        "Presion riel": random_val(),
+        "Tasa combustible": random_val(),
+        "Banco 1 corto": random_val(),
+        "Banco 1 largo": random_val(),
+        "Banco 2 corto": random_val(),
+        "Banco 2 largo": random_val(),
     })
     print("Datos enviados.")
 

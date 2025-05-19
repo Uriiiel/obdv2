@@ -21,18 +21,14 @@ def random_val(exclude_no_soportado=False):
 
 def enviar_datos():
     root_ref.update({
-        "Sensor oxigeno-B1S1": random_val(),
-        "Sensor oxigeno-B1S2": random_val(),
-        "Sensor oxigeno-B1S3": random_val(),
-        "Sensor oxigeno-B1S4": random_val(),
-        "Sensor oxigeno-B2S1": random_val(),
-        "Sensor oxigeno-B2S2": random_val(),
-        "Sensor oxigeno-B2S3": random_val(),
-        "Sensor oxigeno-B2S4": random_val(),
-        "Temp catalizador-B1S1": random_val(),
-        "Temp catalizador-B1S2": random_val(),
-        "Temp catalizador-B2S1": random_val(),
-        "Temp catalizador-B2S2": random_val(),
+        "voltajeOxi1": random_val(),
+        "voltajeOxi2": random_val(),
+        "voltajeOxi3": random_val(),
+        "voltajeOxi4": random_val(),
+        "AFROxi1": random_val(),
+        "AFROxi2": random_val(),
+        "AFROxi3": random_val(),
+        "AFROxi4": random_val(),
     })
     print("Datos enviados.")
 

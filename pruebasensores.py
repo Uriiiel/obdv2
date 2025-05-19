@@ -21,20 +21,13 @@ def random_val(exclude_no_soportado=False):
 
 def enviar_datos():
     root_ref.update({
-        "Avance encendido": random_val(),
-        "Carga del motor": random_val(),
-        "Consumo instantáneo combustible": random_val(),
-        "Flujo aire masivo": random_val(),
-        "Presion barometrica": random_val(),
-        "Presión colector admisión": random_val(),
-        "Presión combustible": random_val(),
+        "TempRef": random_val(),
         "RPM": random_val(),
-        "Temperatura aceite": random_val(),
-        "Temperatura refrigerante": random_val(),
-        "Tmp Funcionamiento": random_val(),
-        "Valvula admision": random_val(),
+        "Carga del motor": random_val(),
         "Velocidad": random_val(),
-        "Voltaje": random_val()
+        "Flujo aire masivo": random_val(),
+        "Avance encendido": random_val(),
+        "Presión colector admisión": random_val(),
     })
 
     print("Datos enviados.")
