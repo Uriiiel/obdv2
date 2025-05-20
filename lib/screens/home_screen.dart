@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:obdv2/core/constants.dart';
 import 'package:obdv2/core/home_controller.dart';
 import 'package:obdv2/core/model/tyres_model.dart';
@@ -19,6 +18,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'dart:typed_data';
+import 'package:collection/collection.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,9 +28,22 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  //pruebas sin obd
+  final Map<String, List<double>> sensorHistory = {
+    'Voltaje': [],
+    'Temp. Refrigerante': [],
+    'Sensor O2 1 (V) [0]': [],
+    'Sensor O2 1 (AFR) [0]': [],
+    'Sensor O2 2 (V) [1]': [],
+    'Sensor O2 2 (AFR) [1]': [],
+    'Sensor O2 3 (V) [2]': [],
+    'Sensor O2 3 (AFR) [2]': [],
+    'Sensor O2 4 (V) [3]': [],
+    'Sensor O2 4 (AFR) [3]': [],
+  };
 
+  //pruebas sin obd
   // bool _mockMode = true;
+  //pruebas sin obd
 
   // bluetooth
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
@@ -55,12 +68,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   double _maf = 0.0;
   double _intakeManifoldPressure = 0.0;
   double _voltage = 0.0;
-  
+
   // Variables para sensores de oxígeno
   List<double> _o2Voltage = [0.0, 0.0, 0.0, 0.0];
   List<double> _o2AFR = [0.0, 0.0, 0.0, 0.0];
   double _commandedAFR = 0.0;
-  String _o2SensorsPresent = 'Desconocido';
+  //String _o2SensorsPresent = 'Desconocido';
 
   // Variables para sensores de combustible
   double _fuelLevel = 0.0; // Nivel de combustible (0-100%)
@@ -83,10 +96,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ValueNotifier<double> _ignitionNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _mafNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _intakeMPNotifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _voltageNotifier = ValueNotifier(0.0); 
+  final ValueNotifier<double> _voltageNotifier = ValueNotifier(0.0);
 
-  final ValueNotifier<List<double>> _o2VNotifier = ValueNotifier ([0.0, 0.0, 0.0, 0.0]);
-  final ValueNotifier<List<double>> _o2AFRNotifier = ValueNotifier ([0.0, 0.0, 0.0, 0.0]);
+  final ValueNotifier<List<double>> _o2VNotifier =
+      ValueNotifier([0.0, 0.0, 0.0, 0.0]);
+  final ValueNotifier<List<double>> _o2AFRNotifier =
+      ValueNotifier([0.0, 0.0, 0.0, 0.0]);
   final ValueNotifier<double> _commandedAFRNotifier = ValueNotifier(0.0);
   // final ValueNotifier<String> _o2SPNotifier = ValueNotifier("desconocido");
 
@@ -128,8 +143,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     '0109', // Ajuste de combustible banco 2 largo plazo
   ];
 
-  final ValueNotifier<List<Map<String, dynamic>>> _sensorsNotifier = 
-  ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> _sensorsNotifier =
+      ValueNotifier([]);
 
   List<Map<String, dynamic>> _sensors = [];
 
@@ -233,7 +248,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    sensorHistory['Voltaje'] = [];
+    for (int i = 0; i < 4; i++) {
+      sensorHistory['Sensor O2 ${i + 1} (V)'] = [];
+      sensorHistory['Sensor O2 ${i + 1} (AFR)'] = [];
+    }
     //pruebas sin obd
+
     // if (_mockMode) {
     //   _isConnected = true; // Simular conexión exitosa
     //   _startMockDataGeneration();
@@ -243,6 +264,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     //   });
     //   _checkBluetoothState();
     // }
+
     //pruebas sin obd
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureConnection();
@@ -258,30 +280,52 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       tyresAnimation4Psi
     ];
   }
-  
+
   //pruebas sin obd
   // void _startMockDataGeneration() {
   //   Timer.periodic(Duration(milliseconds: 1000), (timer) {
-
   //     if (!_mockMode) {
   //       timer.cancel();
   //       return;
   //     }
 
   //     final random = Random();
+  //     // Genera valores aleatorios para TODOS los sensores
   //     final newSpeed = random.nextDouble() * 200;
   //     final newRpm = random.nextDouble() * 8000;
+  //     final newVoltaje = random.nextDouble() * 20;
+  //     final newTemp = random.nextDouble() * 105;
+  //     final newO2Voltage = List.generate(4, (index) => random.nextDouble() * 5);
+  //     final newO2AFR = List.generate(4, (index) => random.nextDouble() * 20);
 
-  //     // Actualiza los ValueNotifiers
-  //     _speedNotifier.value = newSpeed;
-  //     _rpmNotifier.value = newRpm;
+  //     // Actualiza sensorHistory
+  //     _onSensorDataReceived('Voltaje', newVoltaje);
+  //     _onSensorDataReceived('Temp. Refrigerante', newTemp);
+  //     for (int i = 0; i < 4; i++) {
+  //       _onSensorDataReceived('Sensor O2 ${i + 1} (V)', newO2Voltage[i]);
+  //       _onSensorDataReceived('Sensor O2 ${i + 1} (AFR)', newO2AFR[i]);
+  //     }
 
-  //     // Mantén la actualización del estado para las tarjetas
+  //     // Actualiza ValueNotifiers y estado
   //     setState(() {
   //       _speed = newSpeed;
   //       _rpm = newRpm;
+  //       _voltage = newVoltaje;
+  //       _o2Voltage = newO2Voltage;
+  //       _o2AFR = newO2AFR;
+  //       _coolantTemp = newTemp;
   //     });
-      
+
+  //     _speedNotifier.value = newSpeed;
+  //     _rpmNotifier.value = newRpm;
+  //     _voltageNotifier.value = newVoltaje;
+  //     _cooltempNotifier.value = newTemp;
+  //     _o2VNotifier.value = newO2Voltage;
+  //     _o2AFRNotifier.value = newO2AFR;
+
+  //     //print(_voltage);
+  //     print(_coolantTemp);
+
   //     _updateSensors();
   //   });
   // }
@@ -376,7 +420,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     // Verificamos que sea un OBD (opcionalmente con un nombre que lo indique)
     if (!(device.name?.toLowerCase().contains("obd") ?? false)) {
-      _showError("Este dispositivo no parece ser un OBD. Selecciona uno válido.");
+      _showError(
+          "Este dispositivo no parece ser un OBD. Selecciona uno válido.");
       _ensureConnection(); // vuelve a abrir la ventana de conexión
       return;
     }
@@ -427,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _o2Voltage = [0.0, 0.0, 0.0, 0.0];
       _o2AFR = [0.0, 0.0, 0.0, 0.0];
       _commandedAFR = 0.0;
-      _o2SensorsPresent = 'Desconocido';
+      //_o2SensorsPresent = 'Desconocido';
       // Resetear sensores de combustible
       _fuelLevel = 0.0;
       _fuelPressure = 0.0;
@@ -456,6 +501,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         }
       }
     }, onDone: _disconnect);
+  }
+
+  void _onSensorDataReceived(String key, double value) {
+    setState(() {
+      sensorHistory[key] = [
+        ...sensorHistory[key]!,
+        value
+      ]; // Agrega nuevo valor
+      if (sensorHistory[key]!.length > 50) {
+        sensorHistory[key]!.removeAt(0); // Mantén máximo 50 valores
+      }
+    });
   }
 
   void _enviarDatoAFirebaseMotor(String nombreDato, dynamic valor) {
@@ -500,7 +557,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (message.startsWith('4105') && message.length >= 6) {
       // Temperatura refrigerante (0105)
       try {
-        int tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
+        double tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
+        _onSensorDataReceived('Temp. Refrigerante', tempValue);
         setState(() => _coolantTemp = tempValue.toDouble());
         _coolantTemp = tempValue.toDouble();
         _enviarDatoAFirebaseMotor('TempRef', _coolantTemp);
@@ -572,14 +630,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       // Voltaje del motor (0142)
       try {
         double voltage = int.parse(message.substring(4, 6), radix: 16) / 10.0;
+        _onSensorDataReceived('Voltaje', voltage);
         setState(() => _voltage = voltage);
         _voltageNotifier.value = voltage.toDouble();
-        _enviarDatoAFirebaseMotor(
-            'Voltaje', _voltage);
+        _enviarDatoAFirebaseMotor('Voltaje', _voltage);
       } catch (e) {
         print("Error procesando voltaje: $e");
       }
-    } 
+    }
     //SENSORES OXIGENO
     else if (message.startsWith('4114') && message.length >= 8) {
       // Sensor O2 1 (0114)
@@ -587,6 +645,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         double voltage = int.parse(message.substring(4, 6), radix: 16) / 200.0;
         double afr =
             int.parse(message.substring(6, 8), radix: 16) / 32768.0 * 14.7;
+        _onSensorDataReceived('Sensor O2 1 (V) [0]', voltage);
+        _onSensorDataReceived('Sensor O2 1 (AFR) [0]', afr);
         setState(() {
           _o2Voltage[0] = voltage;
           _o2AFR[0] = afr;
@@ -604,6 +664,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         double voltage = int.parse(message.substring(4, 6), radix: 16) / 200.0;
         double afr =
             int.parse(message.substring(6, 8), radix: 16) / 32768.0 * 14.7;
+        _onSensorDataReceived('Sensor O2 2 (V) [1]', voltage);
+        _onSensorDataReceived('Sensor O2 2 (AFR) [1]', afr);
         setState(() {
           _o2Voltage[1] = voltage;
           _o2AFR[1] = afr;
@@ -621,6 +683,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         double voltage = int.parse(message.substring(4, 6), radix: 16) / 200.0;
         double afr =
             int.parse(message.substring(6, 8), radix: 16) / 32768.0 * 14.7;
+        _onSensorDataReceived('Sensor O2 3 (V) [4]', voltage);
+        _onSensorDataReceived('Sensor O2 3 (AFR) [4]', afr);
         setState(() {
           _o2Voltage[2] = voltage;
           _o2AFR[2] = afr;
@@ -638,6 +702,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         double voltage = int.parse(message.substring(4, 6), radix: 16) / 200.0;
         double afr =
             int.parse(message.substring(6, 8), radix: 16) / 32768.0 * 14.7;
+        _onSensorDataReceived('Sensor O2 4 (V) [3]', voltage);
+        _onSensorDataReceived('Sensor O2 4 (AFR) [3]', afr);
         setState(() {
           _o2Voltage[3] = voltage;
           _o2AFR[3] = afr;
@@ -830,7 +896,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _showSensorDialog(BuildContext context, String sensorName, double initialValue) {
+  void _showSensorDialog(
+      BuildContext context, String sensorName, double initialValue) {
     final notifier = _getNotifierForSensor(sensorName);
     if (notifier == null) return;
 
@@ -854,8 +921,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: Colors.blueAccent,
                   tabs: [
-                    Tab(icon: Icon(Icons.speed)), 
-                    Tab(icon: Icon(Icons.info)), 
+                    Tab(icon: Icon(Icons.speed)),
+                    Tab(icon: Icon(Icons.info)),
                     Tab(icon: Icon(Icons.show_chart)),
                   ],
                 ),
@@ -880,35 +947,65 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   ValueNotifier<double>? _getNotifierForSensor(String sensorName) {
     switch (sensorName) {
-      case 'Velocidad': return _speedNotifier; //'010D', // Velocidad del vehículo
-      case 'RPM': return _rpmNotifier; // '010C', // RPM motor
-      case 'Temp. Refrigerante': return _cooltempNotifier; //'0105', Temperatura refrigerante
-      case 'Carga del motor': return _engineNotifier; //'0104', // Carga del motor
-      case 'Avance encendido': return _ignitionNotifier; //'010E', // Avance de encendido
-      case 'Flujo aire masivo': return _mafNotifier; //'0110', // Flujo de aire masivo (MAF)
-      case 'Presión colector admisión': return _intakeMPNotifier; //'010B', // Presión del colector de admisión
-      case 'Voltaje': return _voltageNotifier;
-      case 'AFR Comandado': return _commandedAFRNotifier; //'0124', // Relación aire-combustible comandada
+      case 'Velocidad':
+        return _speedNotifier; //'010D', // Velocidad del vehículo
+      case 'RPM':
+        return _rpmNotifier; // '010C', // RPM motor
+      case 'Temp. Refrigerante':
+        return _cooltempNotifier; //'0105', Temperatura refrigerante
+      case 'Carga del motor':
+        return _engineNotifier; //'0104', // Carga del motor
+      case 'Avance encendido':
+        return _ignitionNotifier; //'010E', // Avance de encendido
+      case 'Flujo aire masivo':
+        return _mafNotifier; //'0110', // Flujo de aire masivo (MAF)
+      case 'Presión colector admisión':
+        return _intakeMPNotifier; //'010B', // Presión del colector de admisión
+      case 'Voltaje':
+        return _voltageNotifier;
+      case 'AFR Comandado':
+        return _commandedAFRNotifier; //'0124', // Relación aire-combustible comandada
       // case 'Sensores O2 Activos': return _o2SPNotifier.to;
-      case 'Sensor O2 1 (V) [0]': return ValueNotifier(_o2VNotifier.value[0]); //'0114', // Sensor O2 1 - Voltaje y AFR
-      case 'Sensor O2 1 (AFR) [0]': return ValueNotifier(_o2AFRNotifier.value[0]);
-      case 'Sensor O2 2 (V) [1]': return ValueNotifier(_o2VNotifier.value[1]); //'0115', // Sensor O2 2 - Voltaje y AFR
-      case 'Sensor O2 2 (AFR) [1]': return ValueNotifier(_o2AFRNotifier.value[1]);
-      case 'Sensor O2 3 (V) [2]': return ValueNotifier(_o2VNotifier.value[2]); //'0116', // Sensor O2 3 - Voltaje y AFR
-      case 'Sensor O2 3 (AFR) [2]': return ValueNotifier(_o2AFRNotifier.value[2]);
-      case 'Sensor O2 4 (V) [3]': return ValueNotifier(_o2VNotifier.value[3]); //'0117', // Sensor O2 4 - Voltaje y AFR
-      case 'Sensor O2 4 (AFR) [3]': return ValueNotifier(_o2AFRNotifier.value[3]);
-      case 'Nivel Combustible': return _fuelLevelNotifier; //'012F', // Nivel de combustible
-      case 'Presión Combustible': return _fuelPressureNotifier; //'010A', // Presión de combustible
-      case 'Presión Riel': return _fuelRailPNotifier; //'0122', // Presión del riel de combustible
-      case 'Consumo': return _fuelRateNotifier; //'015E', // Tasa de consumo de combustible
-      case 'Banco 1 Corto': return _fuelTrimB1SNotifier; //'0106', // Ajuste de combustible banco 1 corto plazo
-      case 'Banco 1 Largo': return _fuelTrimB1LNotifier; //'0107', // Ajuste de combustible banco 1 largo plazo
-      case 'Banco 2 Corto': return _fuelTrimB2SNotifier; //'0108', // Ajuste de combustible banco 2 corto plazo
-      case 'Banco 2 Largo': return _fuelTrimB2LNotifier; //'0109', // Ajuste de combustible banco 2 largo plazo       
-      default: return null;
+      case 'Sensor O2 1 (V) [0]':
+        return ValueNotifier(
+            _o2VNotifier.value[0]); //'0114', // Sensor O2 1 - Voltaje y AFR
+      case 'Sensor O2 1 (AFR) [0]':
+        return ValueNotifier(_o2AFRNotifier.value[0]);
+      case 'Sensor O2 2 (V) [1]':
+        return ValueNotifier(
+            _o2VNotifier.value[1]); //'0115', // Sensor O2 2 - Voltaje y AFR
+      case 'Sensor O2 2 (AFR) [1]':
+        return ValueNotifier(_o2AFRNotifier.value[1]);
+      case 'Sensor O2 3 (V) [2]':
+        return ValueNotifier(
+            _o2VNotifier.value[2]); //'0116', // Sensor O2 3 - Voltaje y AFR
+      case 'Sensor O2 3 (AFR) [2]':
+        return ValueNotifier(_o2AFRNotifier.value[2]);
+      case 'Sensor O2 4 (V) [3]':
+        return ValueNotifier(
+            _o2VNotifier.value[3]); //'0117', // Sensor O2 4 - Voltaje y AFR
+      case 'Sensor O2 4 (AFR) [3]':
+        return ValueNotifier(_o2AFRNotifier.value[3]);
+      case 'Nivel Combustible':
+        return _fuelLevelNotifier; //'012F', // Nivel de combustible
+      case 'Presión Combustible':
+        return _fuelPressureNotifier; //'010A', // Presión de combustible
+      case 'Presión Riel':
+        return _fuelRailPNotifier; //'0122', // Presión del riel de combustible
+      case 'Consumo':
+        return _fuelRateNotifier; //'015E', // Tasa de consumo de combustible
+      case 'Banco 1 Corto':
+        return _fuelTrimB1SNotifier; //'0106', // Ajuste de combustible banco 1 corto plazo
+      case 'Banco 1 Largo':
+        return _fuelTrimB1LNotifier; //'0107', // Ajuste de combustible banco 1 largo plazo
+      case 'Banco 2 Corto':
+        return _fuelTrimB2SNotifier; //'0108', // Ajuste de combustible banco 2 corto plazo
+      case 'Banco 2 Largo':
+        return _fuelTrimB2LNotifier; //'0109', // Ajuste de combustible banco 2 largo plazo
+      default:
+        return null;
 
-    //'0134', // Sensores de oxígeno presentes
+      //'0134', // Sensores de oxígeno presentes
     }
   }
 
@@ -954,6 +1051,59 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   //     ),
   //   );
   // }
+
+  Widget _buildBatteryDetail(String label, String value,
+      {bool big = false, String unit = 'V'}) {
+    final isValid = double.tryParse(value) != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 16,
+          ),
+        ),
+        Text(
+          isValid ? "$value $unit" : "--",
+          style: TextStyle(
+            fontSize: big ? 70 : 25,
+            fontWeight: FontWeight.bold,
+            color: isValid ? Colors.white : Colors.red,
+          ),
+        ),
+        const SizedBox(height: 10),
+      ],
+    );
+  }
+
+  Widget _buildTempDetail(String label, String sensorKey, {bool big = false}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 16,
+          ),
+        ),
+        Text(
+          sensorHistory[sensorKey]?.isNotEmpty == true
+              ? "${sensorHistory[sensorKey]!.last.toStringAsFixed(1)} °C"
+              : "0.0 °C",
+          style: TextStyle(
+            fontSize: big ? 70 : 25,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        const SizedBox(height: 15),
+      ],
+    );
+  }
 
   Widget _getGaugeWidget(String sensorName, double value) {
     switch (sensorName) {
@@ -1008,21 +1158,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case 'Banco 2 Largo':
         return SpeedometerPage.banco2L(value: value);
       default:
-        return const Center(child: Text('Gauge no disponible', style: TextStyle(color: Colors.white)));
+        return const Center(
+            child: Text('Gauge no disponible',
+                style: TextStyle(color: Colors.white)));
     }
   }
-  
+
   Widget _getSensorInfoWidget(String sensorName, double value) {
-    String descripcion = sensorDescriptions[sensorName] ?? 'Sin descripción disponible.';
+    String descripcion =
+        sensorDescriptions[sensorName] ?? 'Sin descripción disponible.';
     String minMax = sensorMinMax[sensorName] ?? 'Sin rangos disponibles.';
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Nombre: $sensorName', style: const TextStyle(color: Colors.white, fontSize: 18)),
+          Text('Nombre: $sensorName',
+              style: const TextStyle(color: Colors.white, fontSize: 18)),
           const SizedBox(height: 8),
-          Text('Valor actual: ${value.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white)),
+          Text('Valor actual: ${value.toStringAsFixed(1)}',
+              style: const TextStyle(color: Colors.white)),
           const SizedBox(height: 8),
           const Text('Descripción:', style: TextStyle(color: Colors.white)),
           Text(
@@ -1039,70 +1194,243 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _getFutureChartWidget(String sensorName, ValueNotifier<double> notifier) {
-    return SensorLineChart(
-      sensorName: sensorName,
-      notifier: notifier,
-      minMax: sensorMinMaxChart[sensorName] ?? '0 - 100',
-    );
+  Widget _getFutureChartWidget(
+      String sensorName, ValueNotifier<double> notifier) {
+    // return SensorLineChart(
+    //   sensorName: "Velocidad",
+    //   notifier: _speedNotifier,
+    //   minMax: sensorMinMaxChart[sensorName] ?? '0 - 240',
+    // );
+    switch (sensorName) {
+      case 'Velocidad':
+        return SensorLineChart(
+          sensorName: "Velocidad",
+          notifier: _speedNotifier,
+          minMax: '0 - 240',
+        );
+      case 'RPM':
+        return SensorLineChart(
+          sensorName: "RPM",
+          notifier: _rpmNotifier,
+          minMax: '0 - 8000',
+        );
+      case 'Temp. Refrigerante':
+        return SensorLineChart(
+          sensorName: "Temp. Refrigerante",
+          notifier: _cooltempNotifier,
+          minMax: '0 - 150',
+        );
+      case 'Carga del motor':
+        return SensorLineChart(
+          sensorName: "Carga del motor",
+          notifier: _engineNotifier,
+          minMax: '0 - 100',
+        );
+      case 'Avance encendido':
+        return SensorLineChart(
+          sensorName: "Avance encendido",
+          notifier: _ignitionNotifier,
+          minMax: '-10 - 40',
+        );
+      case 'Flujo aire masivo':
+        return SensorLineChart(
+          sensorName: "Flujo aire masivo",
+          notifier: _mafNotifier,
+          minMax: '0 - 20',
+        );
+      case 'Presión colector admisión':
+        return SensorLineChart(
+          sensorName: "Presión colector admisión",
+          notifier: _intakeMPNotifier,
+          minMax: '0 - 100',
+        );
+      case 'Voltaje':
+        return SensorLineChart(
+          sensorName: "Voltaje",
+          notifier: _voltageNotifier,
+          minMax: '0 - 15',
+        );
+      case 'AFR Comandado':
+        return SensorLineChart(
+          sensorName: "AFR Comandado",
+          notifier: _commandedAFRNotifier,
+          minMax: '0 - 20',
+        );
+      case 'Sensor O2 1 (V) [0]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 1 (V) [0]",
+          notifier: ValueNotifier(_o2VNotifier.value[0]),
+          minMax: '0.1 - 0.9',
+        );
+      case 'Sensor O2 1 (AFR) [0]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 1 (AFR) [0]",
+          notifier: ValueNotifier(_o2AFRNotifier.value[0]),
+          minMax: '0 - 16',
+        );
+      case 'Sensor O2 2 (V) [1]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 2 (V) [1]",
+          notifier: ValueNotifier(_o2VNotifier.value[1]),
+          minMax: '0.1 - 0.9',
+        );
+      case 'Sensor O2 2 (AFR) [1]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 2 (AFR) [1]",
+          notifier: ValueNotifier(_o2AFRNotifier.value[1]),
+          minMax: '0 - 16',
+        );
+      case 'Sensor O2 3 (V) [2]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 3 (V) [2]",
+          notifier: ValueNotifier(_o2VNotifier.value[2]),
+          minMax: '0.1 - 0.9',
+        );
+      case 'Sensor O2 3 (AFR) [2]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 3 (AFR) [2]",
+          notifier: ValueNotifier(_o2AFRNotifier.value[2]),
+          minMax: '0 - 16',
+        );
+      case 'Sensor O2 4 (V) [3]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 4 (V) [3]",
+          notifier: ValueNotifier(_o2VNotifier.value[3]),
+          minMax: '0.1 - 0.9',
+        );
+      case 'Sensor O2 4 (AFR) [3]':
+        return SensorLineChart(
+          sensorName: "Sensor O2 4 (AFR) [3]",
+          notifier: ValueNotifier(_o2AFRNotifier.value[3]),
+          minMax: '0 - 20',
+        );
+      case 'Nivel Combustible':
+        return SensorLineChart(
+          sensorName: "Nivel Combustible",
+          notifier: _fuelLevelNotifier,
+          minMax: '0 - 100',
+        );
+      case 'Presión Combustible':
+        return SensorLineChart(
+          sensorName: "Presión Combustible",
+          notifier: _fuelPressureNotifier,
+          minMax: '0 - 400',
+        );
+      case 'Presión Riel':
+        return SensorLineChart(
+          sensorName: "Presión Riel",
+          notifier: _fuelRailPNotifier,
+          minMax: '0 - 2000',
+        );
+      case 'Consumo':
+        return SensorLineChart(
+          sensorName: "Consumo",
+          notifier: _fuelRateNotifier,
+          minMax: '1 - 20',
+        );
+      case 'Banco 1 Corto':
+        return SensorLineChart(
+          sensorName: "Banco 1 Corto",
+          notifier: _fuelTrimB1SNotifier,
+          minMax: '-10 - 10',
+        );
+      case 'Banco 1 Largo':
+        return SensorLineChart(
+          sensorName: "Banco 1 Largo",
+          notifier: _fuelTrimB1LNotifier,
+          minMax: '-10 - 10',
+        );
+      case 'Banco 2 Corto':
+        return SensorLineChart(
+          sensorName: "Banco 2 Corto",
+          notifier: _fuelTrimB2SNotifier,
+          minMax: '-10 - 10',
+        );
+      case 'Banco 2 Largo':
+        return SensorLineChart(
+          sensorName: "Banco 1 Largo",
+          notifier: _fuelTrimB2LNotifier,
+          minMax: '-10 - 10',
+        );
+      default:
+        return const Center(
+            child: Text('Grafica no disponible',
+                style: TextStyle(color: Colors.white)));
+    }
   }
 
-  final Map<String, String> sensorMinMaxChart = {
-    'Velocidad': '0 - 240',
-    'RPM': '0 - 8000',
-    'Temp. Refrigerante': '0 - 150',
-    'Carga del motor': '0 - 100',
-    'Avance encendido': '-10 - 40',
-    'Flujo aire masivo': '0 - 20',
-    'Presión colector admisión': '0 - 100',
-    'Voltaje': '0 - 15',
-    'Sensor O2 1 (V) [0]': '0.1 - 0.9',
-    'Sensor O2 1 (AFR) [0]': '0 - 16',
-    'Sensor O2 2 (V) [1]': '0.1 - 0.9',
-    'Sensor O2 2 (AFR) [1]': '0 - 16',
-    'Sensor O2 3 (V) [2]': '0.1 - 0.9',
-    'Sensor O2 3 (AFR) [2]': '016',
-    'Sensor O2 4 (V) [3]': '0.1 - 0.9',
-    'Sensor O2 4 (AFR) [3]': '0 - 16',
-    'AFR Comandado': '0 - 20',
-    'Nivel Combustible': '0 - 100',
-    'Presión Combustible': '0 - 400',
-    'Presión Riel': '0 - 2000',
-    'Consumo': '1 - 20',
-    'Banco 1 Corto': '-10 - 10',
-    'Banco 1 Largo': '-10 - 10',
-    'Banco 2 Corto': '-10 - 10',
-    'Banco 2 Largo': '-10 - 10',
-  };
+  // final Map<String, String> sensorMinMaxChart = {
+  //   'Velocidad': '0 - 240',
+  //   'RPM': '0 - 8000',
+  //   'Temp. Refrigerante': '0 - 150',
+  //   'Carga del motor': '0 - 100',
+  //   'Avance encendido': '-10 - 40',
+  //   'Flujo aire masivo': '0 - 20',
+  //   'Presión colector admisión': '0 - 100',
+  //   'Voltaje': '0 - 15',
+  //   'Sensor O2 1 (V) [0]': '0.1 - 0.9',
+  //   'Sensor O2 1 (AFR) [0]': '0 - 16',
+  //   'Sensor O2 2 (V) [1]': '0.1 - 0.9',
+  //   'Sensor O2 2 (AFR) [1]': '0 - 16',
+  //   'Sensor O2 3 (V) [2]': '0.1 - 0.9',
+  //   'Sensor O2 3 (AFR) [2]': '016',
+  //   'Sensor O2 4 (V) [3]': '0.1 - 0.9',
+  //   'Sensor O2 4 (AFR) [3]': '0 - 16',
+  //   'AFR Comandado': '0 - 20',
+  //   'Nivel Combustible': '0 - 100',
+  //   'Presión Combustible': '0 - 400',
+  //   'Presión Riel': '0 - 2000',
+  //   'Consumo': '1 - 20',
+  //   'Banco 1 Corto': '-10 - 10',
+  //   'Banco 1 Largo': '-10 - 10',
+  //   'Banco 2 Corto': '-10 - 10',
+  //   'Banco 2 Largo': '-10 - 10',
+  // };
 
   final Map<String, String> sensorDescriptions = {
     'Velocidad': 'Mide la velocidad del vehículo.',
-    'RPM': 'Detecta las revoluciones por minuto del motor. Indica qué tan rápido está girando el motor.',
-    'Temp. Refrigerante': 'Mide la temperatura del refrigerante del motor. Es crucial para evitar sobrecalentamientos.',
+    'RPM':
+        'Detecta las revoluciones por minuto del motor. Indica qué tan rápido está girando el motor.',
+    'Temp. Refrigerante':
+        'Mide la temperatura del refrigerante del motor. Es crucial para evitar sobrecalentamientos.',
     'Carga del motor': 'Mide cuánta carga (demanda) está soportando el motor.',
-    'Avance encendido': 'Indica cuántos grados antes del punto muerto superior se produce la chispa de encendido.',
-    'Flujo aire masivo': 'Mide la masa de aire que entra al motor. Es esencial para calcular la cantidad de combustible a inyectar.',
-    'Presión colector admisión': 'Detecta la presión en el múltiple de admisión. Útil para calcular la carga del motor.',
-    'Voltaje': 'El voltaje automotriz es la cantidad de electricidad que fluye a través de un vehículo. Es una de las partes más importantes del sistema eléctrico de un automóvil, ya que es responsable de proporcionar energía a todos los componentes eléctricos y electrónicos del vehículo',
-    'Sensor O2 1 (V) [0]': 'Mide la cantidad de oxígeno en los gases de escape antes del catalizador (banco 1, sensor 1).',
-    'Sensor O2 1 (AFR) [0]': 'Air-Fuel Ratio (AFR) o relación aire/combustible estimada del sensor 1.',
-    'Sensor O2 2 (V) [1]': 'Sensor después del catalizador (banco 1, sensor 2), verifica la eficiencia del mismo.',
-    'Sensor O2 2 (AFR) [1]': 'AFR medida después del catalizador (menos variable que la del sensor 1).',
-    'Sensor O2 3 (V) [2]': 'Sensor adicional en banco 2 (si existe motor en V o configuración dual).',
+    'Avance encendido':
+        'Indica cuántos grados antes del punto muerto superior se produce la chispa de encendido.',
+    'Flujo aire masivo':
+        'Mide la masa de aire que entra al motor. Es esencial para calcular la cantidad de combustible a inyectar.',
+    'Presión colector admisión':
+        'Detecta la presión en el múltiple de admisión. Útil para calcular la carga del motor.',
+    'Voltaje':
+        'El voltaje automotriz es la cantidad de electricidad que fluye a través de un vehículo. Es una de las partes más importantes del sistema eléctrico de un automóvil, ya que es responsable de proporcionar energía a todos los componentes eléctricos y electrónicos del vehículo',
+    'Sensor O2 1 (V) [0]':
+        'Mide la cantidad de oxígeno en los gases de escape antes del catalizador (banco 1, sensor 1).',
+    'Sensor O2 1 (AFR) [0]':
+        'Air-Fuel Ratio (AFR) o relación aire/combustible estimada del sensor 1.',
+    'Sensor O2 2 (V) [1]':
+        'Sensor después del catalizador (banco 1, sensor 2), verifica la eficiencia del mismo.',
+    'Sensor O2 2 (AFR) [1]':
+        'AFR medida después del catalizador (menos variable que la del sensor 1).',
+    'Sensor O2 3 (V) [2]':
+        'Sensor adicional en banco 2 (si existe motor en V o configuración dual).',
     'Sensor O2 3 (AFR) [2]': 'AFR para banco 2, sensor 1.',
     'Sensor O2 4 (V) [3]': 'Posiblemente el postcatalizador del banco 2.',
     'Sensor O2 4 (AFR) [3]': 'AFR para banco 2, sensor 2.',
-    'AFR Comandado': '',
-    'Nivel Combustible': 'Muestra el porcentaje de combustible restante en el tanque.',
-    'Presión Combustible': 'Indica la presión del combustible antes de inyectarse.',
-    'Presión Riel': 'Presión en el riel de combustible (common rail). Crítica en inyección directa.',
+    'AFR Comandado':
+        'La relación aire-combustible (AFR) es la relación de masa entre la cantidad de aire y la cantidad de combustible mezclado en la cámara de combustión de un vehículo',
+    'Nivel Combustible':
+        'Muestra el porcentaje de combustible restante en el tanque.',
+    'Presión Combustible':
+        'Indica la presión del combustible antes de inyectarse.',
+    'Presión Riel':
+        'Presión en el riel de combustible (common rail). Crítica en inyección directa.',
     'Consumo': 'Cantidad de combustible inyectado por segundo o ciclo.',
-    'Banco 1 Corto': 'Ajuste de corto plazo al AFR del banco 1 (adaptación inmediata).',
+    'Banco 1 Corto':
+        'Ajuste de corto plazo al AFR del banco 1 (adaptación inmediata).',
     'Banco 1 Largo': 'Ajuste de largo plazo al AFR del banco 1 (aprendizaje).',
     'Banco 2 Corto': 'Ajuste de corto plazo al AFR del banco 2.',
     'Banco 2 Largo': 'Ajuste de largo plazo al AFR del banco 2.',
   };
-    final Map<String, String> sensorMinMax = {
+  final Map<String, String> sensorMinMax = {
     'Velocidad': '0 - 240 km/h (depende del vehículo)',
     'RPM': '600 - 7000 rpm',
     'Temp. Refrigerante': '70°C - 105°C',
@@ -1112,7 +1440,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'Presión colector admisión': '20 - 100 kPa',
     'Voltaje': '12.5V - 12.9V',
     'Sensor O2 1 (V) [0]': '0.1 - 0.9 V',
-    'Sensor O2 1 (AFR) [0]': '14.7:1 (estequiométrica), típicamente entre 12 - 16:1',
+    'Sensor O2 1 (AFR) [0]':
+        '14.7:1 (estequiométrica), típicamente entre 12 - 16:1',
     'Sensor O2 2 (V) [1]': '0.1 - 0.9 V',
     'Sensor O2 2 (AFR) [1]': '14.5 - 15.0:1',
     'Sensor O2 3 (V) [2]': '0.1 - 0.9 V',
@@ -1160,12 +1489,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       case 'Sensor O2 3 (V) [2]':
         return {'unit': 'Volts%', 'maxValue': 1};
       case 'Sensor O2 3 (AFR) [2]':
-        return {'unit': 'Volts%', 'maxValue': 16};        
+        return {'unit': 'Volts%', 'maxValue': 16};
       case 'Sensor O2 4 (V) [3]':
         return {'unit': 'Volts%', 'maxValue': 1};
       case 'Sensor O2 4 (AFR) [3]':
-        return {'unit': 'Volts%', 'maxValue': 15};  
-      
+        return {'unit': 'Volts%', 'maxValue': 15};
+
       case 'AFR Comandado':
         return {'unit': 'AFR', 'maxValue': 16};
       // case 'Sensores O2 Activos':
@@ -1317,7 +1646,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       onTap: () async {
                         try {
                           BluetoothConnection connection =
-                              await BluetoothConnection.toAddress(device.address);
+                              await BluetoothConnection.toAddress(
+                                  device.address);
                           _connection = connection;
                           _device = device;
                           Navigator.pop(context);
@@ -1466,13 +1796,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         'unidad': '%',
       },
     ];
-    
+
     _sensorsNotifier.value = _sensors;
   }
 
   void _handleSensorTap(String sensorName, BuildContext context) {
     switch (sensorName) {
-      case 'Velocidad': 
+      case 'Velocidad':
         _showSpeedometerDialog(context, _speed);
         break;
       case 'RPM':
@@ -1507,7 +1837,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _showO2VoltageO24Dialog(context, _o2Voltage);
       case 'Sensor O2 4 (AFR) [3]':
         _showO2AFR024Dialog(context, _o2AFR);
-      
+
       case 'AFR Comandado':
         _showcommandedAFRDialog(context, _commandedAFR);
       case 'Nivel Combustible':
@@ -1549,6 +1879,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void _showRpmDialog(BuildContext context, double rpm) {
     showDialog(
       context: context,
@@ -1567,6 +1898,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void _showcoolTempDialog(BuildContext context, double coolantTemp) {
     showDialog(
       context: context,
@@ -1585,6 +1917,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void _showengineLoadDialog(BuildContext context, double engineLoad) {
     showDialog(
       context: context,
@@ -1603,7 +1936,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
-  void _showignitionAdvanceDialog(BuildContext context, double ignitionAdvance) {
+
+  void _showignitionAdvanceDialog(
+      BuildContext context, double ignitionAdvance) {
     showDialog(
       context: context,
       barrierColor: Colors.black54,
@@ -1621,6 +1956,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void _showmafDialog(BuildContext context, double _maf) {
     showDialog(
       context: context,
@@ -1640,7 +1976,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showintakeMPialog(BuildContext context, double _intakeManifoldPressure) {
+  void _showintakeMPialog(
+      BuildContext context, double _intakeManifoldPressure) {
     showDialog(
       context: context,
       barrierColor: Colors.black54,
@@ -1809,6 +2146,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ),
     );
   }
+
   void _showO2AFR022Dialog(BuildContext context, List _o2AFR) {
     showDialog(
       context: context,
@@ -1961,7 +2299,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showfuelB1SDialog(BuildContext context, double _fuelTrimBank1ShortTerm) {
+  void _showfuelB1SDialog(
+      BuildContext context, double _fuelTrimBank1ShortTerm) {
     showDialog(
       context: context,
       barrierColor: Colors.black54,
@@ -1999,7 +2338,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  void _showfuelB2SDialog(BuildContext context, double _fuelTrimBank2ShortTerm) {
+  void _showfuelB2SDialog(
+      BuildContext context, double _fuelTrimBank2ShortTerm) {
     showDialog(
       context: context,
       barrierColor: Colors.black54,
@@ -2037,7 +2377,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-
   @override
   void dispose() {
     homeController.dispose();
@@ -2061,15 +2400,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       ]),
       builder: (context, child) => Scaffold(
         appBar: AppBar(
-        title: const Text("Inicio"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bluetooth),
-            onPressed: () => _showDeviceList(context),
-            tooltip: "Conectar Bluetooth",
-          )
-        ],
-      ),
+          title: const Text("Inicio"),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.bluetooth),
+              onPressed: () => _showDeviceList(context),
+              tooltip: "Conectar Bluetooth",
+            )
+          ],
+        ),
         bottomNavigationBar: ButtomNavBar(
           selectedButtom: homeController.selectedButtom,
           onTap: (index) {
@@ -2164,6 +2503,36 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 //     width: constraints.maxWidth * 0.46,
                 //   ),
                 // ),
+
+                // Positioned(
+                //   top: 50 * (1 - batteryStatusAnimation.value),
+                //   height: constraints.maxHeight,
+                //   width: constraints.maxWidth,
+                //   child: Opacity(
+                //     opacity: batteryStatusAnimation.value,
+                //     child: Padding(
+                //       padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                //       child: Align(
+                //         alignment: Alignment.centerRight,
+                //         child: BatteryStatus(
+                //           constraints: constraints,
+                //           voltage: sensorHistory['Voltaje']?.isNotEmpty == true
+                //               ? sensorHistory['Voltaje']!.last.toStringAsFixed(2)
+                //               : '...',
+                //           oxygenValues: {
+                //             for (var key in sensorHistory.keys)
+                //               if (key.startsWith('Sensor O2'))
+                //                 key: sensorHistory[key]!.isNotEmpty
+                //                     ? sensorHistory[key]!.last.toStringAsFixed(2)
+                //                     : '...',
+                //           },
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
+
+                /// Battery Screen start here
                 Positioned(
                   top: 50 * (1 - batteryStatusAnimation.value),
                   height: constraints.maxHeight,
@@ -2174,11 +2543,50 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       padding: const EdgeInsets.symmetric(horizontal: 32.0),
                       child: Align(
                         alignment: Alignment.centerRight,
-                        child: BatteryStatus(constraints: constraints),
+                        child: Padding(
+                          padding: const EdgeInsets.all(25),
+                          child: SingleChildScrollView( // <-- Widget clave
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min, // <-- Importante
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                _buildBatteryDetail(
+                                  'Voltaje',
+                                  sensorHistory['Voltaje']?.isNotEmpty == true
+                                      ? sensorHistory['Voltaje']!.last.toStringAsFixed(2)
+                                      : '0.00',
+                                  big: true,
+                                ),
+                                const SizedBox(height: 20),
+                                for (int i = 0; i < 4; i++) ...[
+                                  _buildBatteryDetail(
+                                    'Sensor O2 ${i + 1} (V)',
+                                    sensorHistory['Sensor O2 ${i + 1} (V)']?.isNotEmpty == true
+                                        ? sensorHistory['Sensor O2 ${i + 1} (V)']!.last.toStringAsFixed(2)
+                                        : '0.00',
+                                    unit: 'V',
+                                    big: false,
+                                  ),
+                                  _buildBatteryDetail(
+                                    'Sensor O2 ${i + 1} (AFR)',
+                                    sensorHistory['Sensor O2 ${i + 1} (AFR)']?.isNotEmpty == true
+                                        ? sensorHistory['Sensor O2 ${i + 1} (AFR)']!.last.toStringAsFixed(2)
+                                        : '0.00',
+                                    unit: 'AFR',
+                                    big: false,
+                                  ),
+                                  if (i < 3) const SizedBox(height: 10), // Espaciado entre sensores
+                                ],
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
+
+                /// Battery Screen end here
 
                 /// Battery Screen end here
                 ///
@@ -2190,10 +2598,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   top: 60 * (1 - tempratureShowInfoAnimation.value),
                   child: Opacity(
                     opacity: tempratureShowInfoAnimation.value,
-                    child: TempDetails(homeController: homeController),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(25),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildTempDetail(
+                              'Temperatura Refrigerante',
+                              'Temp. Refrigerante',
+                              big: true,
+                            ),
+                            // Agrega más sensores aquí después si necesitas
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-
                 Positioned(
                   right: -180 * (1 - temCoolGlowAnimation.value),
                   child: AnimatedSwitcher(
@@ -2217,73 +2640,83 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 /// tyre screen start here
                 ///
                 if (homeController.isTyresStatus)
-                Positioned.fill(
-                  child: Opacity(
-                    opacity: 1.0,
-                    child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _sensorsNotifier,
-                      builder: (context, sensors, _) {
-                        final sensoresFiltrados = sensors.where((sensor) => [
-                          "Velocidad",
-                          "RPM",
-                          "Temp. Refrigerante",
-                          "Avance encendido",
-                          "Carga del motor",
-                          "Flujo aire masivo",
-                          "Presión colector admisión",
-                          "Voltaje",
-                          // "Sensores O2 Activos", ///
-                          "Sensor O2 1 (V) [0]", 
-                          "Sensor O2 1 (AFR) [0]", 
-                          "Sensor O2 2 (V) [1]", 
-                          "Sensor O2 2 (AFR) [1]",
-                          "Sensor O2 3 (V) [2]", 
-                          "Sensor O2 3 (AFR) [2]", 
-                          "Sensor O2 4 (V) [3]", 
-                          "Sensor O2 4 (AFR) [3]",
-                          "AFR Comandado", ///
-                          "Nivel Combustible",
-                          "Presión Combustible",
-                          "Presión Riel",
-                          "Consumo",
-                          "Banco 1 Corto",
-                          "Banco 1 Largo",
-                          "Banco 2 Corto",
-                          "Banco 2 Largo",
-                        ].contains(sensor['nombre'])).toList();
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 1.0,
+                      child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                        valueListenable: _sensorsNotifier,
+                        builder: (context, sensors, _) {
+                          final sensoresFiltrados = sensors
+                              .where((sensor) => [
+                                    "Velocidad",
+                                    "RPM",
+                                    "Temp. Refrigerante",
+                                    "Avance encendido",
+                                    "Carga del motor",
+                                    "Flujo aire masivo",
+                                    "Presión colector admisión",
+                                    "Voltaje",
+                                    // "Sensores O2 Activos", ///
+                                    "Sensor O2 1 (V) [0]",
+                                    "Sensor O2 1 (AFR) [0]",
+                                    "Sensor O2 2 (V) [1]",
+                                    "Sensor O2 2 (AFR) [1]",
+                                    "Sensor O2 3 (V) [2]",
+                                    "Sensor O2 3 (AFR) [2]",
+                                    "Sensor O2 4 (V) [3]",
+                                    "Sensor O2 4 (AFR) [3]",
+                                    "AFR Comandado",
 
-                        return GridView.builder(
-                          padding: const EdgeInsets.all(8),
-                          physics: const BouncingScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 15,
-                            crossAxisSpacing: 15,
-                            childAspectRatio: constraints.maxWidth / constraints.maxHeight / 0.7,
-                          ),
-                          itemCount: sensoresFiltrados.length,
-                          itemBuilder: (context, index) {
-                            final sensor = sensoresFiltrados[index];
-                            return ScaleTransition(
-                              scale: tyresAnimation[index % tyresAnimation.length],
-                              child: InkWell(
-                                onTap: () => _showSensorDialog(
-                                  context,
-                                  sensor['nombre'], // Pasar el nombre del sensor
-                                  sensor['valor'].toDouble(),
+                                    ///
+                                    "Nivel Combustible",
+                                    "Presión Combustible",
+                                    "Presión Riel",
+                                    "Consumo",
+                                    "Banco 1 Corto",
+                                    "Banco 1 Largo",
+                                    "Banco 2 Corto",
+                                    "Banco 2 Largo",
+                                  ].contains(sensor['nombre']))
+                              .toList();
+
+                          return GridView.builder(
+                            padding: const EdgeInsets.all(8),
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 15,
+                              crossAxisSpacing: 15,
+                              childAspectRatio: constraints.maxWidth /
+                                  constraints.maxHeight /
+                                  0.7,
+                            ),
+                            itemCount: sensoresFiltrados.length,
+                            itemBuilder: (context, index) {
+                              final sensor = sensoresFiltrados[index];
+                              return ScaleTransition(
+                                scale: tyresAnimation[
+                                    index % tyresAnimation.length],
+                                child: InkWell(
+                                  onTap: () => _showSensorDialog(
+                                    context,
+                                    sensor[
+                                        'nombre'], // Pasar el nombre del sensor
+                                    sensor['valor'].toDouble(),
+                                  ),
+                                  child: SensorCard(
+                                    title: sensor['nombre'],
+                                    value:
+                                        '${sensor['valor'].toStringAsFixed(1)} ${sensor['unidad']}',
+                                  ),
                                 ),
-                                child: SensorCard(
-                                  title: sensor['nombre'],
-                                  value: '${sensor['valor'].toStringAsFixed(1)} ${sensor['unidad']}',
-                                ),
-                              ),
-                            );
-                          },
-                        );
-                      },
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ),
-                ),
 
                 /// tyre screen end here
                 ///

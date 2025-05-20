@@ -90,25 +90,6 @@ class _TempDetailsState extends State<TempDetails> {
       ),
     );
   }
-  // Row(
-  //   children: [
-  //     TempButtom(
-  //       activeColor: primaryColor,
-  //       isActive: homeController.isCoolSelected,
-  //       svgPic: 'assets/icons/coolShape.svg',
-  //      title: 'Cool',
-  //       onPress: homeController.updateCoolSelected,
-  //       ),
-  //        SizedBox(width: 30),
-  //       TempButtom(
-  //         activeColor: Colors.red,
-  //       isActive: !homeController.isCoolSelected,
-  //       svgPic: 'assets/icons/heatShape.svg',
-  //      title: 'Heat',
-  //       onPress: homeController.updateCoolSelected,
-  //       ),
-  //   ],
-  // ),
 
   Widget _buildTemp(String label, String value, {bool big = false}) {
     return Column(
