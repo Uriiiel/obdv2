@@ -54,7 +54,7 @@ class DoorLock extends StatelessWidget {
               padding: EdgeInsets.zero,
               physics: const BouncingScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
+                crossAxisCount: 2,
                 mainAxisSpacing: 22,
                 crossAxisSpacing: 20,
                 childAspectRatio: aspect,

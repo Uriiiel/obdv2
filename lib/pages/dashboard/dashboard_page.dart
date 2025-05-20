@@ -2026,6 +2026,7 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 
 class GaugeConfig {
   final double maxValue;
+  final double minValue;
   final List<GaugeRange> ranges;
   final String unit;
   final SweepGradient gradient;
@@ -2033,6 +2034,7 @@ class GaugeConfig {
 
   GaugeConfig({
     required this.maxValue,
+    required this.minValue,
     required this.ranges,
     required this.unit,
     required this.gradient,
@@ -2058,8 +2060,8 @@ class SpeedometerPage extends StatelessWidget {
       title: 'Velocidad',
       config: GaugeConfig(
         maxValue: 240,
+        minValue: 0,
         unit: 'km/h',
-        
         gradient: const SweepGradient(
           colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
           stops: [0.25, 0.5, 0.75, 1],
@@ -2104,6 +2106,7 @@ class SpeedometerPage extends StatelessWidget {
       title: 'RPM',
       config: GaugeConfig(
         maxValue: 8000,
+        minValue: 0,
         unit: 'RPM',
         gradient: const SweepGradient(
           colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
@@ -2142,18 +2145,1047 @@ class SpeedometerPage extends StatelessWidget {
       ),
     );
   }
-
+  factory SpeedometerPage.tempR({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Temp. Refrigerante',
+      config: GaugeConfig(
+        maxValue: 105,
+        minValue: 0,
+        unit: '°',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 30,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 30,
+            endValue: 60,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 60,
+            endValue: 90,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 90,
+            endValue: 105,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.cargaMotor({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Carga del motor',
+      config: GaugeConfig(
+        maxValue: 100,
+        minValue: 0,
+        unit: '%',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 25,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 25,
+            endValue: 50,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 50,
+            endValue: 75,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 75,
+            endValue: 100,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.avanceEncentido({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Avance encendido',
+      config: GaugeConfig(
+        maxValue: 40,
+        minValue: -10,
+        unit: '°',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: -10,
+            endValue: 0,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0,
+            endValue: 15,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 15,
+            endValue: 30,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 30,
+            endValue: 40,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.flujoAir({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Flujo aire masivo',
+      config: GaugeConfig(
+        maxValue: 20,
+        minValue: 0,
+        unit: '°',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5,
+            endValue: 10,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 10,
+            endValue: 15,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 15,
+            endValue: 20,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.presionCA({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Presión colector admisión',
+      config: GaugeConfig(
+        maxValue: 100,
+        minValue: 0,
+        unit: 'kPa',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 25,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 25,
+            endValue: 50,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 50,
+            endValue: 75,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 75,
+            endValue: 100,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.voltaje({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Voltaje',
+      config: GaugeConfig(
+        maxValue: 25,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 11,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 11,
+            endValue: 13,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 13,
+            endValue: 14,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 14,
+            endValue: 25,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO21V({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 1 (V) [0]',
+      config: GaugeConfig(
+        maxValue: 0.9,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 0.3,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.3,
+            endValue: 0.5,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.5,
+            endValue: 0.6,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.6,
+            endValue: 0.9,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO21AFR({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 1 (AFR) [0]',
+      config: GaugeConfig(
+        maxValue: 16,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 4,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 4,
+            endValue: 8,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 8,
+            endValue: 12,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 12,
+            endValue: 16,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO22V({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 2 (V) [1]',
+      config: GaugeConfig(
+        maxValue: 0.9,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 0.3,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.3,
+            endValue: 0.5,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.5,
+            endValue: 0.6,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.6,
+            endValue: 0.9,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO22AFR({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 2 (AFR) [1]',
+      config: GaugeConfig(
+        maxValue: 16,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 4,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 4,
+            endValue: 8,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 8,
+            endValue: 12,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 12,
+            endValue: 16,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO23V({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 3 (V) [2]',
+      config: GaugeConfig(
+        maxValue: 0.9,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 0.3,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.3,
+            endValue: 0.5,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.5,
+            endValue: 0.6,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.6,
+            endValue: 0.9,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO23AFR({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 3 (AFR) [2]',
+      config: GaugeConfig(
+        maxValue: 16,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 4,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 4,
+            endValue: 8,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 8,
+            endValue: 12,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 12,
+            endValue: 16,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO24V({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 4 (V) [3]',
+      config: GaugeConfig(
+        maxValue: 0.9,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 0.3,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.3,
+            endValue: 0.5,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.5,
+            endValue: 0.6,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0.6,
+            endValue: 0.9,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.sensorO24AFR({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Sensor O2 4 (AFR) [3]',
+      config: GaugeConfig(
+        maxValue: 16,
+        minValue: 0,
+        unit: 'V',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 4,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 4,
+            endValue: 8,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 8,
+            endValue: 12,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 12,
+            endValue: 16,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.afrC({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'AFR Comandado',
+      config: GaugeConfig(
+        maxValue: 20,
+        minValue: 0,
+        unit: 'AFR',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5,
+            endValue: 10,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 10,
+            endValue: 15,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 15,
+            endValue: 20,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.nivelC({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Nivel Combustible',
+      config: GaugeConfig(
+        maxValue: 100,
+        minValue: 0,
+        unit: '%',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 25,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 25,
+            endValue: 50,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 50,
+            endValue: 75,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 75,
+            endValue: 100,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.presionC({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Presión Combustible',
+      config: GaugeConfig(
+        maxValue: 400,
+        minValue: 0,
+        unit: 'kPa',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 100,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 100,
+            endValue: 200,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 200,
+            endValue: 300,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 300,
+            endValue: 400,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.presionR({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Presión Riel',
+      config: GaugeConfig(
+        maxValue: 2000,
+        minValue: 0,
+        unit: 'kPa',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 500,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 500,
+            endValue: 1000,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 1000,
+            endValue: 1500,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 1500,
+            endValue: 2000,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.consumo({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Consumo',
+      config: GaugeConfig(
+        maxValue: 50,
+        minValue: 0,
+        unit: 'mg/combustión',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 12.5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 12.5,
+            endValue: 25,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 25,
+            endValue: 37.5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 37.5,
+            endValue: 50,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.banco1C({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Banco 1 Corto',
+      config: GaugeConfig(
+        maxValue: 10,
+        minValue: -10,
+        unit: '%',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: -10,
+            endValue: -5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: -5,
+            endValue: 0,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0,
+            endValue: 5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5,
+            endValue: 10,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.banco1L({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Banco 1 Largo',
+      config: GaugeConfig(
+        maxValue: 10,
+        minValue: -10,
+        unit: '%',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: -10,
+            endValue: -5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: -5,
+            endValue: 0,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0,
+            endValue: 5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5,
+            endValue: 10,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.banco2C({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Banco 2 Corto',
+      config: GaugeConfig(
+        maxValue: 10,
+        minValue: -10,
+        unit: '%',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: -10,
+            endValue: -5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: -5,
+            endValue: 0,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0,
+            endValue: 5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5,
+            endValue: 10,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+  factory SpeedometerPage.banco2L({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'Banco 2 Largo',
+      config: GaugeConfig(
+        maxValue: 10,
+        minValue: -10,
+        unit: '%',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: -10,
+            endValue: -5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: -5,
+            endValue: 0,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 0,
+            endValue: 5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 5,
+            endValue: 10,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: Colors.black.withOpacity(0.9),
       insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(
-        side: BorderSide(
-          color: primaryColor,
-          width: 2,
-        ),
-      ),
+      shape: RoundedRectangleBorder(),
       child: Container(
         padding: const EdgeInsets.all(20),
         // constraints: const BoxConstraints(
@@ -2173,93 +3205,92 @@ class SpeedometerPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
               ],
             ),
-            SizedBox(
-              width: 300,
-              height: 500,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
-                    startAngle: 140,
-                    endAngle: 40,
-                    minimum: 0,
-                    maximum: config.maxValue,
-                    radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
-                      length: 12,
-                      thickness: 2,
-                      color: Colors.black,
-                    ),
-                    minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
-                      length: 6,
-                      thickness: 1,
-                      color: Colors.grey,
-                    ),
-                    axisLineStyle: AxisLineStyle(
-                      thickness: 15,
-                      gradient: config.gradient,
-                    ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
-                        value: value.clamp(0, config.maxValue),
-                        enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
-                        needleColor: config.needleColor,
-                        needleStartWidth: 1,
-                        needleEndWidth: 5,
-                        needleLength: 0.75,
-                        animationDuration: 2000,
-                        gradient: const LinearGradient(
-                          colors: [Colors.white, Colors.red],
+            Expanded(
+              child: Center(
+                child: SizedBox(
+                  width: 300,
+                  child: SfRadialGauge(
+                    axes: <RadialAxis>[
+                      RadialAxis(
+                        startAngle: 140,
+                        endAngle: 40,
+                        minimum: config.minValue,
+                        maximum: config.maxValue,
+                        radiusFactor: 0.9,
+                        majorTickStyle: const MajorTickStyle(
+                          length: 12,
+                          thickness: 2,
+                          color: Colors.black,
                         ),
-                        knobStyle: KnobStyle(
-                          color: Colors.transparent,
-                          borderColor: Colors.blue.withAlpha(100),
-                          borderWidth: 1,
+                        minorTicksPerInterval: 4,
+                        minorTickStyle: const MinorTickStyle(
+                          length: 6,
+                          thickness: 1,
+                          color: Colors.grey,
                         ),
-                      ),
-                    ],
-                    ranges: config.ranges,
-                    annotations: <GaugeAnnotation>[
-                      GaugeAnnotation(
-                        widget: Column(
-                          children: [
-                            const SizedBox(height: 110),
-                            Text(
-                              value.toStringAsFixed(0),
-                              style: const TextStyle(
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                shadows: [
-                                  Shadow(
+                        axisLineStyle: AxisLineStyle(
+                          thickness: 15,
+                          gradient: config.gradient,
+                        ),
+                        pointers: <GaugePointer>[
+                          NeedlePointer(
+                            value: value.clamp(0, config.maxValue),
+                            enableAnimation: true,
+                            animationType: AnimationType.easeOutBack,
+                            needleColor: config.needleColor,
+                            needleStartWidth: 1,
+                            needleEndWidth: 5,
+                            needleLength: 0.75,
+                            animationDuration: 2000,
+                            gradient: const LinearGradient(
+                              colors: [Colors.white, Colors.red],
+                            ),
+                            knobStyle: KnobStyle(
+                              color: Colors.transparent,
+                              borderColor: Colors.blue.withAlpha(100),
+                              borderWidth: 1,
+                            ),
+                          ),
+                        ],
+                        ranges: config.ranges,
+                        annotations: <GaugeAnnotation>[
+                          GaugeAnnotation(
+                            widget: Column(
+                              children: [
+                                const SizedBox(height: 110),
+                                Text(
+                                  value.toStringAsFixed(0),
+                                  style: const TextStyle(
+                                    fontSize: 50,
+                                    fontWeight: FontWeight.bold,
                                     color: Colors.white,
-                                    blurRadius: 20,
+                                    shadows: [
+                                      Shadow(
+                                        color: Colors.white,
+                                        blurRadius: 20,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                Text(
+                                  config.unit,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              config.unit,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                        angle: 90,
-                        positionFactor: 0.75,
+                            angle: 90,
+                            positionFactor: 0.75,
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ],
