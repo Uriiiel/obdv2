@@ -1,31 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:obdv2/pages/dashboard/home_dash.dart';
+//import 'package:obdv2/pages/dashboard/home_dash.dart';
+import 'package:obdv2/pages/home_page.dart';
+
 import 'package:syncfusion_flutter_gauges/gauges.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
+
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 final Color colorPrimary = Color(0xFF007AFF); // Azul principal
 
 class SpeedometerPage extends StatefulWidget {
-  const SpeedometerPage({super.key});
+  final User user; // <-- Agrega esto
+
+  const SpeedometerPage({required this.user, Key? key}) : super(key: key);
 
   @override
   State<SpeedometerPage> createState() => _SpeedometerPageState();
 }
+
+//CONTADORES PARA LOS GRAFICOS
+
+List<FlSpot> _historialAvance = [];
+int _contador = 0;
+
+final List<FlSpot> _historialCargaMotor = [];
+int _contadorCarga = 0;
+
+final List<FlSpot> _historialFlujoAire = [];
+int _contadorFlujoAire = 0;
+
+final List<FlSpot> _historialPresionAdmision = [];
+int _contadorPresionAdm = 0;
+
+final List<FlSpot> _historialRPM = [];
+int _contadorRPM = 0;
+
+final List<FlSpot> _historialTempRef = [];
+int _contadorTempRef = 0;
+
+final List<FlSpot> _historialVelocidad = [];
+int _contadorVelocidad = 0;
+
+final List<FlSpot> _historialVoltaje = [];
+int _contadorVoltaje = 0;
+
+/////////////////////////////////////
 
 class _SpeedometerPageState extends State<SpeedometerPage> {
   final ValueNotifier<double> _avanceEnNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _cargaMotorNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _cargaInComNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _flujoAirComNotifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _presBaromNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _presColAdmiNotifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _presComNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _rpmNotifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _tempAceNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _tempRefNotifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _tiemEncNotifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _valvAdmNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _velocidadNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _voltajeNotifier = ValueNotifier(0.0);
 
@@ -43,7 +75,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
 
   void _setupDatabaseListeners() {
     _databaseRef
-        .child('/SensoresMotor/Avance encendido')
+        .child('SensoresMotor/Avance encendido')
         .onValue
         .listen((event) {
       final data = event.snapshot.value;
@@ -57,10 +89,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
       }
     });
 
-    _databaseRef
-        .child('/SensoresMotor/Carga del motor')
-        .onValue
-        .listen((event) {
+    _databaseRef.child('SensoresMotor/Carga del motor').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
@@ -74,23 +103,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
     });
 
     _databaseRef
-        .child('/SensoresMotor/Consumo instantáneo combustible')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _cargaInComNotifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final conincom = double.tryParse(data.toString()) ?? 0.0;
-          _cargaInComNotifier.value = conincom;
-        }
-      }
-    });
-
-    _databaseRef
-        .child('/SensoresMotor/Flujo aire masivo')
+        .child('SensoresMotor/Flujo aire masivo')
         .onValue
         .listen((event) {
       final data = event.snapshot.value;
@@ -106,23 +119,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
     });
 
     _databaseRef
-        .child('/SensoresMotor/Presion barometrica')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _presBaromNotifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final presbarom = double.tryParse(data.toString()) ?? 0.0;
-          _presBaromNotifier.value = presbarom;
-        }
-      }
-    });
-
-    _databaseRef
-        .child('/SensoresMotor/Presión colector admisión')
+        .child('SensoresMotor/Presión colector admisión')
         .onValue
         .listen((event) {
       final data = event.snapshot.value;
@@ -133,22 +130,6 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
         } else {
           final prescoladm = double.tryParse(data.toString()) ?? 0.0;
           _presColAdmiNotifier.value = prescoladm;
-        }
-      }
-    });
-
-    _databaseRef
-        .child('/SensoresMotor/Presión combustible')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _presComNotifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final prescom = double.tryParse(data.toString()) ?? 0.0;
-          _presComNotifier.value = prescom;
         }
       }
     });
@@ -165,26 +146,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
       }
     });
 
-    _databaseRef
-        .child('/SensoresMotor/Temperatura aceite')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _tempAceNotifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final tempace = double.tryParse(data.toString()) ?? 0.0;
-          _tempAceNotifier.value = tempace;
-        }
-      }
-    });
-
-    _databaseRef
-        .child('/SensoresMotor/Temperatura refrigerante')
-        .onValue
-        .listen((event) {
+    _databaseRef.child('SensoresMotor/TempRef').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
@@ -197,39 +159,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
       }
     });
 
-    _databaseRef
-        .child('/SensoresMotor/Tmp Funcionamiento')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _tiemEncNotifier.value =
-              -11; // Valor especial para indicar "No soportado"
-        } else {
-          final tiempen = double.tryParse(data.toString()) ?? 0.0;
-          _tiemEncNotifier.value = tiempen;
-        }
-      }
-    });
-
-    _databaseRef
-        .child('/SensoresMotor/Valvula admision')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _valvAdmNotifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final valvAdm = double.tryParse(data.toString()) ?? 0.0;
-          _valvAdmNotifier.value = valvAdm;
-        }
-      }
-    });
-
-    _databaseRef.child('/SensoresMotor/Velocidad').onValue.listen((event) {
+    _databaseRef.child('SensoresMotor/Velocidad').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
@@ -260,26 +190,14 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
     switch (selectedMetric) {
       case 'Carga del motor':
         return buildCargamotorGauge();
-      case 'Consumo instantáneo combustible':
-        return buildConsumoInsComGauge();
       case 'Flujo aire masivo':
         return buildFAMGauge();
-      case 'Presion barometrica':
-        return buildPBGauge();
       case 'Presión colector admisión':
         return buildPresColAdmGauge();
-      case 'Presión combustible':
-        return buildPresComGauge();
       case 'RPM':
         return buildRpmGauge();
-      case 'Temperatura aceite':
-        return buildTempAceiteGauge();
       case 'Temperatura refrigerante':
         return buildTempRefGauge();
-      case 'Tiempo de funcionamiento':
-        return buildTieEncGauge();
-      case 'Valvula admision':
-        return buildVAGauge();
       case 'Velocidad':
         return buildSpeedGauge();
       case 'Voltaje':
@@ -306,76 +224,251 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
           );
         }
 
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: -10,
-              maximum: 30,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: avanen.clamp(-10, 30),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: const Color.fromARGB(255, 255, 17, 0),
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${avanen.toStringAsFixed(0)}°",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
+        _historialAvance.add(FlSpot(_contador.toDouble(), avanen));
+        _contador++;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge intacto
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: -10,
+                    maximum: 40,
+                    radiusFactor: 0.9,
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    axisLineStyle: const AxisLineStyle(
+                      thickness: 12,
+                      gradient: SweepGradient(
+                        colors: [Colors.red, Colors.yellow, Colors.green],
+                        stops: [0.0, 0.3, 1],
+                      ),
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: avanen.clamp(-10, 40),
+                        enableAnimation: true,
+                        animationType: AnimationType.elasticOut,
+                        needleColor: Color.fromARGB(255, 255, 17, 0),
+                        needleLength: 0.75,
+                        animationDuration: 1500,
+                        gradient: LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: Color(0xFF3F3F3F),
+                          borderColor: Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
                         ),
                       ),
-                      const Text(
-                        "Avance de Encendido",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            SizedBox(height: 180),
+                            Text(
+                              "${avanen.toStringAsFixed(2)}°",
+                              style: TextStyle(
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
+                              ),
+                            ),
+                            Text(
+                              "Avance de Encendido",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
                       ),
                     ],
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
+                ],
+              ),
+            ),
+            // Panel informativo mejorado
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500, // Ancho fijo
+                      height: 450, // Alto fijo
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Sensor de Avance del Encendido. \n'
+                              'Determina el momento óptimo para que salte la chispa en los cilindros, antes de que el pistón alcance el punto muerto superior. \n'
+                              'Un avance correcto mejora la eficiencia y reduce el consumo. Un avance excesivo puede causar "picado" del motor, mientras que uno insuficiente reduce el rendimiento. \n\n'
+                              'Rango de Valores: \n'
+                              '-10° (retraso) – 40° (avance)',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: const Text(
+                              'Gráfico de avance',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval:
+                                            (_contador / 4).ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 10,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}°',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialAvance,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                      color: Colors.blueAccent,
+                                      width: 2), // Borde azul
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cerrar',
+                                  style: TextStyle(
+                                      color: Colors
+                                          .blueAccent), // Texto del mismo color
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20), // Texto más grande
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 32,
+                            vertical: 16), // Más espacio interno
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(
+                            160, 60), // Tamaño mínimo del botón (ancho x alto)
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         );
@@ -399,274 +492,302 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             ),
           );
         }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 100,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [
-                    Colors.green,
-                    Colors.yellow,
-                    Colors.orange,
-                    Colors.red,
-                  ],
-                  stops: [0.25, 0.5, 0.75, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                  fontSize: 18,
-                  color: Color.fromARGB(255, 0, 0, 0),
-                  fontWeight: FontWeight.bold),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: carmotor,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
+
+        _historialCargaMotor.add(FlSpot(_contadorCarga.toDouble(), carmotor));
+        _contadorCarga++;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge intacto
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: 0,
+                    maximum: 100,
+                    radiusFactor: 0.9,
+                    majorTickStyle: const MajorTickStyle(
+                      length: 12,
+                      thickness: 2,
+                      color: Colors.black,
+                    ),
+                    minorTicksPerInterval: 4,
+                    minorTickStyle: const MinorTickStyle(
+                      length: 6,
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                    axisLineStyle: const AxisLineStyle(
+                      thickness: 15,
+                      gradient: SweepGradient(
+                        colors: [
+                          Colors.green,
+                          Colors.yellow,
+                          Colors.orange,
+                          Colors.red,
+                        ],
+                        stops: [0.25, 0.5, 0.75, 1],
+                      ),
+                    ),
+                    axisLabelStyle: const GaugeTextStyle(
+                        fontSize: 18,
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontWeight: FontWeight.bold),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: carmotor.clamp(0, 100),
+                        enableAnimation: true,
+                        animationType: AnimationType.easeOutBack,
+                        needleColor: Colors.red,
+                        needleStartWidth: 1,
+                        needleEndWidth: 5,
+                        needleLength: 0.75,
+                        animationDuration: 2000,
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.white,
+                            Colors.red,
+                          ],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
+                        ),
+                      ),
+                    ],
+                    ranges: [
+                      GaugeRange(
+                        startValue: 0,
+                        endValue: 25,
+                        color: Colors.green,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                      GaugeRange(
+                        startValue: 25,
+                        endValue: 50,
+                        color: Colors.yellow,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                      GaugeRange(
+                        startValue: 50,
+                        endValue: 75,
+                        color: Colors.orange,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                      GaugeRange(
+                        startValue: 75,
+                        endValue: 100,
+                        color: Colors.red,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${carmotor.toStringAsFixed(2)} %",
+                              style: const TextStyle(
+                                fontSize: 50,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.white,
+                                    blurRadius: 20,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              "Carga del Motor",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
+                      )
                     ],
                   ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              ranges: [
-                GaugeRange(
-                  startValue: 0,
-                  endValue: 25,
-                  color: Colors.green,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 25,
-                  endValue: 50,
-                  color: Colors.yellow,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 50,
-                  endValue: 75,
-                  color: Colors.orange,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 75,
-                  endValue: 100,
-                  color: Colors.red,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        carmotor.toStringAsFixed(0),
-                        style: const TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
+                ],
+              ),
+            ),
+            // Panel informativo mejorado
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(), // Efecto de rebote
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(
+                                height:
+                                    10), // Espaciado entre el título y el contenido
+                            Text(
+                              'Sensor de Carga del Motor. \n'
+                              'Indica el porcentaje de carga que está soportando el motor en relación a su capacidad máxima. \n'
+                              'Una carga óptima (20-70%) mejora la eficiencia del combustible. Cargas muy bajas (0-20%) pueden indicar conducción ineficiente, mientras que cargas altas (70-100%) pueden reducir la vida útil del motor si se mantienen por periodos prolongados. \n\n'
+                              'Rango de Valores: \n'
+                              '0% (mínima carga) – 100% (carga máxima)',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
                             ),
                           ],
                         ),
                       ),
-                      const Text(
-                        "Carga del Motor",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildConsumoInsComGauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _cargaInComNotifier,
-      builder: (context, conincom, child) {
-        if (conincom == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 30, // Ajustado a un rango más realista
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 10,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 2,
-              minorTickStyle: const MinorTickStyle(
-                length: 5,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [
-                    Colors.green, // Bajo consumo
-                    Colors.yellow, // Moderado
-                    Colors.orange, // Alto consumo
-                    Colors.red, // Excesivo
-                  ],
-                  stops: [0.15, 0.35, 0.65, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value:
-                      conincom.clamp(0, 30), // Limita valores fuera del rango
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              ranges: [
-                GaugeRange(
-                  startValue: 0,
-                  endValue: 5,
-                  color: Colors.green,
-                  startWidth: 12,
-                  endWidth: 12,
-                ),
-                GaugeRange(
-                  startValue: 5,
-                  endValue: 10,
-                  color: Colors.yellow,
-                  startWidth: 12,
-                  endWidth: 12,
-                ),
-                GaugeRange(
-                  startValue: 10,
-                  endValue: 20,
-                  color: Colors.orange,
-                  startWidth: 12,
-                  endWidth: 12,
-                ),
-                GaugeRange(
-                  startValue: 20,
-                  endValue: 30,
-                  color: Colors.red,
-                  startWidth: 12,
-                  endWidth: 12,
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${conincom.toStringAsFixed(1)} L/100km",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                          ],
-                        ),
+                            title: Text(
+                              'Gráfico de carga del motor',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval:
+                                            (_contadorCarga / 4).ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 20,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}%',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialCargaMotor,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
                       ),
-                      const Text(
-                        "Consumo Instantáneo",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
                         ),
+                        minimumSize: Size(160, 60),
                       ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         );
@@ -691,170 +812,248 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
           );
         }
 
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 100,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: flujoair.clamp(0, 300),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${flujoair.toStringAsFixed(0)}%",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
+        // Actualizar el historial
+        _historialFlujoAire
+            .add(FlSpot(_contadorFlujoAire.toDouble(), flujoair));
+        _contadorFlujoAire++;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: 2,
+                    maximum: 20,
+                    radiusFactor: 0.9,
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    axisLineStyle: const AxisLineStyle(
+                      thickness: 12,
+                      gradient: SweepGradient(
+                        colors: [Colors.red, Colors.yellow, Colors.green],
+                        stops: [0.0, 0.3, 1],
+                      ),
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: flujoair.clamp(2, 20),
+                        enableAnimation: true,
+                        animationType: AnimationType.elasticOut,
+                        needleColor: Colors.red,
+                        needleLength: 0.75,
+                        animationDuration: 1500,
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
                         ),
                       ),
-                      const Text(
-                        "Flujo aire masivo",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${flujoair.toStringAsFixed(2)} g/s",
+                              style: const TextStyle(
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              "Flujo aire masivo",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
                       ),
                     ],
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildPBGauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _presBaromNotifier,
-      builder: (context, presbarom, child) {
-        if (presbarom == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+                ],
               ),
             ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 120,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: presbarom.clamp(0, 120),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${presbarom.toStringAsFixed(0)} g/s",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
+            // Panel informativo
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Sensor de Flujo de Aire Masivo (MAF). \n'
+                              'Mide la cantidad de aire que entra al motor para calcular la mezcla óptima de combustible. \n'
+                              'Valores bajos pueden indicar obstrucciones en el sistema de admisión, mientras que valores altos pueden señalar fugas de aire. \n\n'
+                              'Rango típico: \n'
+                              '2–20 g/s (gramos por segundo)',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
+                            ),
                           ],
                         ),
                       ),
-                      const Text(
-                        "Presión Barometrica",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Text(
+                              'Gráfico de flujo de aire',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval: (_contadorFlujoAire / 4)
+                                            .ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 2,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}g/s',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialFlujoAire,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
                       ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(160, 60),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         );
@@ -879,170 +1078,250 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
           );
         }
 
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 20, // 🔹 Rango realista
-              maximum: 250, // 🔹 MAP puede llegar a 250 kPa en motores turbo
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: prescoladm.clamp(20, 250),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${prescoladm.toStringAsFixed(0)} kPa",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
+        // Actualizar el historial
+        _historialPresionAdmision
+            .add(FlSpot(_contadorPresionAdm.toDouble(), prescoladm));
+        _contadorPresionAdm++;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: 20,
+                    maximum: 250,
+                    radiusFactor: 0.9,
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    axisLineStyle: const AxisLineStyle(
+                      thickness: 12,
+                      gradient: SweepGradient(
+                        colors: [Colors.red, Colors.yellow, Colors.green],
+                        stops: [0.0, 0.043, 1],
+                      ),
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: prescoladm.clamp(20, 250),
+                        enableAnimation: true,
+                        animationType: AnimationType.elasticOut,
+                        needleColor: Colors.red,
+                        needleLength: 0.75,
+                        animationDuration: 1500,
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
                         ),
                       ),
-                      const Text(
-                        "Presión Colector Admisión",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${prescoladm.toStringAsFixed(2)} kPa",
+                              style: const TextStyle(
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              "Presión Colector Admisión",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
                       ),
                     ],
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildPresComGauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _presComNotifier,
-      builder: (context, prescom, child) {
-        if (prescom == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+                ],
               ),
             ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 500,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.red, Colors.yellow, Colors.green],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: prescom.clamp(0, 500),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${prescom.toStringAsFixed(0)} kPa",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
+            // Panel informativo
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Sensor MAP (Presión Absoluta del Colector). \n'
+                              'Mide la presión de aire en el colector de admisión para determinar la cantidad de aire que entra al motor. \n\n'
+                              'Valores normales:\n'
+                              '- Motor en ralentí: 20-50 kPa\n'
+                              '- Aceleración máxima: hasta 250 kPa (en motores turbo)\n'
+                              '- Motor apagado: ≈100 kPa (presión atmosférica)\n\n'
+                              'Valores bajos pueden indicar fugas de vacío, mientras que valores altos pueden señalar problemas con el turbocompresor o restricciones en el sistema de escape.',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
+                            ),
                           ],
                         ),
                       ),
-                      const Text(
-                        "Presión de Combustible",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Text(
+                              'Gráfico de presión',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval: (_contadorPresionAdm / 4)
+                                            .ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 50,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}kPa',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialPresionAdmision,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
                       ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(160, 60),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         );
@@ -1066,219 +1345,305 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             ),
           );
         }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 8000,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [
-                    Colors.green,
-                    Colors.yellow,
-                    Colors.orange,
-                    Colors.red,
-                  ],
-                  stops: [0.25, 0.5, 0.75, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: rpm,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
+
+        // Actualizar el historial
+        _historialRPM.add(FlSpot(_contadorRPM.toDouble(), rpm));
+        _contadorRPM++;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: 0,
+                    maximum: 8000,
+                    radiusFactor: 0.9,
+                    majorTickStyle: const MajorTickStyle(
+                      length: 12,
+                      thickness: 2,
+                      color: Colors.black,
+                    ),
+                    minorTicksPerInterval: 4,
+                    minorTickStyle: const MinorTickStyle(
+                      length: 6,
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                    axisLineStyle: const AxisLineStyle(
+                      thickness: 15,
+                      gradient: SweepGradient(
+                        colors: [
+                          Colors.green,
+                          Colors.yellow,
+                          Colors.orange,
+                          Colors.red,
+                        ],
+                        stops: [0.25, 0.5, 0.75, 1],
+                      ),
+                    ),
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: rpm.clamp(0, 8000),
+                        enableAnimation: true,
+                        animationType: AnimationType.easeOutBack,
+                        needleColor: Colors.red,
+                        needleStartWidth: 1,
+                        needleEndWidth: 5,
+                        needleLength: 0.75,
+                        animationDuration: 2000,
+                        gradient: const LinearGradient(
+                          colors: [
+                            Colors.white,
+                            Colors.red,
+                          ],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
+                        ),
+                      ),
                     ],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              ranges: [
-                GaugeRange(
-                  startValue: 0,
-                  endValue: 2000,
-                  color: Colors.green,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 2000,
-                  endValue: 5000,
-                  color: Colors.yellow,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 5000,
-                  endValue: 7000,
-                  color: Colors.orange,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 7000,
-                  endValue: 8000,
-                  color: Colors.red,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(rpm.toStringAsFixed(0),
-                          style: TextStyle(
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            shadows: [
-                              Shadow(
-                                color: Colors.white,
-                                blurRadius: 20,
+                    ranges: [
+                      GaugeRange(
+                        startValue: 0,
+                        endValue: 2000,
+                        color: Colors.green,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                      GaugeRange(
+                        startValue: 2000,
+                        endValue: 5000,
+                        color: Colors.yellow,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                      GaugeRange(
+                        startValue: 5000,
+                        endValue: 7000,
+                        color: Colors.orange,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                      GaugeRange(
+                        startValue: 7000,
+                        endValue: 8000,
+                        color: Colors.red,
+                        startWidth: 15,
+                        endWidth: 15,
+                      ),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${rpm.toStringAsFixed(0)} RPM",
+                              style: const TextStyle(
+                                fontSize: 50,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
                               ),
-                            ],
-                          )),
-                      const Text(
-                        "RPM",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                            ),
+                            const Text(
+                              "Revoluciones por minuto",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
                       ),
                     ],
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildTempAceiteGauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _tempAceNotifier,
-      builder: (context, tempace, child) {
-        if (tempace == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+                ],
               ),
             ),
-          );
-        }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 150,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tempace.clamp(20, 250),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tempace.toStringAsFixed(0)} C°",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
+            // Panel informativo
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Sensor de RPM (Revoluciones Por Minuto). \n'
+                              'Mide la velocidad de rotación del cigüeñal del motor. \n\n'
+                              'Rangos típicos:\n'
+                              '- Ralentí: 600-1000 RPM (motor caliente)\n'
+                              '- Conducción normal: 1500-3000 RPM\n'
+                              '- Aceleración fuerte: 3000-5000 RPM\n'
+                              '- Límite máximo: Depende del motor (generalmente 6000-8000 RPM)\n\n'
+                              'Valores anormales:\n'
+                              '- RPM muy altas en ralentí: Problemas con el regulador\n'
+                              '- RPM fluctuantes: Posibles fallos en el sistema de admisión o encendido\n'
+                              '- RPM bajas o irregulares: Problemas con las bujías, inyectores o compresión',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
+                            ),
                           ],
                         ),
                       ),
-                      const Text(
-                        "Temperatura del aceite",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Text(
+                              'Gráfico de RPM',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval:
+                                            (_contadorRPM / 4).ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 1000,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialRPM,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
                       ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(160, 60),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         );
@@ -1302,283 +1667,276 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             ),
           );
         }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 40,
-              maximum: 150,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tempref.clamp(20, 250),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tempref.toStringAsFixed(0)} C°",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
+
+        // Actualizar el historial
+        _historialTempRef.add(FlSpot(_contadorTempRef.toDouble(), tempref));
+        _contadorTempRef++;
+
+        // Parámetros de rango
+        const double min = 40;
+        const double max = 150;
+        final double range = max - min;
+
+        double stop(double value) => (value - min) / range;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: min,
+                    maximum: max,
+                    radiusFactor: 0.9,
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    axisLineStyle: AxisLineStyle(
+                      thickness: 12,
+                      gradient: SweepGradient(
+                        colors: [
+                          Colors.red, // <70
+                          Colors.yellow, // 70-89
+                          Colors.green, // 90-100 (óptimo)
+                          Colors.yellow, // 101-105
+                          Colors.red // >105
+                        ],
+                        stops: [
+                          stop(70), // fin rojo bajo
+                          stop(89), // fin amarillo bajo
+                          stop(100), // fin verde
+                          stop(105), // fin amarillo alto
+                          1.0 // fin rojo alto
+                        ],
+                      ),
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: tempref.clamp(min, max),
+                        enableAnimation: true,
+                        animationType: AnimationType.elasticOut,
+                        needleColor: Colors.red,
+                        needleLength: 0.75,
+                        animationDuration: 1500,
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
                         ),
                       ),
-                      const Text(
-                        "Temperatura refrigerante",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${tempref.toStringAsFixed(1)}°C",
+                              style: const TextStyle(
+                                fontSize: 45,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              "Temperatura refrigerante",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
                       ),
                     ],
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildTieEncGauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _tiemEncNotifier,
-      builder: (context, tiempen, child) {
-        if (tiempen == -11) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
+                ],
               ),
             ),
-          );
-        }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: -10,
-              maximum: 50,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tiempen.clamp(0, 50),
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
-                    ],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tiempen.toStringAsFixed(0)} °",
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: const Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
+            // Panel informativo
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Sensor de Temperatura del Refrigerante. \nMide la temperatura del líquido refrigerante que circula por el motor.\n\n'
+                              'Rangos normales:\n'
+                              '- Motor frío: 40-70°C\n'
+                              '- Temperatura óptima: 90-100°C\n'
+                              '- Sobrecalentamiento: >105°C\n\n'
+                              'Importancia:\n'
+                              '- Temperaturas bajas aumentan el consumo\n'
+                              '- Temperaturas altas pueden dañar el motor\n'
+                              '- El termostato regula la temperatura ideal\n\n'
+                              'Problemas comunes:\n'
+                              '- Sensor defectuoso\n'
+                              '- Termostato atascado\n'
+                              '- Bajo nivel de refrigerante\n'
+                              '- Fallo en el ventilador',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
                             ),
                           ],
                         ),
                       ),
-                      const Text(
-                        "Tiempo de funcionamiento",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: Text(
+                              'Gráfico de temperatura',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval: (_contadorTempRef / 4)
+                                            .ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 20,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}°C',
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialTempRef,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
                       ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildVAGauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _valvAdmNotifier,
-      builder: (context, valvAdm, child) {
-        if (valvAdm == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 100,
-              radiusFactor: 0.9,
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(160, 60),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: valvAdm.clamp(0, 100),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${valvAdm.toStringAsFixed(0)}%",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Valvula admisión",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
             ),
           ],
         );
@@ -1602,130 +1960,280 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             ),
           );
         }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 240,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [
-                    Colors.green,
-                    Colors.yellow,
-                    Colors.orange,
-                    Colors.red,
-                  ],
-                  stops: [0.25, 0.5, 0.75, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: velocidad,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
+
+        // Actualizar el historial
+        _historialVelocidad
+            .add(FlSpot(_contadorVelocidad.toDouble(), velocidad));
+        _contadorVelocidad++;
+
+        const double min = 0;
+        const double max = 240;
+        double stop(double value) => value / max;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: min,
+                    maximum: max,
+                    radiusFactor: 0.9,
+                    majorTickStyle: const MajorTickStyle(
+                      length: 12,
+                      thickness: 2,
+                      color: Colors.black,
+                    ),
+                    minorTicksPerInterval: 4,
+                    minorTickStyle: const MinorTickStyle(
+                      length: 6,
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                    axisLineStyle: AxisLineStyle(
+                      thickness: 15,
+                      gradient: SweepGradient(
+                        colors: [
+                          Colors.pink, // 0-30 km/h
+                          Colors.green, // 30-80 km/h
+                          Colors.amber, // 80-160 km/h
+                          Colors.red, // 160-240 km/h
+                        ],
+                        stops: [
+                          stop(30),
+                          stop(80),
+                          stop(160),
+                          1.0,
+                        ],
+                      ),
+                    ),
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: velocidad.clamp(min, max),
+                        enableAnimation: true,
+                        animationType: AnimationType.easeOutBack,
+                        needleColor: Colors.red,
+                        needleStartWidth: 1,
+                        needleEndWidth: 5,
+                        needleLength: 0.75,
+                        animationDuration: 2000,
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
+                        ),
+                      ),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${velocidad.toStringAsFixed(0)} km/h",
+                              style: const TextStyle(
+                                fontSize: 50,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              "Velocidad",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
+                      ),
                     ],
                   ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              ranges: [
-                GaugeRange(
-                  startValue: 0,
-                  endValue: 30,
-                  color: Colors.pink,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 30,
-                  endValue: 80,
-                  color: Colors.green,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 80,
-                  endValue: 160,
-                  color: Colors.amber,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 160,
-                  endValue: 240,
-                  color: Colors.red,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        velocidad.toStringAsFixed(0),
-                        style: const TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
+                ],
+              ),
+            ),
+            // Panel informativo
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Información:',
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Velocímetro Digital\n\n'
+                              'Muestra la velocidad actual del vehículo en kilómetros por hora.\n\n'
+                              'Rangos de color:\n'
+                              '• 0-30 km/h: Rosa (baja velocidad)\n'
+                              '• 30-80 km/h: Verde (velocidad urbana)\n'
+                              '• 80-160 km/h: Ámbar (carretera)\n'
+                              '• 160-240 km/h: Rojo (alta velocidad)\n\n'
+                              'Precisión: ±1 km/h\n'
+                              'Rango máximo: 240 km/h',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Color.fromARGB(221, 255, 255, 255),
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.justify,
                             ),
                           ],
                         ),
                       ),
-                      const Text(
-                        "km/h",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: const Text(
+                              'Gráfico de velocidad',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval: (_contadorVelocidad / 4)
+                                            .ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 40,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}km/h',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: const FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialVelocidad,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: const FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: Icon(Icons.show_chart),
+                      label: const Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
                       ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: Size(160, 60),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         );
@@ -1738,7 +2246,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
       valueListenable: _voltajeNotifier,
       builder: (context, voltaje, child) {
         if (voltaje == -1) {
-          return Center(
+          return const Center(
             child: Text(
               "No soportado",
               style: TextStyle(
@@ -1749,120 +2257,306 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             ),
           );
         }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 6,
-              maximum: 20,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [
-                    Colors.red,
-                    Colors.green,
-                    Colors.red,
-                  ],
-                  stops: [1, 1, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: voltaje,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
-                    ],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              ranges: [
-                GaugeRange(
-                  startValue: 6,
-                  endValue: 11,
-                  color: Colors.red,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 11,
-                  endValue: 15,
-                  color: Colors.green,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-                GaugeRange(
-                  startValue: 15,
-                  endValue: 20,
-                  color: Colors.red,
-                  startWidth: 15,
-                  endWidth: 15,
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text("${voltaje.toDouble()} V",
-                          style: TextStyle(
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            shadows: [
-                              Shadow(
-                                color: Colors.white,
-                                blurRadius: 20,
-                              ),
-                            ],
-                          )),
-                      const Text(
-                        "Voltaje",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
+
+        // Actualizar el historial
+        _historialVoltaje.add(FlSpot(_contadorVoltaje.toDouble(), voltaje));
+        _contadorVoltaje++;
+
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Gauge
+            Expanded(
+              flex: 2,
+              child: SfRadialGauge(
+                axes: <RadialAxis>[
+                  RadialAxis(
+                    startAngle: 140,
+                    endAngle: 40,
+                    minimum: 6,
+                    maximum: 20,
+                    radiusFactor: 0.9,
+                    majorTickStyle: const MajorTickStyle(
+                      length: 12,
+                      thickness: 2,
+                      color: Colors.black,
+                    ),
+                    minorTicksPerInterval: 4,
+                    minorTickStyle: const MinorTickStyle(
+                      length: 6,
+                      thickness: 1,
+                      color: Colors.grey,
+                    ),
+                    axisLineStyle: const AxisLineStyle(
+                      thickness: 15,
+                      gradient: SweepGradient(
+                        colors: [
+                          Colors.red,
+                          Colors.green,
+                          Colors.red,
+                        ],
+                        stops: [0.0, 0.55, 1.0],
+                      ),
+                    ),
+                    axisLabelStyle: const GaugeTextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    pointers: <GaugePointer>[
+                      NeedlePointer(
+                        value: voltaje.clamp(6, 20),
+                        enableAnimation: true,
+                        animationType: AnimationType.easeOutBack,
+                        needleColor: Colors.red,
+                        needleStartWidth: 1,
+                        needleEndWidth: 5,
+                        needleLength: 0.75,
+                        animationDuration: 2000,
+                        gradient: const LinearGradient(
+                          colors: [Colors.white, Colors.red],
+                        ),
+                        knobStyle: KnobStyle(
+                          color: const Color(0xFF3F3F3F),
+                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          borderWidth: 2,
                         ),
                       ),
                     ],
+                    ranges: [
+                      GaugeRange(
+                        startValue: 6,
+                        endValue: 11,
+                        color: Colors.red,
+                        startWidth: 15,
+                        endWidth: 15,
+                        label: 'Bajo',
+                        labelStyle: const GaugeTextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      GaugeRange(
+                        startValue: 11,
+                        endValue: 15,
+                        color: Colors.green,
+                        startWidth: 15,
+                        endWidth: 15,
+                        label: 'Óptimo',
+                        labelStyle: const GaugeTextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      GaugeRange(
+                        startValue: 15,
+                        endValue: 20,
+                        color: Colors.red,
+                        startWidth: 15,
+                        endWidth: 15,
+                        label: 'Alto',
+                        labelStyle: const GaugeTextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                    annotations: [
+                      GaugeAnnotation(
+                        widget: Column(
+                          children: [
+                            const SizedBox(height: 180),
+                            Text(
+                              "${voltaje.toStringAsFixed(2)} V",
+                              style: const TextStyle(
+                                fontSize: 50,
+                                fontWeight: FontWeight.bold,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                shadows: [
+                                  Shadow(color: Colors.white, blurRadius: 20)
+                                ],
+                              ),
+                            ),
+                            const Text(
+                              "Voltaje Batería",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color: Color.fromARGB(255, 255, 255, 255),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        angle: 90,
+                        positionFactor: 0.75,
+                      ),
+                    ],
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
+                ],
+              ),
+            ),
+            // Panel informativo
+            Expanded(
+              flex: 1,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      width: 500,
+                      height: 450,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF202020),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: const SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Padding(
+                          padding: EdgeInsets.all(12.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Información:',
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              SizedBox(height: 12),
+                              Text(
+                                'Medidor de Voltaje del Sistema\n\n'
+                                'Muestra el voltaje actual de la batería y sistema eléctrico.\n\n'
+                                'Rangos normales:\n'
+                                '• 11-15V: Operación normal\n'
+                                '• <11V: Batería descargándose\n'
+                                '• >15V: Sobrecarga (alternador)\n\n'
+                                'Valores típicos:\n'
+                                '- Motor apagado: 12.6V\n'
+                                '- Motor en marcha: 13.5-14.5V\n'
+                                '- Con carga eléctrica: 12.8-13.8V',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Color.fromARGB(221, 255, 255, 255),
+                                  height: 1.4,
+                                ),
+                                textAlign: TextAlign.justify,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            title: const Text(
+                              'Gráfico de voltaje',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: SizedBox(
+                              height: 450,
+                              width: 500,
+                              child: LineChart(
+                                LineChartData(
+                                  backgroundColor: Colors.grey.shade100,
+                                  titlesData: FlTitlesData(
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        reservedSize: 22,
+                                        interval: (_contadorVoltaje / 4)
+                                            .ceilToDouble(),
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        interval: 2,
+                                        getTitlesWidget: (value, meta) => Text(
+                                          '${value.toInt()}V',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  borderData: FlBorderData(
+                                    show: true,
+                                    border: Border.all(color: Colors.black12),
+                                  ),
+                                  gridData: const FlGridData(show: true),
+                                  lineBarsData: [
+                                    LineChartBarData(
+                                      spots: _historialVoltaje,
+                                      isCurved: true,
+                                      color: Colors.blueAccent,
+                                      barWidth: 3,
+                                      belowBarData: BarAreaData(
+                                        show: true,
+                                        color:
+                                            // ignore: deprecated_member_use
+                                            Colors.blueAccent.withOpacity(0.2),
+                                      ),
+                                      dotData: const FlDotData(show: true),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            actions: [
+                              OutlinedButton(
+                                onPressed: () => Navigator.pop(context),
+                                style: OutlinedButton.styleFrom(
+                                  side: const BorderSide(
+                                      color: Colors.blueAccent, width: 2),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: const Text(
+                                  'Cerrar',
+                                  style: TextStyle(color: Colors.blueAccent),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
+                        "Gráfico",
+                        style: TextStyle(fontSize: 20),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        minimumSize: const Size(160, 60),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         );
@@ -1885,11 +2579,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomeDash()),
+              MaterialPageRoute(
+                  builder: (context) => HomePage(user: widget.user)),
+              (route) => false,
             );
           },
         ),
@@ -1913,7 +2609,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                       color: const Color.fromARGB(255, 1, 23, 61), width: 4),
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(
                       color: Colors.black26,
                       blurRadius: 4,
@@ -1926,16 +2622,16 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                   items: <String>[
                     'Avance encendido',
                     'Carga del motor',
-                    'Consumo instantáneo combustible',
+                    //'Consumo instantáneo combustible',
                     'Flujo aire masivo',
-                    'Presión barométrica',
+                    //'Presión barométrica',
                     'Presión colector admisión',
-                    'Presión combustible',
+                    //'Presión combustible',
                     'RPM',
-                    'Temperatura aceite',
+                    //'Temperatura aceite',
                     'Temperatura refrigerante',
-                    'Tiempo de funcionamiento',
-                    'Valvula admisión',
+                    //'Tiempo de funcionamiento',
+                    //'Valvula admisión',
                     'Velocidad',
                     'Voltaje',
                   ]

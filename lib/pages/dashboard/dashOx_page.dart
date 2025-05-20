@@ -1,37 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:obdv2/pages/dashboard/home_dash.dart';
+//import 'package:obdv2/pages/dashboard/home_dash.dart';
+import 'package:obdv2/pages/home_page.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 final Color colorPrimary = Color(0xFF007AFF); // Azul principal
 
 class DashboardOxPage extends StatefulWidget {
-  const DashboardOxPage({super.key});
+  final User user; // <-- Agrega esto
+  const DashboardOxPage({required this.user, Key? key}) : super(key: key);
 
   @override
   State<DashboardOxPage> createState() => _DashboardOxPageState();
 }
 
+final List<FlSpot> _historialVoltaje = [];
+final List<FlSpot> _historialAFR = [];
+int _contadorDatos = 0;
+
 class _DashboardOxPageState extends State<DashboardOxPage> {
-  final ValueNotifier<double> _sOB1S1Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB1S2Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB1S3Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB1S4Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB2S1Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB2S2Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB2S3Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _sOB2S4Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _tempCataB1S1Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _tempCataB1S2Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _tempCataB2S1Notifier = ValueNotifier(0.0);
-  final ValueNotifier<double> _tempCataB2S2Notifier = ValueNotifier(0.0);
-  String selectedMetric = "Sensor oxigeno-B1S1";
-  //final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref();
+  // Notifiers para Voltaje
+  final ValueNotifier<double> _voltajeB1S1Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _voltajeB1S2Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _voltajeB2S1Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _voltajeB2S2Notifier = ValueNotifier(0.0);
+
+  // Notifiers para AFR
+  final ValueNotifier<double> _afrB1S1Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _afrB1S2Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _afrB2S1Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _afrB2S2Notifier = ValueNotifier(0.0);
+
+  String selectedSensor = "Sensor B1S1";
+
   final DatabaseReference _databaseRef = FirebaseDatabase.instanceFor(
     app: Firebase.app(),
     databaseURL: 'https://automotrizapp-default-rtdb.firebaseio.com',
   ).ref();
+
   @override
   void initState() {
     super.initState();
@@ -39,1497 +48,572 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
   }
 
   void _setupDatabaseListeners() {
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B1S1')
-        .onValue
-        .listen((event) {
+    // Listeners para Voltaje
+    _databaseRef.child('SensoresOxigeno/voltajeOxi1').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB1S1Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _voltajeB1S1Notifier.value = -1;
         } else {
-          final sOB1S1 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB1S1Notifier.value = sOB1S1;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _voltajeB1S1Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B1S2')
-        .onValue
-        .listen((event) {
+
+    _databaseRef.child('SensoresOxigeno/voltajeOxi2').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB1S2Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _voltajeB1S2Notifier.value = -1;
         } else {
-          final sOB1S2 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB1S2Notifier.value = sOB1S2;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _voltajeB1S2Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B1S3')
-        .onValue
-        .listen((event) {
+
+    _databaseRef.child('SensoresOxigeno/voltajeOxi3').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB1S3Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _voltajeB2S1Notifier.value = -1;
         } else {
-          final sOB1S3 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB1S3Notifier.value = sOB1S3;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _voltajeB2S1Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B1S4')
-        .onValue
-        .listen((event) {
+
+    _databaseRef.child('SensoresOxigeno/voltajeOxi4').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB1S4Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _voltajeB2S2Notifier.value = -1;
         } else {
-          final sOB1S4 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB1S4Notifier.value = sOB1S4;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _voltajeB2S2Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B2S1')
-        .onValue
-        .listen((event) {
+
+    // Listeners para AFR
+    _databaseRef.child('SensoresOxigeno/AFROxi1').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB2S1Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _afrB1S1Notifier.value = -1;
         } else {
-          final sOB2S1 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB1S4Notifier.value = sOB2S1;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _afrB1S1Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B2S2')
-        .onValue
-        .listen((event) {
+
+    _databaseRef.child('SensoresOxigeno/AFROxi2').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB2S2Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _afrB1S2Notifier.value = -1;
         } else {
-          final sOB2S2 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB2S2Notifier.value = sOB2S2;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _afrB1S2Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B2S3')
-        .onValue
-        .listen((event) {
+
+    _databaseRef.child('SensoresOxigeno/AFROxi3').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB2S3Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _afrB2S1Notifier.value = -1;
         } else {
-          final sOB2S3 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB2S3Notifier.value = sOB2S3;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _afrB2S1Notifier.value = value;
         }
       }
     });
-    _databaseRef
-        .child('/SensoresOxigeno/Sensor oxigeno-B2S4')
-        .onValue
-        .listen((event) {
+
+    _databaseRef.child('SensoresOxigeno/AFROxi4').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
-          _sOB2S4Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
+          _afrB2S2Notifier.value = -1;
         } else {
-          final sOB2S4 = double.tryParse(data.toString()) ?? 0.0;
-          _sOB2S4Notifier.value = sOB2S4;
-        }
-      }
-    });
-    _databaseRef
-        .child('/SensoresOxigeno/Temp catalizador-B1S1')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _tempCataB1S1Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final tempCataB1S1 = double.tryParse(data.toString()) ?? 0.0;
-          _tempCataB1S1Notifier.value = tempCataB1S1;
-        }
-      }
-    });
-    _databaseRef
-        .child('/SensoresOxigeno/Temp catalizador-B1S2')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _tempCataB1S2Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final tempCataB1S2 = double.tryParse(data.toString()) ?? 0.0;
-          _tempCataB1S2Notifier.value = tempCataB1S2;
-        }
-      }
-    });
-    _databaseRef
-        .child('/SensoresOxigeno/Temp catalizador-B2S1')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _tempCataB2S1Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final tempCataB2S1 = double.tryParse(data.toString()) ?? 0.0;
-          _tempCataB2S1Notifier.value = tempCataB2S1;
-        }
-      }
-    });
-    _databaseRef
-        .child('/SensoresOxigeno/Temp catalizador-B2S2')
-        .onValue
-        .listen((event) {
-      final data = event.snapshot.value;
-      if (data != null) {
-        if (data == "No soportado") {
-          _tempCataB2S2Notifier.value =
-              -1; // Valor especial para indicar "No soportado"
-        } else {
-          final tempCataB2S2 = double.tryParse(data.toString()) ?? 0.0;
-          _tempCataB2S2Notifier.value = tempCataB2S2;
+          final value = double.tryParse(data.toString()) ?? 0.0;
+          _afrB2S2Notifier.value = value;
         }
       }
     });
   }
 
-  Widget buildGauge() {
-    switch (selectedMetric) {
-      case 'Sensor oxigeno-B1S2':
-        return buildSOB1S2Gauge();
-      case 'Sensor oxigeno-B1S3':
-        return buildSOB1S3Gauge();
-      case 'Sensor oxigeno-B1S4':
-        return buildSOB1S4Gauge();
-      case 'Sensor oxigeno-B2S1':
-        return buildSOB2S1Gauge();
-      case 'Sensor oxigeno-B2S2':
-        return buildSOB2S2Gauge();
-      case 'Sensor oxigeno-B2S3':
-        return buildSOB2S3Gauge();
-      case 'Sensor oxigeno-B2S4':
-        return buildSOB2S4Gauge();
-      case 'Temp catalizador-B1S1':
-        return buildTCataB1S1Gauge();
-      case 'Temp catalizador-B1S2':
-        return buildTCataB1S2Gauge();
-      case 'Temp catalizador-B2S1':
-        return buildTCataB2S1Gauge();
-      case 'Temp catalizador-B2S2':
-        return buildTCataB2S2Gauge();
+  Widget buildVoltajeGauge(double value, String title) {
+    if (value == -1) {
+      return Center(
+        child: Text(
+          "No soportado",
+          style: TextStyle(
+            fontSize: 40,
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+
+    return SfRadialGauge(
+      axes: <RadialAxis>[
+        RadialAxis(
+          startAngle: 140,
+          endAngle: 40,
+          minimum: 0,
+          maximum: 1,
+          radiusFactor: 0.7,
+          majorTickStyle: MajorTickStyle(
+            length: 12,
+            thickness: 2,
+            color: Colors.white,
+          ),
+          minorTicksPerInterval: 4,
+          minorTickStyle: MinorTickStyle(
+            length: 6,
+            thickness: 1,
+            color: Colors.grey,
+          ),
+          axisLineStyle: AxisLineStyle(
+            thickness: 15,
+            gradient: SweepGradient(
+              colors: [Colors.red, Colors.green, Colors.red],
+              stops: [0, 0.4, 0.6],
+            ),
+          ),
+          axisLabelStyle: GaugeTextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+          pointers: <GaugePointer>[
+            NeedlePointer(
+              value: value,
+              enableAnimation: true,
+              animationType: AnimationType.easeOutBack,
+              needleColor: Colors.red,
+              needleStartWidth: 1,
+              needleEndWidth: 5,
+              needleLength: 0.75,
+              animationDuration: 2000,
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.red],
+              ),
+              knobStyle: KnobStyle(
+                color: Color(0xFF3F3F3F),
+                borderColor: Color(0xFF3F3F3F).withAlpha(150),
+                borderWidth: 2,
+              ),
+            ),
+          ],
+          annotations: [
+            GaugeAnnotation(
+              widget: Column(
+                children: [
+                  SizedBox(height: 180),
+                  Text(
+                    "${value.toStringAsFixed(2)} V",
+                    style: TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      shadows: [
+                        Shadow(
+                          color: Colors.white,
+                          blurRadius: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              angle: 90,
+              positionFactor: 0.75,
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildAFRGauge(double value, String title) {
+    if (value == -1) {
+      return Center(
+        child: Text(
+          "No soportado",
+          style: TextStyle(
+            fontSize: 40,
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
+
+    return SfRadialGauge(
+      axes: <RadialAxis>[
+        RadialAxis(
+          startAngle: 140,
+          endAngle: 40,
+          minimum: 10,
+          maximum: 20,
+          radiusFactor: 0.7,
+          majorTickStyle: MajorTickStyle(
+            length: 12,
+            thickness: 2,
+            color: Colors.white,
+          ),
+          minorTicksPerInterval: 4,
+          minorTickStyle: MinorTickStyle(
+            length: 6,
+            thickness: 1,
+            color: Colors.grey,
+          ),
+          axisLineStyle: AxisLineStyle(
+            thickness: 15,
+            gradient: SweepGradient(
+              colors: [
+                Colors.red,
+                Colors.yellow,
+                Colors.green,
+                Colors.yellow,
+                Colors.red
+              ],
+              stops: [0, 0.25, 0.35, 0.6, 0.85],
+            ),
+          ),
+          axisLabelStyle: GaugeTextStyle(
+            fontSize: 18,
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+          pointers: <GaugePointer>[
+            NeedlePointer(
+              value: value,
+              enableAnimation: true,
+              animationType: AnimationType.easeOutBack,
+              needleColor: Colors.red,
+              needleStartWidth: 1,
+              needleEndWidth: 5,
+              needleLength: 0.75,
+              animationDuration: 2000,
+              gradient: LinearGradient(
+                colors: [Colors.white, Colors.red],
+              ),
+              knobStyle: KnobStyle(
+                color: Color(0xFF3F3F3F),
+                borderColor: Color(0xFF3F3F3F).withAlpha(150),
+                borderWidth: 2,
+              ),
+            ),
+          ],
+          annotations: [
+            GaugeAnnotation(
+              widget: Column(
+                children: [
+                  SizedBox(height: 180),
+                  Text(
+                    "${value.toStringAsFixed(2)} AFR",
+                    style: TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      shadows: [
+                        Shadow(
+                          color: Colors.white,
+                          blurRadius: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20,
+                      color: Color.fromARGB(255, 255, 255, 255),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              angle: 90,
+              positionFactor: 0.75,
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget buildGaugePair() {
+    return Row(
+      children: [
+        // Medidor de Voltaje
+        Expanded(
+          child: ValueListenableBuilder<double>(
+            valueListenable: _getVoltajeNotifier(),
+            builder: (context, value, child) {
+              return buildVoltajeGauge(
+                  value, "Voltaje ${selectedSensor.substring(7)}");
+            },
+          ),
+        ),
+
+        // Panel central con información y botones
+        Container(
+          width: 300,
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Color(0xFF202020),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'Información Técnica',
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'Sensor: $selectedSensor\n\n'
+                      'Voltaje normal: 0.1-0.9V\n'
+                      'AFR ideal: 14.7 (gasolina)\n'
+                      'Rango AFR: 12-18\n\n'
+                      'B1: Banco 1 (antes del catalizador)\n'
+                      'B2: Banco 2 (después del catalizador)',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _mostrarGraficoVoltaje(context),
+                      icon: Icon(Icons.show_chart, color: Colors.white),
+                      label: Text(
+                        'Gráfico Voltaje',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _mostrarGraficoAFR(context),
+                      icon: Icon(Icons.show_chart, color: Colors.white),
+                      label: Text(
+                        'Gráfico AFR',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+
+        // Medidor de AFR
+        Expanded(
+          child: ValueListenableBuilder<double>(
+            valueListenable: _getAFRNotifier(),
+            builder: (context, value, child) {
+              return buildAFRGauge(value, "AFR ${selectedSensor.substring(7)}");
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+// Métodos auxiliares para obtener el notifier correcto
+  ValueNotifier<double> _getVoltajeNotifier() {
+    switch (selectedSensor) {
+      case 'Sensor B1S1':
+        return _voltajeB1S1Notifier;
+      case 'Sensor B1S2':
+        return _voltajeB1S2Notifier;
+      case 'Sensor B2S1':
+        return _voltajeB2S1Notifier;
+      case 'Sensor B2S2':
+        return _voltajeB2S2Notifier;
       default:
-        return buildSOB1S1Gauge();
+        return _voltajeB1S1Notifier;
     }
   }
 
-  Widget buildSOB1S1Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB1S1Notifier,
-      builder: (context, sOB1S1, child) {
-        if (sOB1S1 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.white,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB1S1,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
-                    ],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
+  ValueNotifier<double> _getAFRNotifier() {
+    switch (selectedSensor) {
+      case 'Sensor B1S1':
+        return _afrB1S1Notifier;
+      case 'Sensor B1S2':
+        return _afrB1S2Notifier;
+      case 'Sensor B2S1':
+        return _afrB2S1Notifier;
+      case 'Sensor B2S2':
+        return _afrB2S2Notifier;
+      default:
+        return _afrB1S1Notifier;
+    }
+  }
+
+// Métodos para mostrar los gráficos
+  void _mostrarGraficoVoltaje(BuildContext context) {
+    _actualizarHistorial();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Historial de Voltaje - $selectedSensor'),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: 300,
+          child: LineChart(
+            LineChartData(
+              minX: 0,
+              maxX:
+                  _historialVoltaje.isNotEmpty ? _historialVoltaje.last.x : 10,
+              minY: 0,
+              maxY: 1,
+              lineBarsData: [
+                LineChartBarData(
+                  spots: _historialVoltaje,
+                  isCurved: true,
+                  color: Colors.blue,
+                  barWidth: 3,
+                  belowBarData: BarAreaData(show: false),
                 ),
               ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB1S1.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B1S1",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) =>
+                        Text('${value.toStringAsFixed(1)}V'),
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
+                ),
+              ),
+              gridData: FlGridData(show: true),
+              borderData: FlBorderData(show: true),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cerrar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildSOB1S2Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB1S2Notifier,
-      builder: (context, sOB1S2, child) {
-        if (sOB1S2 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB1S2,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
-                    ],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
+  void _mostrarGraficoAFR(BuildContext context) {
+    _actualizarHistorial();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Historial AFR - $selectedSensor'),
+        content: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: 300,
+          child: LineChart(
+            LineChartData(
+              minX: 0,
+              maxX: _historialAFR.isNotEmpty ? _historialAFR.last.x : 10,
+              minY: 10,
+              maxY: 20,
+              lineBarsData: [
+                LineChartBarData(
+                  spots: _historialAFR,
+                  isCurved: true,
+                  color: Colors.green,
+                  barWidth: 3,
+                  belowBarData: BarAreaData(show: false),
                 ),
               ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text("${sOB1S2.toDouble()}",
-                          style: TextStyle(
-                            fontSize: 50,
-                            fontWeight: FontWeight.bold,
-                            color: const Color.fromARGB(255, 255, 255, 255),
-                            shadows: [
-                              Shadow(
-                                color: Colors.white,
-                                blurRadius: 20,
-                              ),
-                            ],
-                          )),
-                      const Text(
-                        "Sensor oxígeno-B1S2",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+              titlesData: FlTitlesData(
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    getTitlesWidget: (value, meta) =>
+                        Text('${value.toStringAsFixed(1)}'),
                   ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
+                ),
+              ),
+              gridData: FlGridData(show: true),
+              borderData: FlBorderData(show: true),
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        actions: [
+          TextButton(
+            child: Text('Cerrar'),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildSOB1S3Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB1S3Notifier,
-      builder: (context, sOB1S3, child) {
-        if (sOB1S3 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 15,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB1S3,
-                  enableAnimation: true,
-                  animationType: AnimationType.easeOutBack,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 2000,
-                  gradient: const LinearGradient(
-                    colors: [
-                      Colors.white,
-                      Colors.red,
-                    ],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB1S3.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B1S3",
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
+  void _actualizarHistorial() {
+    _contadorDatos++;
+    final voltaje = _getVoltajeNotifier().value;
+    final afr = _getAFRNotifier().value;
 
-  Widget buildSOB1S4Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB1S4Notifier,
-      builder: (context, sOB1S4, child) {
-        if (sOB1S4 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 10,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 2,
-              minorTickStyle: const MinorTickStyle(
-                length: 5,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize: 18,
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB1S4.clamp(0, 1),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleStartWidth: 1,
-                  needleEndWidth: 5,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB1S4.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(
-                              color: Colors.white,
-                              blurRadius: 20,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B1S4",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                )
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildSOB2S1Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB2S1Notifier,
-      builder: (context, sOB2S1, child) {
-        if (sOB2S1 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB2S1.clamp(0, 1),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB2S1.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B2S1",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildSOB2S2Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB2S2Notifier,
-      builder: (context, sOB2S2, child) {
-        if (sOB2S2 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB2S2.clamp(0, 1),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB2S2.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B2S2",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildSOB2S3Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB2S3Notifier,
-      builder: (context, sOB2S3, child) {
-        if (sOB2S3 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.red, Colors.yellow, Colors.green],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB2S3.clamp(0, 1),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB2S3.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B2S3",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildSOB2S4Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _sOB2S4Notifier,
-      builder: (context, sOB2S4, child) {
-        if (sOB2S4 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: sOB2S4.clamp(0, 1),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${sOB2S4.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Sensor oxígeno-B2S4",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildTCataB1S1Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _tempCataB1S1Notifier,
-      builder: (context, tempCataB1S1, child) {
-        if (tempCataB1S1 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1200,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tempCataB1S1.clamp(0, 1200),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tempCataB1S1.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Temp catalizador-B1S1",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildTCataB1S2Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _tempCataB1S2Notifier,
-      builder: (context, tempCataB1S2, child) {
-        if (tempCataB1S2 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1200,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tempCataB1S2.clamp(0, 1200),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tempCataB1S2.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Temp catalizador-B1S2",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildTCataB2S1Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _tempCataB2S1Notifier,
-      builder: (context, tempCataB2S1, child) {
-        if (tempCataB2S1 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1200,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.red, Colors.yellow, Colors.green],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tempCataB2S1.clamp(0, 1200),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tempCataB2S1.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Temp catalizador-B2S1",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget buildTCataB2S2Gauge() {
-    return ValueListenableBuilder<double>(
-      valueListenable: _tempCataB2S2Notifier,
-      builder: (context, tempCataB2S2, child) {
-        if (tempCataB2S2 == -1) {
-          return Center(
-            child: Text(
-              "No soportado",
-              style: TextStyle(
-                fontSize: 40,
-                color: Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          );
-        }
-
-        return SfRadialGauge(
-          axes: <RadialAxis>[
-            RadialAxis(
-              startAngle: 140,
-              endAngle: 40,
-              minimum: 0,
-              maximum: 1200,
-              radiusFactor: 0.9,
-              majorTickStyle: const MajorTickStyle(
-                length: 12,
-                thickness: 2,
-                color: Colors.black,
-              ),
-              minorTicksPerInterval: 4,
-              minorTickStyle: const MinorTickStyle(
-                length: 6,
-                thickness: 1,
-                color: Colors.grey,
-              ),
-              axisLabelStyle: const GaugeTextStyle(
-                fontSize:
-                    18, // Tamaño de fuente más grande (por defecto suele ser 12-14)
-                color: Colors.black, // Color de los números
-                fontWeight: FontWeight.bold, // Opcional: negrita
-              ),
-              axisLineStyle: const AxisLineStyle(
-                thickness: 12,
-                gradient: SweepGradient(
-                  colors: [Colors.green, Colors.yellow, Colors.red],
-                  stops: [0.3, 0.7, 1],
-                ),
-              ),
-              pointers: <GaugePointer>[
-                NeedlePointer(
-                  value: tempCataB2S2.clamp(0, 1200),
-                  enableAnimation: true,
-                  animationType: AnimationType.elasticOut,
-                  needleColor: Colors.red,
-                  needleLength: 0.75,
-                  animationDuration: 1500,
-                  gradient: const LinearGradient(
-                    colors: [Colors.white, Colors.red],
-                  ),
-                  knobStyle: KnobStyle(
-                    color: const Color(
-                        0xFF3F3F3F), // Color sólido del centro (gris oscuro)
-                    borderColor: const Color(0xFF3F3F3F)
-                        .withAlpha(150), // Borde con transparencia
-                    borderWidth: 2,
-                  ),
-                ),
-              ],
-              annotations: [
-                GaugeAnnotation(
-                  widget: Column(
-                    children: [
-                      const SizedBox(height: 180),
-                      Text(
-                        "${tempCataB2S2.toDouble()}",
-                        style: const TextStyle(
-                          fontSize: 45,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          shadows: [
-                            Shadow(color: Colors.white, blurRadius: 20)
-                          ],
-                        ),
-                      ),
-                      const Text(
-                        "Temp catalizador-B2S2",
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  angle: 90,
-                  positionFactor: 0.75,
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
+    if (voltaje != -1)
+      _historialVoltaje.add(FlSpot(_contadorDatos.toDouble(), voltaje));
+    if (afr != -1) _historialAFR.add(FlSpot(_contadorDatos.toDouble(), afr));
   }
 
   @override
@@ -1549,9 +633,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => HomeDash()),
+              MaterialPageRoute(
+                  builder: (context) => HomePage(user: widget.user)),
+              (route) => false,
             );
           },
         ),
@@ -1565,7 +651,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // DropdownButton para seleccionar métrica
+            // DropdownButton para seleccionar sensor
             Padding(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -1585,20 +671,12 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                   ],
                 ),
                 child: DropdownButton<String>(
-                  value: selectedMetric,
+                  value: selectedSensor,
                   items: <String>[
-                    'Sensor oxigeno-B1S1',
-                    'Sensor oxigeno-B1S2',
-                    'Sensor oxigeno-B1S3',
-                    'Sensor oxigeno-B1S4',
-                    'Sensor oxigeno-B2S1',
-                    'Sensor oxigeno-B2S2',
-                    'Sensor oxigeno-B2S3',
-                    'Sensor oxigeno-B2S4',
-                    'Temp catalizador-B1S1',
-                    'Temp catalizador-B1S2',
-                    'Temp catalizador-B2S1',
-                    'Temp catalizador-B2S2',
+                    'Sensor B1S1',
+                    'Sensor B1S2',
+                    'Sensor B2S1',
+                    'Sensor B2S2',
                   ]
                       .map((String value) => DropdownMenuItem<String>(
                             value: value,
@@ -1614,11 +692,11 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                       .toList(),
                   onChanged: (String? newValue) {
                     setState(() {
-                      selectedMetric = newValue!;
+                      selectedSensor = newValue!;
                     });
                   },
                   isExpanded: true,
-                  underline: Container(), // Quita la línea por defecto
+                  underline: Container(),
                   icon: const Icon(
                     Icons.arrow_drop_down,
                     color: Colors.blueAccent,
@@ -1630,7 +708,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
             ),
             Expanded(
               child: Center(
-                child: buildGauge(), // Mostrar gauge basado en selección
+                child: buildGaugePair(),
               ),
             ),
           ],
