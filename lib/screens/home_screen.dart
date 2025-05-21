@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   };
 
   //pruebas sin obd
-  // bool _mockMode = true;
+  //bool _mockMode = true;
   //pruebas sin obd
 
   // bluetooth
@@ -88,6 +88,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       0.0; // Ajuste de combustible banco 2 corto plazo (%)
   double _fuelTrimBank2LongTerm =
       0.0; // Ajuste de combustible banco 2 largo plazo (%)
+  double _catalizadorB1S1 = 0.0;
+  double _catalizadorB1S2 = 0.0;
+  double _catalizadorB2S1 = 0.0;
+  double _catalizadorB2S2 = 0.0;
 
   final ValueNotifier<double> _speedNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _rpmNotifier = ValueNotifier(0.0);
@@ -115,6 +119,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ValueNotifier<double> _fuelTrimB2SNotifier = ValueNotifier(0.0);
   final ValueNotifier<double> _fuelTrimB2LNotifier = ValueNotifier(0.0);
 
+  final ValueNotifier<double> _catB1S1Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _catB1S2Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _catB2S1Notifier = ValueNotifier(0.0);
+  final ValueNotifier<double> _catB2S2Notifier = ValueNotifier(0.0);
+
+
   Timer? _commandTimer;
   int _currentCommandIndex = 0;
   // Define tus comandos OBD:
@@ -141,6 +151,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     '0107', // Ajuste de combustible banco 1 largo plazo
     '0108', // Ajuste de combustible banco 2 corto plazo
     '0109', // Ajuste de combustible banco 2 largo plazo
+    '013C', // Catalizador de temperatura B1S1
+    '013D', // Catalizador de temperatura B2S1
+    '013E', // Catalizador de temperatura B1S2
+    '01EF', // Catalizador de temperatura B2S2
   ];
 
   final ValueNotifier<List<Map<String, dynamic>>> _sensorsNotifier =
@@ -414,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
     //pruebas sin obd
-    // if (_mockMode) return;
+    //if (_mockMode) return;
     //pruebas sin obd
     if (_isConnecting) return;
 
@@ -482,6 +496,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       _fuelTrimBank1LongTerm = 0.0;
       _fuelTrimBank2ShortTerm = 0.0;
       _fuelTrimBank2LongTerm = 0.0;
+      _catalizadorB1S1 = 0.0;
+      _catalizadorB1S2 = 0.0;
+      _catalizadorB2S1 = 0.0;
+      _catalizadorB2S2 = 0.0;
     });
   }
 
@@ -553,7 +571,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _processMessage(String message) {
     message = message.replaceAll(RegExp(r'[\r\n\s]'), '').toUpperCase();
-
     if (message.startsWith('4105') && message.length >= 6) {
       // Temperatura refrigerante (0105)
       try {
@@ -565,7 +582,58 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       } catch (e) {
         print("Error procesando temperatura: $e");
       }
-    } else if (message.startsWith('410C') && message.length >= 8) {
+
+    } else if (message.startsWith('413C') && message.length >= 6) {
+      // Temperatura Catalizador B1S1 (013C)
+      try {
+        double tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
+        _onSensorDataReceived('Cat. B1S1', tempValue);
+        setState(() => _catalizadorB1S1 = tempValue);
+        _catB1S1Notifier.value = tempValue.toDouble();
+        _enviarDatoAFirebaseMotor('CatB1S1', _catalizadorB1S1);
+      } catch (e) {
+        print("Error procesando Cat. B1S1: $e");
+      }
+    }
+    else if (message.startsWith('413D') && message.length >= 6) {
+      // Temperatura Catalizador B2S1 (013D)
+      try {
+        double tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
+        _onSensorDataReceived('Cat. B2S1', tempValue);
+        setState(() => _catalizadorB2S1 = tempValue);
+        _catB2S1Notifier.value = tempValue.toDouble();
+        _enviarDatoAFirebaseMotor('CatB2S1', _catalizadorB2S1);
+      } catch (e) {
+        print("Error procesando Cat. B2S1: $e");
+      }
+    }
+    else if (message.startsWith('413E') && message.length >= 6) {
+      // Temperatura Catalizador B1S2 (013E)
+      try {
+        double tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
+        _onSensorDataReceived('Cat. B1S2', tempValue);
+        setState(() => _catalizadorB1S2 = tempValue);
+        _catB1S2Notifier.value = tempValue.toDouble();
+        _enviarDatoAFirebaseMotor('CatB1S2', _catalizadorB1S2);
+      } catch (e) {
+        print("Error procesando Cat. B1S2: $e");
+      }
+    }
+    else if (message.startsWith('41EF') && message.length >= 6) {
+      // Temperatura Catalizador B2S2 (01EF)
+      try {
+        double tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
+        _onSensorDataReceived('Cat. B2S2', tempValue);
+        setState(() => _catalizadorB2S2 = tempValue);
+        _catB2S2Notifier.value = tempValue.toDouble();
+        _enviarDatoAFirebaseMotor('CatB2S2', _catalizadorB2S2);
+      } catch (e) {
+        print("Error procesando Cat. B2S2: $e");
+      }
+    }
+
+
+    else if (message.startsWith('410C') && message.length >= 8) {
       // RPM motor (010C)
       try {
         int rpmValue = int.parse(message.substring(4, 8), radix: 16);
@@ -876,7 +944,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _sendCommand(String command) {
     //pruebas sin obd
-    // if (_mockMode) return;
+    //if (_mockMode) return;
     //pruebas sin obd
     if (_isConnected && _connection != null) {
       command = '$command\r';
@@ -1002,6 +1070,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return _fuelTrimB2SNotifier; //'0108', // Ajuste de combustible banco 2 corto plazo
       case 'Banco 2 Largo':
         return _fuelTrimB2LNotifier; //'0109', // Ajuste de combustible banco 2 largo plazo
+      case 'CatB1S1':
+        return _catB1S1Notifier;
+      case 'CatB1S2':
+        return _catB1S2Notifier;
+      case 'CatB2S1':
+        return _catB2S1Notifier;
+      case 'CatB2S2':
+        return _catB2S2Notifier;
       default:
         return null;
 
@@ -1157,6 +1233,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return SpeedometerPage.banco2C(value: value);
       case 'Banco 2 Largo':
         return SpeedometerPage.banco2L(value: value);
+      case 'CatB1S1':
+        return SpeedometerPage.catB1S1(value: value);
+      case 'CatB1S2':
+        return SpeedometerPage.catB1S2(value: value);
+      case 'CatB2S1':
+        return SpeedometerPage.catB2S1(value: value);
+      case 'CatB2S2':
+        return SpeedometerPage.catB2S2(value: value);
       default:
         return const Center(
             child: Text('Gauge no disponible',
@@ -1352,6 +1436,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           notifier: _fuelTrimB2LNotifier,
           minMax: '-10 - 10',
         );
+      case 'CatB1S1':
+        return SensorLineChart(
+          sensorName: "CatB1S1",
+          notifier: _catB1S1Notifier,
+          minMax: '300 - 950',
+        );
+      case 'CatB1S2':
+        return SensorLineChart(
+          sensorName: "CatB1S2",
+          notifier: _catB1S2Notifier,
+          minMax: '200 - 650',
+        );
+      case 'CatB2S1':
+        return SensorLineChart(
+          sensorName: "CatB2S1",
+          notifier: _catB2S1Notifier,
+          minMax: '300 - 950',
+        );
+      case 'CatB2S2':
+        return SensorLineChart(
+          sensorName: "CatB2S2",
+          notifier: _catB2S2Notifier,
+          minMax: '200 - 650',
+        );
       default:
         return const Center(
             child: Text('Grafica no disponible',
@@ -1429,6 +1537,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'Banco 1 Largo': 'Ajuste de largo plazo al AFR del banco 1 (aprendizaje).',
     'Banco 2 Corto': 'Ajuste de corto plazo al AFR del banco 2.',
     'Banco 2 Largo': 'Ajuste de largo plazo al AFR del banco 2.',
+    'CatB1S1': 'Mide la temperatura de los gases de escape antes de entrar al núcleo catalítico. Valores altos (>850°C) indican riesgo de fusión del catalizador.',
+    'CatB1S2': 'Monitorea la temperatura después de la reacción catalítica. Una diferencia <50°C entre B1S1 y B1S2 sugiere catalizador ineficiente.',
+    'CatB2S1': 'Equivalente al B1S1 pero para el segundo banco. Usado en motores con doble escape para cumplir normas EURO/USD.',
+    'CatB2S2': 'Compara la eficiencia entre bancos. En motores balanceados, B1S2 y B2S2 deben tener lecturas similares (±30°C).',
   };
   final Map<String, String> sensorMinMax = {
     'Velocidad': '0 - 240 km/h (depende del vehículo)',
@@ -1440,8 +1552,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'Presión colector admisión': '20 - 100 kPa',
     'Voltaje': '12.5V - 12.9V',
     'Sensor O2 1 (V) [0]': '0.1 - 0.9 V',
-    'Sensor O2 1 (AFR) [0]':
-        '14.7:1 (estequiométrica), típicamente entre 12 - 16:1',
+    'Sensor O2 1 (AFR) [0]': '14.7:1 (estequiométrica), típicamente entre 12 - 16:1',
     'Sensor O2 2 (V) [1]': '0.1 - 0.9 V',
     'Sensor O2 2 (AFR) [1]': '14.5 - 15.0:1',
     'Sensor O2 3 (V) [2]': '0.1 - 0.9 V',
@@ -1457,6 +1568,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'Banco 1 Largo': '-10% a +10%',
     'Banco 2 Corto': '-10% a +10%',
     'Banco 2 Largo': '-10% a +10%',
+    'CatB1S1': '500°C - 800°C',
+    'CatB1S2': '300°C - 500°C',
+    'CatB2S1': '500°C - 800°C',
+    'CatB2S2': '300°C - 500°C',
   };
 
   Map<String, dynamic> _getSensorConfig(String title) {
@@ -1515,6 +1630,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return {'unit': '%', 'maxValue': 10.0};
       case 'Banco 2 Largo':
         return {'unit': '%', 'maxValue': 10.0};
+      case 'CatB1S1':
+        return {'unit': '°C', 'maxValue': 950.0};
+      case 'CatB1S2':
+        return {'unit': '°C', 'maxValue': 650.0};
+      case 'CatB2S1':
+        return {'unit': '°C', 'maxValue': 950.0};
+      case 'CatB2S2':
+        return {'unit': '°C', 'maxValue': 650.0};
       default:
         return {'unit': '%', 'maxValue': 100.0};
     }
@@ -1795,6 +1918,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         'valor': _fuelTrimBank2LongTerm,
         'unidad': '%',
       },
+      {
+        'nombre': 'CatB1S1',
+        'valor': _catalizadorB1S1,
+        'unidad': '°C',
+      },
+      {
+        'nombre': 'CatB1S2',
+        'valor': _catalizadorB1S2,
+        'unidad': '°C',
+      },
+      {
+        'nombre': 'CatB2S1',
+        'valor': _catalizadorB2S1,
+        'unidad': '°C',
+      },
+      {
+        'nombre': 'CatB2S2',
+        'valor': _catalizadorB2S2,
+        'unidad': '°C',
+      },
     ];
 
     _sensorsNotifier.value = _sensors;
@@ -1856,6 +1999,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _showfuelB2SDialog(context, _fuelTrimBank2ShortTerm);
       case 'Banco 2 Largo':
         _showfuelB2LDialog(context, _fuelTrimBank2LongTerm);
+      case 'CatB1S1':
+        _showCatB1S1Dialog(context, _catalizadorB1S1);
+      case 'CatB1S2':
+        _showCatB1S2Dialog(context, _catalizadorB1S2);
+      case 'CatB2S1':
+        _showCatB2S1Dialog(context, _catalizadorB2S1);
+      case 'CatB2S2':
+        _showCatB2S2Dialog(context, _catalizadorB2S2);
         break;
       // Agrega más casos según necesites
     }
@@ -2377,6 +2528,82 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  void _showCatB1S1Dialog(BuildContext context, double _catalizadorB1S1) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: primaryColor, width: 2),
+        ),
+        insetPadding: const EdgeInsets.all(20),
+        child: SensorCard(
+          title: 'CatB1S1',
+          value: _catalizadorB1S1.toString(),
+        ),
+      ),
+    );
+  }
+
+  void _showCatB1S2Dialog(BuildContext context, double _catalizadorB1S2) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: primaryColor, width: 2),
+        ),
+        insetPadding: const EdgeInsets.all(20),
+        child: SensorCard(
+          title: 'CatB1S2',
+          value: _catalizadorB1S2.toString(),
+        ),
+      ),
+    );
+  }
+
+  void _showCatB2S1Dialog(BuildContext context, double _catalizadorB2S1) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: primaryColor, width: 2),
+        ),
+        insetPadding: const EdgeInsets.all(20),
+        child: SensorCard(
+          title: 'CatB2S1',
+          value: _catalizadorB2S1.toString(),
+        ),
+      ),
+    );
+  }
+
+  void _showCatB2S2Dialog(BuildContext context, double _catalizadorB2S2) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.black,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: primaryColor, width: 2),
+        ),
+        insetPadding: const EdgeInsets.all(20),
+        child: SensorCard(
+          title: 'CatB2S2',
+          value: _catalizadorB2S2.toString(),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     homeController.dispose();
@@ -2610,7 +2837,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               'Temp. Refrigerante',
                               big: true,
                             ),
-                            // Agrega más sensores aquí después si necesitas
+                            _buildTempDetail(
+                              'Catalizador B1S1',
+                              'CatB1S1',
+                              big: false,
+                            ),
+                            _buildTempDetail(
+                              'Catalizador B1S2',
+                              'CatB1S2',
+                              big: false,
+                            ),
+                            _buildTempDetail(
+                              'Catalizador B2S1',
+                              'CatB2S1',
+                              big: false,
+                            ),
+                            _buildTempDetail(
+                              'Catalizador B2S2',
+                              'CatB2S2',
+                              big: false,
+                            ),
                           ],
                         ),
                       ),
@@ -2676,6 +2922,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                     "Banco 1 Largo",
                                     "Banco 2 Corto",
                                     "Banco 2 Largo",
+                                    "CatB1S1",
+                                    "CatB1S2",
+                                    "CatB2S1",
+                                    "CatB2S2"
                                   ].contains(sensor['nombre']))
                               .toList();
 

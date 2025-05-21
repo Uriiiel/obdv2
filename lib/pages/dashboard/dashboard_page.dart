@@ -3180,6 +3180,186 @@ class SpeedometerPage extends StatelessWidget {
       ),
     );
   }
+    factory SpeedometerPage.catB1S1({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'CatB1S1',
+      config: GaugeConfig(
+        maxValue: 950,
+        minValue: 0,
+        unit: '°C',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 237.5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 237.5,
+            endValue: 475,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 475,
+            endValue: 712.5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 712.5,
+            endValue: 950,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+    factory SpeedometerPage.catB1S2({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'CatB1S2',
+      config: GaugeConfig(
+        maxValue: 650,
+        minValue: 0,
+        unit: '°C',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 162.5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 162.5,
+            endValue: 325,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 325,
+            endValue: 487.5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 487.5,
+            endValue: 650,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+    factory SpeedometerPage.catB2S1({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'CatB2S1',
+      config: GaugeConfig(
+        maxValue: 950,
+        minValue: 0,
+        unit: '°C',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 237.5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 237.5,
+            endValue: 475,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 475,
+            endValue: 712.5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 712.5,
+            endValue: 950,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
+    factory SpeedometerPage.catB2S2({required double value}) {
+    return SpeedometerPage(
+      value: value,
+      title: 'CatB2S2',
+      config: GaugeConfig(
+        maxValue: 650,
+        minValue: 0,
+        unit: '°C',
+        gradient: const SweepGradient(
+          colors: [Colors.green, Colors.yellow, Colors.orange, Colors.red],
+          stops: [0.25, 0.5, 0.75, 1],
+        ),
+        ranges: [
+          GaugeRange(
+            startValue: 0,
+            endValue: 162.5,
+            color: Colors.green,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 162.5,
+            endValue: 325,
+            color: Colors.yellow,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 325,
+            endValue: 487.5,
+            color: Colors.orange,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+          GaugeRange(
+            startValue: 487.5,
+            endValue: 650,
+            color: Colors.red,
+            startWidth: 15,
+            endWidth: 15,
+          ),
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     return Dialog(
