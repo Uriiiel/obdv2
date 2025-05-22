@@ -105,9 +105,9 @@ class SensorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.white10,
+        color: Colors.black.withOpacity(0.3),
         border: Border.all(
-          color: primaryColor,
+          color: Color(0xFF0166B3),
           width: 2,
         ),
         borderRadius: const BorderRadius.all(Radius.circular(10)),
@@ -117,7 +117,7 @@ class SensorCard extends StatelessWidget {
         children: [
           Text(
             title.toUpperCase(),
-            style: const TextStyle(fontSize: 11, color: Colors.white),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           const Spacer(),
           Text(
@@ -125,7 +125,7 @@ class SensorCard extends StatelessWidget {
             style: const TextStyle(
               fontSize: 25,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Colors.black,
             ),
           ),
         ],

@@ -38,8 +38,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorPrimary = Color(0xFF007AFF); // Azul principal
-    final colorSecondary = Color(0xFF1E90FF); // Azul más claro
+    final colorPrimary = Color(0xFF0166B3); // Azul principal
+    final colorSecondary = Color(0xFF709DCE); // Azul más claro
 
     return Scaffold(
       body: Container(
@@ -66,10 +66,10 @@ class _LoginPageState extends State<LoginPage> {
                     // Logo y título
                     Column(
                       children: [
-                        Icon(
-                          FontAwesomeIcons.lock,
-                          size: 80,
-                          color: Colors.white,
+                        Image.asset(
+                          'assets/images/image.png',
+                          height: 180,
+                          fit: BoxFit.contain,
                         ),
                         SizedBox(height: 16),
                         Text(

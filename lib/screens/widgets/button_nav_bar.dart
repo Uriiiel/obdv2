@@ -18,7 +18,7 @@ class ButtomNavBar extends StatelessWidget {
       onTap: onTap,
       currentIndex: selectedButtom,
       type: BottomNavigationBarType.fixed,
-      backgroundColor: Colors.black,
+      backgroundColor: Color(0xFF709DCE),
 
       items: List.generate(
         4,

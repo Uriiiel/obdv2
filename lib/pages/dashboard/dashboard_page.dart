@@ -2054,6 +2054,19 @@ class SpeedometerPage extends StatelessWidget {
     required this.config,
   });
 
+   Color _getValueColor(double value, List<GaugeRange> ranges) {
+    // Ordenar los rangos por valor inicial
+    final sortedRanges = List<GaugeRange>.from(ranges)
+      ..sort((a, b) => a.startValue.compareTo(b.startValue));
+
+    for (final range in sortedRanges) {
+      if (value >= range.startValue && value <= range.endValue) {
+        return range.color ?? Colors.white; // Usamos operador null-coalescing
+      }
+    }
+    return Colors.white; // Valor por defecto
+  }
+
   factory SpeedometerPage.speedometer({required double value}) {
     return SpeedometerPage(
       value: value,
@@ -2069,27 +2082,27 @@ class SpeedometerPage extends StatelessWidget {
         ranges: [
           GaugeRange(
             startValue: 0,
-            endValue: 30,
+            endValue: 60,
             color: Colors.pink,
             startWidth: 15,
             endWidth: 15,
           ),
           GaugeRange(
-            startValue: 30,
-            endValue: 80,
+            startValue: 60,
+            endValue: 120,
             color: Colors.green,
             startWidth: 15,
             endWidth: 15,
           ),
           GaugeRange(
-            startValue: 80,
-            endValue: 160,
+            startValue: 120,
+            endValue: 180,
             color: Colors.amber,
             startWidth: 15,
             endWidth: 15,
           ),
           GaugeRange(
-            startValue: 160,
+            startValue: 180,
             endValue: 240,
             color: Colors.red,
             startWidth: 15,
@@ -2122,20 +2135,20 @@ class SpeedometerPage extends StatelessWidget {
           ),
           GaugeRange(
             startValue: 2000,
-            endValue: 5000,
+            endValue: 4000,
             color: Colors.yellow,
             startWidth: 15,
             endWidth: 15,
           ),
           GaugeRange(
-            startValue: 5000,
-            endValue: 7000,
+            startValue: 4000,
+            endValue: 6000,
             color: Colors.orange,
             startWidth: 15,
             endWidth: 15,
           ),
           GaugeRange(
-            startValue: 7000,
+            startValue: 6000,
             endValue: 8000,
             color: Colors.red,
             startWidth: 15,
@@ -2328,7 +2341,7 @@ class SpeedometerPage extends StatelessWidget {
   factory SpeedometerPage.presionCA({required double value}) {
     return SpeedometerPage(
       value: value,
-      title: 'Presión colector admisión',
+      title: 'Presión colector \nadmisión',
       config: GaugeConfig(
         maxValue: 100,
         minValue: 0,
@@ -3362,15 +3375,16 @@ class SpeedometerPage extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
+    final currentColor = _getValueColor(value, config.ranges);
+
     return Dialog(
-      backgroundColor: Colors.black.withOpacity(0.9),
+      backgroundColor: Color(0xFF0166B3),
       insetPadding: const EdgeInsets.all(20),
-      shape: RoundedRectangleBorder(),
       child: Container(
         padding: const EdgeInsets.all(20),
-        // constraints: const BoxConstraints(
-        //   minHeight: 500,
-        // ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -3440,26 +3454,28 @@ class SpeedometerPage extends StatelessWidget {
                             widget: Column(
                               children: [
                                 const SizedBox(height: 110),
-                                Text(
-                                  value.toStringAsFixed(0),
-                                  style: const TextStyle(
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  style: TextStyle(
                                     fontSize: 50,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.white,
+                                    color: currentColor,
                                     shadows: [
                                       Shadow(
-                                        color: Colors.white,
+                                        color: currentColor.withOpacity(0.5),
                                         blurRadius: 20,
                                       ),
                                     ],
                                   ),
+                                  child: Text(value.toStringAsFixed(0)), // Child agregado aquí
                                 ),
-                                Text(
-                                  config.unit,
-                                  style: const TextStyle(
+                                AnimatedDefaultTextStyle(
+                                  duration: const Duration(milliseconds: 300),
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: Colors.white,
+                                    color: currentColor,
                                   ),
+                                  child: Text(config.unit), // Child agregado aquí
                                 ),
                               ],
                             ),

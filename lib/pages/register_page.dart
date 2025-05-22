@@ -42,8 +42,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorPrimary = Color(0xFF007AFF); // Azul principal
-    final colorSecondary = Color(0xFF1E90FF); // Azul más claro
+    final colorPrimary = Color(0xFF0166B3); // Azul principal
+    final colorSecondary = Color(0xFF709DCE); // Azul más claro
 
     return Scaffold(
       body: Container(

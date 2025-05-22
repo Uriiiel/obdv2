@@ -18,7 +18,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'dart:typed_data';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:collection/collection.dart';
+import 'package:obdv2/pages/login_page.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -31,6 +33,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final Map<String, List<double>> sensorHistory = {
     'Voltaje': [],
     'Temp. Refrigerante': [],
+    'Carga del motor': [],
+    'Nivel Combustible': [],
+    'Presión Combustible': [],
+    'Consumo': [],
     'Sensor O2 1 (V) [0]': [],
     'Sensor O2 1 (AFR) [0]': [],
     'Sensor O2 2 (V) [1]': [],
@@ -42,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   };
 
   //pruebas sin obd
-  bool _mockMode = true;
+  // bool _mockMode = true;
   //pruebas sin obd
 
   // bluetooth
@@ -123,7 +129,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // final ValueNotifier<double> _catB1S2Notifier = ValueNotifier(0.0);
   // final ValueNotifier<double> _catB2S1Notifier = ValueNotifier(0.0);
   // final ValueNotifier<double> _catB2S2Notifier = ValueNotifier(0.0);
-
 
   Timer? _commandTimer;
   int _currentCommandIndex = 0;
@@ -263,21 +268,25 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     sensorHistory['Voltaje'] = [];
+    sensorHistory['Carga del motor'] = [];
+    sensorHistory['Nivel Combustible'] = [];
+    sensorHistory['Presión Combustible'] = [];
+    sensorHistory['Consumo'] = [];
     for (int i = 0; i < 4; i++) {
       sensorHistory['Sensor O2 ${i + 1} (V)'] = [];
       sensorHistory['Sensor O2 ${i + 1} (AFR)'] = [];
     }
     //pruebas sin obd
 
-    if (_mockMode) {
-      _isConnected = true; // Simular conexión exitosa
-      _startMockDataGeneration();
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _ensureConnection();
-      });
-      _checkBluetoothState();
-    }
+    // if (_mockMode) {
+    //   _isConnected = true; // Simular conexión exitosa
+    //   _startMockDataGeneration();
+    // } else {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     _ensureConnection();
+    //   });
+    //   _checkBluetoothState();
+    // }
 
     //pruebas sin obd
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -296,77 +305,117 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   //pruebas sin obd
-  void _startMockDataGeneration() {
-    Timer.periodic(Duration(milliseconds: 1000), (timer) {
-      if (!_mockMode) {
-        timer.cancel();
-        return;
-      }
+  // void _startMockDataGeneration() {
+  //   Timer.periodic(Duration(milliseconds: 2000), (timer) {
+  //     if (!_mockMode) {
+  //       timer.cancel();
+  //       return;
+  //     }
 
-      final random = Random();
-      // Genera valores aleatorios para TODOS los sensores
-      final newSpeed = random.nextDouble() * 200;
-      final newRpm = random.nextDouble() * 8000;
-      final newVoltaje = random.nextDouble() * 20;
-      final newTemp = random.nextDouble() * 105;
-      final newO2Voltage = List.generate(4, (index) => random.nextDouble() * 5);
-      final newO2AFR = List.generate(4, (index) => random.nextDouble() * 20);
+  //     final random = Random();
+  //     // Genera valores aleatorios para TODOS los sensores
+  //     final newSpeed = random.nextDouble() * 200;
+  //     final newRpm = random.nextDouble() * 8000;
+  //     final newVoltaje = random.nextDouble() * 20;
+  //     final newTemp = random.nextDouble() * 105;
+  //     final newO2Voltage = List.generate(4, (index) => random.nextDouble() * 5);
+  //     final newO2AFR = List.generate(4, (index) => random.nextDouble() * 20);
 
-      // Actualiza sensorHistory
-      _onSensorDataReceived('Voltaje', newVoltaje);
-      _onSensorDataReceived('Temp. Refrigerante', newTemp);
-      for (int i = 0; i < 4; i++) {
-        _onSensorDataReceived('Sensor O2 ${i + 1} (V)', newO2Voltage[i]);
-        _onSensorDataReceived('Sensor O2 ${i + 1} (AFR)', newO2AFR[i]);
-      }
+  //     final newCM = random.nextDouble() * 100;
+  //     final newAE = random.nextDouble() * 40;
+  //     final newFAM = random.nextDouble() * 20;
+  //     final newPCA = random.nextDouble() * 100;
+  //     final newAFR = random.nextDouble() * 20;
+  //     final newNC = random.nextDouble() * 100;
+  //     final newPC = random.nextDouble() * 400;
+  //     final newPR = random.nextDouble() * 1500;
+  //     final newC = random.nextDouble() * 20;
+  //     final newB1S = random.nextDouble() * 10;
+  //     final newB1L = random.nextDouble() * 10;
+  //     final newB2S = random.nextDouble() * 10;
+  //     final newB2L = random.nextDouble() * 10;
 
-      // Actualiza ValueNotifiers y estado
-      setState(() {
-        _speed = newSpeed;
-        _rpm = newRpm;
-        _voltage = newVoltaje;
-        _o2Voltage = newO2Voltage;
-        _o2AFR = newO2AFR;
-        _coolantTemp = newTemp;
-      });
+  //     // Actualiza sensorHistory
+  //     _onSensorDataReceived('Voltaje', newVoltaje);
+  //     _onSensorDataReceived('Temp. Refrigerante', newTemp);
+  //     for (int i = 0; i < 4; i++) {
+  //       _onSensorDataReceived('Sensor O2 ${i + 1} (V)', newO2Voltage[i]);
+  //       _onSensorDataReceived('Sensor O2 ${i + 1} (AFR)', newO2AFR[i]);
+  //     }
 
-      _speedNotifier.value = newSpeed;
-      _rpmNotifier.value = newRpm;
-      _voltageNotifier.value = newVoltaje;
-      _cooltempNotifier.value = newTemp;
-      _o2VNotifier.value = newO2Voltage;
-      _o2AFRNotifier.value = newO2AFR;
+  //     // Actualiza ValueNotifiers y estado
+  //     setState(() {
+  //       _speed = newSpeed;
+  //       _rpm = newRpm;
+  //       _voltage = newVoltaje;
+  //       _o2Voltage = newO2Voltage;
+  //       _o2AFR = newO2AFR;
+  //       _coolantTemp = newTemp;
+  //       _engineLoad = newCM;
+  //       _ignitionAdvance = newAE;
+  //       _maf = newFAM;
+  //       _intakeManifoldPressure = newPCA;
+  //       _commandedAFR = newAFR;
+  //       _fuelLevel = newNC;
+  //       _fuelPressure = newPC;
+  //       _fuelRailPressure = newPR;
+  //       _fuelRate = newC;
+  //       _fuelTrimBank1ShortTerm = newB1S;
+  //       _fuelTrimBank1LongTerm = newB1L;
+  //       _fuelTrimBank2ShortTerm = newB2S;
+  //       _fuelTrimBank2LongTerm = newB2L;
+  //     });
 
-      //print(_voltage);
-      print(_coolantTemp);
+  //     _speedNotifier.value = newSpeed;
+  //     _rpmNotifier.value = newRpm;
+  //     _voltageNotifier.value = newVoltaje;
+  //     _cooltempNotifier.value = newTemp;
+  //     _o2VNotifier.value = newO2Voltage;
+  //     _o2AFRNotifier.value = newO2AFR;
+  //     _engineNotifier.value = newCM;
+  //     _ignitionNotifier.value = newAE;
+  //     _mafNotifier.value = newFAM;
+  //     _intakeMPNotifier.value = newPCA;
+  //     _commandedAFRNotifier.value = newAFR;
+  //     _fuelLevelNotifier.value = newNC;
+  //     _fuelPressureNotifier.value = newPC;
+  //     _fuelRailPNotifier.value = newPR;
+  //     _fuelRateNotifier.value = newC;
+  //     _fuelTrimB1SNotifier.value = newB1S;
+  //     _fuelTrimB1LNotifier.value = newB1L;
+  //     _fuelTrimB2SNotifier.value = newB2S;
+  //     _fuelTrimB2LNotifier.value = newB2L;
 
-      _updateSensors();
-    });
-  }
+  //     //print(_voltage);
+  //     print(_coolantTemp);
+
+  //     _updateSensors();
+  //   });
+  // }
   //pruebas sin obd
 
   void _ensureConnection() {
     //pruebas sin obd
-    if (!_mockMode && !_isConnected) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          title: const Text('Conectar OBD'),
-          content: const Text(
-              'Debes conectar el dispositivo OBD por Bluetooth para continuar.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _showDeviceList(context);
-              },
-              child: const Text('Conectar'),
-            ),
-          ],
-        ),
-      );
-    }
+    // if (!_mockMode && !_isConnected) {
+    //   showDialog(
+    //     context: context,
+    //     barrierDismissible: false,
+    //     builder: (_) => AlertDialog(
+    //       title: const Text('Conectar OBD'),
+    //       content: const Text(
+    //           'Debes conectar el dispositivo OBD por Bluetooth para continuar.'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(context).pop();
+    //             _showDeviceList(context);
+    //           },
+    //           child: const Text('Conectar'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
     //pruebas sin obd
     if (!_isConnected) {
       showDialog(
@@ -428,7 +477,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
     //pruebas sin obd
-    if (_mockMode) return;
+    // if (_mockMode) return;
     //pruebas sin obd
     if (_isConnecting) return;
 
@@ -529,8 +578,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               const SizedBox(height: 15),
               const Text('Características:',
                   style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold)),
+                      color: Colors.white, fontWeight: FontWeight.bold)),
               _buildFeatureChip('Control de crucero adaptativo'),
               _buildFeatureChip('Asistente de carril'),
               _buildFeatureChip('Sistema de infoentretenimiento'),
@@ -616,7 +664,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _processMessage(String message) {
     message = message.replaceAll(RegExp(r'[\r\n\s]'), '').toUpperCase();
-    if (message.startsWith('4105') && message.length >= 6) {
+    if (message.startsWith('410C') && message.length >= 8) {
+      try {
+        final rpmHex = message.substring(4, 8);
+        final rpmValue = int.parse(rpmHex, radix: 16) / 4.0;
+        setState(() => _rpm = rpmValue);
+        _rpmNotifier.value = rpmValue;
+        _enviarDatoAFirebaseMotor('RPM', rpmValue);
+      } catch (e) {
+        print("Error procesando RPM: $e");
+      }
+    } else if (message.startsWith('4105') && message.length >= 6) {
       // Temperatura refrigerante (0105)
       try {
         double tempValue = int.parse(message.substring(4, 6), radix: 16) - 40;
@@ -627,8 +685,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       } catch (e) {
         print("Error procesando temperatura: $e");
       }
-
-    } 
+    }
     // else if (message.startsWith('413C') && message.length >= 6) {
     //   // Temperatura Catalizador B1S1 (013C)
     //   try {
@@ -678,21 +735,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     //   }
     // }
 
-
-    else if (message.startsWith('410C') && message.length >= 8) {
-      // RPM motor (010C)
-      try {
-        int rpmValue = int.parse(message.substring(4, 8), radix: 16);
-        setState(() => _rpm = rpmValue / 4.0);
-        _rpmNotifier.value = rpmValue / 4.0;
-        _enviarDatoAFirebaseMotor('RPM', _rpm);
-      } catch (e) {
-        print("Error procesando RPM: $e");
-      }
-    } else if (message.startsWith('4104') && message.length >= 6) {
+    else if (message.startsWith('4104') && message.length >= 6) {
       // Carga del motor (0104)
       try {
         int loadValue = int.parse(message.substring(4, 6), radix: 16);
+        _onSensorDataReceived('Carga del motor', loadValue.toDouble());
         setState(() => _engineLoad = (loadValue * 100 / 255).toDouble());
         _engineNotifier.value = loadValue.toDouble();
         _enviarDatoAFirebaseMotor('Carga del motor', _engineLoad);
@@ -864,6 +911,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       // Nivel de combustible (012F)
       try {
         int level = int.parse(message.substring(4, 6), radix: 16) * 100 ~/ 255;
+        _onSensorDataReceived('Nivel de combustible', level.toDouble());
         setState(() => _fuelLevel = level.toDouble());
         _fuelLevelNotifier.value = level.toDouble();
         _enviarDatoAFirebaseCombustible("Nivel de combustible", _fuelLevel);
@@ -874,6 +922,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       // Presión de combustible (010A)
       try {
         int pressure = int.parse(message.substring(4, 6), radix: 16) * 3;
+        _onSensorDataReceived('Presion combustible', pressure.toDouble());
         setState(() => _fuelPressure = pressure.toDouble());
         _fuelPressureNotifier.value = pressure.toDouble();
         _enviarDatoAFirebaseCombustible("Presion combustible", _fuelPressure);
@@ -894,6 +943,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       // Tasa de consumo de combustible (015E)
       try {
         double rate = int.parse(message.substring(4, 8), radix: 16) * 0.05;
+        _onSensorDataReceived('Tasa combustible', rate);
         setState(() => _fuelRate = rate);
         _fuelRateNotifier.value = rate.toDouble();
         _enviarDatoAFirebaseCombustible("Tasa combustible", _fuelRate);
@@ -990,7 +1040,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _sendCommand(String command) {
     //pruebas sin obd
-    if (_mockMode) return;
+    // if (_mockMode) return;
     //pruebas sin obd
     if (_isConnected && _connection != null) {
       command = '$command\r';
@@ -1000,7 +1050,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _startAutoUpdate() {
     _commandTimer?.cancel();
-    _commandTimer = Timer.periodic(Duration(milliseconds: 500), (timer) {
+    _commandTimer = Timer.periodic(Duration(milliseconds: 200), (timer) {
       if (_isConnected && _connection != null) {
         _sendCommand(_obdCommands[_currentCommandIndex]);
         _currentCommandIndex = (_currentCommandIndex + 1) % _obdCommands.length;
@@ -1020,10 +1070,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       builder: (_) => ValueListenableBuilder<double>(
         valueListenable: notifier,
         builder: (context, value, _) => Dialog(
-          backgroundColor: Colors.black.withOpacity(0.9),
+          backgroundColor: Colors.white,
           insetPadding: const EdgeInsets.all(20),
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: primaryColor, width: 2),
+            side: BorderSide(
+              color: Color(0xFF0166B3),
+              width: 2
+            ),
           ),
           child: DefaultTabController(
             length: 3,
@@ -1031,7 +1084,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const TabBar(
-                  labelColor: Colors.white,
+                  labelColor: Colors.black,
                   unselectedLabelColor: Colors.grey,
                   indicatorColor: Colors.blueAccent,
                   tabs: [
@@ -1184,7 +1237,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.black.withOpacity(0.8),
             fontSize: 16,
           ),
         ),
@@ -1193,7 +1246,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           style: TextStyle(
             fontSize: big ? 70 : 25,
             fontWeight: FontWeight.bold,
-            color: isValid ? Colors.white : Colors.red,
+            color: isValid ? Colors.black : Colors.red,
           ),
         ),
         const SizedBox(height: 10),
@@ -1208,7 +1261,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.black.withOpacity(0.8),
             fontSize: 16,
           ),
         ),
@@ -1219,7 +1272,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           style: TextStyle(
             fontSize: big ? 70 : 25,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: Colors.black,
           ),
         ),
         const SizedBox(height: 15),
@@ -1254,11 +1307,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         children: [
           Text(title,
               style: const TextStyle(
-                  color: Colors.white70,
-                  fontWeight: FontWeight.bold)),
+                  color: Colors.white70, fontWeight: FontWeight.bold)),
           const SizedBox(width: 10),
-          Text(value,
-              style: const TextStyle(color: Colors.white)),
+          Text(value, style: const TextStyle(color: Colors.white)),
         ],
       ),
     );
@@ -1270,10 +1321,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Chip(
         backgroundColor: Colors.blueGrey[600],
-        label: Text(text,
-            style: const TextStyle(color: Colors.white70)),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8)),
+        label: Text(text, style: const TextStyle(color: Colors.white70)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
@@ -1330,14 +1379,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return SpeedometerPage.banco2C(value: value);
       case 'Banco 2 Largo':
         return SpeedometerPage.banco2L(value: value);
-      case 'CatB1S1':
-        return SpeedometerPage.catB1S1(value: value);
-      case 'CatB1S2':
-        return SpeedometerPage.catB1S2(value: value);
-      case 'CatB2S1':
-        return SpeedometerPage.catB2S1(value: value);
-      case 'CatB2S2':
-        return SpeedometerPage.catB2S2(value: value);
+      // case 'CatB1S1':
+      //   return SpeedometerPage.catB1S1(value: value);
+      // case 'CatB1S2':
+      //   return SpeedometerPage.catB1S2(value: value);
+      // case 'CatB2S1':
+      //   return SpeedometerPage.catB2S1(value: value);
+      // case 'CatB2S2':
+      //   return SpeedometerPage.catB2S2(value: value);
       default:
         return const Center(
             child: Text('Gauge no disponible',
@@ -1354,21 +1403,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Nombre: $sensorName',
-              style: const TextStyle(color: Colors.white, fontSize: 18)),
+          Text('Nombre',
+              style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('$sensorName',
+              style: const TextStyle(color: Colors.black, fontSize: 18)),
           const SizedBox(height: 8),
-          Text('Valor actual: ${value.toStringAsFixed(1)}',
-              style: const TextStyle(color: Colors.white)),
+          Text('Valor actual',
+              style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('${value.toStringAsFixed(1)}',
+              style: const TextStyle(color: Colors.black, fontSize: 18)),
           const SizedBox(height: 8),
-          const Text('Descripción:', style: TextStyle(color: Colors.white)),
-          Text(
-            '$descripcion',
-            style: TextStyle(color: Colors.white70),
+          const Text('Descripción', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          Text('$descripcion',
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
-          const Text('Rango promedio:', style: TextStyle(color: Colors.white)),
+          const Text('Rango promedio', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
           Text(
             '$minMax',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
         ],
       ),
@@ -1403,11 +1455,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          const Icon(Icons.check_circle,
-              color: Colors.green, size: 18),
+          const Icon(Icons.check_circle, color: Colors.green, size: 18),
           const SizedBox(width: 8),
-          Text(text,
-              style: const TextStyle(color: Colors.white70)),
+          Text(text, style: const TextStyle(color: Colors.white70)),
         ],
       ),
     );
@@ -1672,22 +1722,23 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'Banco 1 Largo': 'Ajuste de largo plazo al AFR del banco 1 (aprendizaje).',
     'Banco 2 Corto': 'Ajuste de corto plazo al AFR del banco 2.',
     'Banco 2 Largo': 'Ajuste de largo plazo al AFR del banco 2.',
-    'CatB1S1': 'Mide la temperatura de los gases de escape antes de entrar al núcleo catalítico. Valores altos (>850°C) indican riesgo de fusión del catalizador.',
-    'CatB1S2': 'Monitorea la temperatura después de la reacción catalítica. Una diferencia <50°C entre B1S1 y B1S2 sugiere catalizador ineficiente.',
-    'CatB2S1': 'Equivalente al B1S1 pero para el segundo banco. Usado en motores con doble escape para cumplir normas EURO/USD.',
-    'CatB2S2': 'Compara la eficiencia entre bancos. En motores balanceados, B1S2 y B2S2 deben tener lecturas similares (±30°C).',
+    // 'CatB1S1': 'Mide la temperatura de los gases de escape antes de entrar al núcleo catalítico. Valores altos (>850°C) indican riesgo de fusión del catalizador.',
+    // 'CatB1S2': 'Monitorea la temperatura después de la reacción catalítica. Una diferencia <50°C entre B1S1 y B1S2 sugiere catalizador ineficiente.',
+    // 'CatB2S1': 'Equivalente al B1S1 pero para el segundo banco. Usado en motores con doble escape para cumplir normas EURO/USD.',
+    // 'CatB2S2': 'Compara la eficiencia entre bancos. En motores balanceados, B1S2 y B2S2 deben tener lecturas similares (±30°C).',
   };
   final Map<String, String> sensorMinMax = {
     'Velocidad': '0 - 240 km/h (depende del vehículo)',
     'RPM': '600 - 7000 rpm',
     'Temp. Refrigerante': '70°C - 105°C',
     'Carga del motor': '0% - 100%',
-    'Avance encendido': '-10° - 40° (en grados de avance)',
+    'Avance encendido': '-10° - 100° (en grados de avance)',
     'Flujo aire masivo': '2 - 20 g/s (ralentí a aceleración moderada)',
     'Presión colector admisión': '20 - 100 kPa',
     'Voltaje': '12.5V - 12.9V',
     'Sensor O2 1 (V) [0]': '0.1 - 0.9 V',
-    'Sensor O2 1 (AFR) [0]': '14.7:1 (estequiométrica), típicamente entre 12 - 16:1',
+    'Sensor O2 1 (AFR) [0]':
+        '14.7:1 (estequiométrica), típicamente entre 12 - 16:1',
     'Sensor O2 2 (V) [1]': '0.1 - 0.9 V',
     'Sensor O2 2 (AFR) [1]': '14.5 - 15.0:1',
     'Sensor O2 3 (V) [2]': '0.1 - 0.9 V',
@@ -1703,10 +1754,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     'Banco 1 Largo': '-10% a +10%',
     'Banco 2 Corto': '-10% a +10%',
     'Banco 2 Largo': '-10% a +10%',
-    'CatB1S1': '500°C - 800°C',
-    'CatB1S2': '300°C - 500°C',
-    'CatB2S1': '500°C - 800°C',
-    'CatB2S2': '300°C - 500°C',
+    // 'CatB1S1': '500°C - 800°C',
+    // 'CatB1S2': '300°C - 500°C',
+    // 'CatB2S1': '500°C - 800°C',
+    // 'CatB2S2': '300°C - 500°C',
   };
 
   Map<String, dynamic> _getSensorConfig(String title) {
@@ -1765,14 +1816,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return {'unit': '%', 'maxValue': 10.0};
       case 'Banco 2 Largo':
         return {'unit': '%', 'maxValue': 10.0};
-      case 'CatB1S1':
-        return {'unit': '°C', 'maxValue': 950.0};
-      case 'CatB1S2':
-        return {'unit': '°C', 'maxValue': 650.0};
-      case 'CatB2S1':
-        return {'unit': '°C', 'maxValue': 950.0};
-      case 'CatB2S2':
-        return {'unit': '°C', 'maxValue': 650.0};
+      // case 'CatB1S1':
+      //   return {'unit': '°C', 'maxValue': 950.0};
+      // case 'CatB1S2':
+      //   return {'unit': '°C', 'maxValue': 650.0};
+      // case 'CatB2S1':
+      //   return {'unit': '°C', 'maxValue': 950.0};
+      // case 'CatB2S2':
+      //   return {'unit': '°C', 'maxValue': 650.0};
       default:
         return {'unit': '%', 'maxValue': 100.0};
     }
@@ -1856,22 +1907,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _showDeviceList(BuildContext context) {
     //pruebas sin obd
-    if (_mockMode) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Modo Simulación'),
-          content: Text('Usando datos de prueba'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cerrar'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
+    // if (_mockMode) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) => AlertDialog(
+    //       title: Text('Modo Simulación'),
+    //       content: Text('Usando datos de prueba'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Navigator.pop(context),
+    //           child: Text('Cerrar'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    //   return;
+    // }
     //pruebas sin obd
     showDialog(
       context: context,
@@ -1879,42 +1930,48 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         return AlertDialog(
           title: const Text('Dispositivos Bluetooth'),
           content: _connection != null && _connection!.isConnected
-              ? Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Conectado a: ${_device?.name ?? 'Desconocido'}'),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () async {
-                        await _connection!.close();
-                        _connection = null;
-                        _device = null;
-                        Navigator.pop(context);
-                      },
-                      child: const Text('Desconectar'),
-                    ),
-                  ],
-                )
-              : Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: _devicesList.map((device) {
-                    return ListTile(
-                      title: Text(device.name ?? "Sin nombre"),
-                      subtitle: Text(device.address),
-                      onTap: () async {
-                        try {
-                          BluetoothConnection connection =
-                              await BluetoothConnection.toAddress(
-                                  device.address);
-                          _connection = connection;
-                          _device = device;
+              ? SingleChildScrollView(
+                  // Agregado
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Conectado a: ${_device?.name ?? 'Desconocido'}'),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await _connection!.close();
+                          _connection = null;
+                          _device = null;
                           Navigator.pop(context);
-                        } catch (e) {
-                          print('Error al conectar: $e');
-                        }
-                      },
-                    );
-                  }).toList(),
+                        },
+                        child: const Text('Desconectar'),
+                      ),
+                    ],
+                  ),
+                )
+              : SingleChildScrollView(
+                  // Agregado
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: _devicesList.map((device) {
+                      return ListTile(
+                        title: Text(device.name ?? "Sin nombre"),
+                        subtitle: Text(device.address),
+                        onTap: () async {
+                          try {
+                            BluetoothConnection connection =
+                                await BluetoothConnection.toAddress(
+                                    device.address);
+                            _connection = connection;
+                            _device = device;
+                            Navigator.pop(context);
+                          } catch (e) {
+                            print('Error al conectar: $e');
+                          }
+                        },
+                      );
+                    }).toList(),
+                  ),
                 ),
         );
       },
@@ -2134,14 +2191,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         _showfuelB2SDialog(context, _fuelTrimBank2ShortTerm);
       case 'Banco 2 Largo':
         _showfuelB2LDialog(context, _fuelTrimBank2LongTerm);
-      // case 'CatB1S1':
-      //   _showCatB1S1Dialog(context, _catalizadorB1S1);
-      // case 'CatB1S2':
-      //   _showCatB1S2Dialog(context, _catalizadorB1S2);
-      // case 'CatB2S1':
-      //   _showCatB2S1Dialog(context, _catalizadorB2S1);
-      // case 'CatB2S2':
-      //   _showCatB2S2Dialog(context, _catalizadorB2S2);
+        // case 'CatB1S1':
+        //   _showCatB1S1Dialog(context, _catalizadorB1S1);
+        // case 'CatB1S2':
+        //   _showCatB1S2Dialog(context, _catalizadorB1S2);
+        // case 'CatB2S1':
+        //   _showCatB2S1Dialog(context, _catalizadorB2S1);
+        // case 'CatB2S2':
+        //   _showCatB2S2Dialog(context, _catalizadorB2S2);
         break;
       // Agrega más casos según necesites
     }
@@ -2768,44 +2825,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               icon: const Icon(Icons.bluetooth),
               onPressed: () => _showDeviceList(context),
               tooltip: "Conectar Bluetooth",
-            )
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              tooltip: "Cerrar Sesión",
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                  (Route<dynamic> route) => false,
+                );
+              },
+            ),
           ],
         ),
         bottomNavigationBar: ButtomNavBar(
-          selectedButtom: homeController.selectedButtom,
-          onTap: (index) {
-            // condition to start animation
-            // battery screen animation
-            if (index == 1) {
-              batteryAnimatedController.forward();
-            } else if (homeController.selectedButtom == 1 && index != 1) {
-              batteryAnimatedController.reverse(from: 0.2);
-            }
-            // end battery screen contion
-            ///
-            ///temprature screen condition start
-            if (index == 2) {
-              tempratureAnimationController.forward();
-            } else if (homeController.selectedButtom == 2 && index != 2) {
-              tempratureAnimationController.reverse(from: 0.2);
-            }
+            selectedButtom: homeController.selectedButtom,
+            onTap: (index) {
+              if (homeController.selectedButtom != index) {
+                // Animaciones al cambiar de pestaña
+                if (homeController.selectedButtom == 1) {
+                  batteryAnimatedController.reverse(from: 0.2);
+                } else if (index == 1) {
+                  batteryAnimatedController.forward();
+                }
 
-            /// temp screen end here
-            ///
-            /// tyres start here
-            ///
-            if (index == 3) {
-              tyresAnimationController.forward();
-            } else if (homeController.selectedButtom == 3 && index != 3) {
-              tyresAnimationController.reverse();
-            }
-            homeController.showTyresController(index);
-            homeController.tyresStatusController(index);
+                if (homeController.selectedButtom == 2) {
+                  tempratureAnimationController.reverse(from: 0.2);
+                } else if (index == 2) {
+                  tempratureAnimationController.forward();
+                }
 
-            ///
-            homeController.selectedButtonsNavBarChange(index);
-          },
-        ),
+                if (homeController.selectedButtom == 3) {
+                  tyresAnimationController.reverse();
+                } else if (index == 3) {
+                  tyresAnimationController.forward();
+                }
+
+                homeController.showTyresController(index);
+                homeController.tyresStatusController(index);
+                homeController.selectedButtonsNavBarChange(index);
+              } else {
+                // Opcional: manejar doble toque en el mismo botón
+                // por ejemplo, reiniciar la animación o recargar datos
+                if (index == 3) {
+                  tyresAnimationController.forward(from: 0.0);
+                  // puedes forzar un setState o emitir un evento si necesitas que algo se recargue
+                }
+              }
+            }),
         body: SafeArea(
           child: LayoutBuilder(builder: (context, constraints) {
             // 1) CALCULA variables ANTES de la lista de widgets:
@@ -2844,75 +2912,78 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                
-                if (homeController.selectedButtom == 0)
-                  ...[
-                    Positioned.fill(
-                      child: Center(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.all(20.0),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Image.asset(
-                                  'assets/gifs/autazo.gif',
-                                  height: 180,
-                                  fit: BoxFit.contain,
+
+                if (homeController.selectedButtom == 0) ...[
+                  Positioned.fill(
+                    child: Center(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Image.asset(
+                              //   'assets/gifs/autazo.gif',
+                              //   height: 180,
+                              //   fit: BoxFit.contain,
+                              // ),
+                              // const SizedBox(height: 30),
+                              Card(
+                                elevation: 8,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                  side: BorderSide(
+                                      color: Colors.blueAccent, width: 1),
                                 ),
-                                const SizedBox(height: 30),
-                                Card(
-                                  elevation: 8,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                    side: BorderSide(color: Colors.blueAccent, width: 1),
-                                  ),
-                                  color: Colors.black.withOpacity(0.3),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(20.0),
-                                    child: Column(
-                                      children: [
-                                        const Text(
-                                          'Diagnostico OBDII',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 22,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
+                                color: Colors.black.withOpacity(0.3),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(20.0),
+                                  child: Column(
+                                    children: [
+                                      const Text(
+                                        'Diagnostico OBDII',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 22,
+                                          fontWeight: FontWeight.bold,
                                         ),
-                                        const SizedBox(height: 15),
-                                        _buildInfoRow(Icons.speed, 'Monitoreo en Tiempo Real'),
-                                        _buildInfoRow(Icons.graphic_eq, 'Análisis Profesional'),
-                                        _buildInfoRow(Icons.security, 'Sistema Seguro'),
-                                      ],
-                                    ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 15),
+                                      _buildInfoRow(Icons.speed,
+                                          'Monitoreo en Tiempo Real'),
+                                      _buildInfoRow(Icons.graphic_eq,
+                                          'Análisis Profesional'),
+                                      _buildInfoRow(
+                                          Icons.security, 'Sistema Seguro'),
+                                    ],
                                   ),
                                 ),
-                                const SizedBox(height: 30),
-                                // ElevatedButton.icon(
-                                //   icon: Icon(Icons.qr_code_scanner, size: 28),
-                                //   label: const Text(
-                                //     'OBTENER VIN DEL VEHÍCULO',
-                                //     style: TextStyle(fontSize: 16),
-                                //   ),
-                                //   style: ElevatedButton.styleFrom(
-                                //     backgroundColor: Colors.blueAccent,
-                                //     padding: const EdgeInsets.symmetric(
-                                //         horizontal: 30, vertical: 15),
-                                //     shape: RoundedRectangleBorder(
-                                //       borderRadius: BorderRadius.circular(10),
-                                //     ),
-                                //   ),
-                                //   onPressed: _showVinDialog,
-                                // ),
-                              ],
-                            ),
+                              ),
+                              const SizedBox(height: 30),
+                              // ElevatedButton.icon(
+                              //   icon: Icon(Icons.qr_code_scanner, size: 28),
+                              //   label: const Text(
+                              //     'OBTENER VIN DEL VEHÍCULO',
+                              //     style: TextStyle(fontSize: 16),
+                              //   ),
+                              //   style: ElevatedButton.styleFrom(
+                              //     backgroundColor: Colors.blueAccent,
+                              //     padding: const EdgeInsets.symmetric(
+                              //         horizontal: 30, vertical: 15),
+                              //     shape: RoundedRectangleBorder(
+                              //       borderRadius: BorderRadius.circular(10),
+                              //     ),
+                              //   ),
+                              //   onPressed: _showVinDialog,
+                              // ),
+                            ],
                           ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
+                ],
 
                 /// Battery screen start here
                 ///
@@ -2965,7 +3036,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         alignment: Alignment.centerRight,
                         child: Padding(
                           padding: const EdgeInsets.all(25),
-                          child: SingleChildScrollView( // <-- Widget clave
+                          child: SingleChildScrollView(
+                            // <-- Widget clave
                             child: Column(
                               mainAxisSize: MainAxisSize.min, // <-- Importante
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -2973,7 +3045,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 _buildBatteryDetail(
                                   'Voltaje',
                                   sensorHistory['Voltaje']?.isNotEmpty == true
-                                      ? sensorHistory['Voltaje']!.last.toStringAsFixed(2)
+                                      ? sensorHistory['Voltaje']!
+                                          .last
+                                          .toStringAsFixed(2)
                                       : '0.00',
                                   big: true,
                                 ),
@@ -2981,21 +3055,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 for (int i = 0; i < 4; i++) ...[
                                   _buildBatteryDetail(
                                     'Sensor O2 ${i + 1} (V)',
-                                    sensorHistory['Sensor O2 ${i + 1} (V)']?.isNotEmpty == true
-                                        ? sensorHistory['Sensor O2 ${i + 1} (V)']!.last.toStringAsFixed(2)
+                                    sensorHistory['Sensor O2 ${i + 1} (V)']
+                                                ?.isNotEmpty ==
+                                            true
+                                        ? sensorHistory[
+                                                'Sensor O2 ${i + 1} (V)']!
+                                            .last
+                                            .toStringAsFixed(2)
                                         : '0.00',
                                     unit: 'V',
                                     big: false,
                                   ),
                                   _buildBatteryDetail(
                                     'Sensor O2 ${i + 1} (AFR)',
-                                    sensorHistory['Sensor O2 ${i + 1} (AFR)']?.isNotEmpty == true
-                                        ? sensorHistory['Sensor O2 ${i + 1} (AFR)']!.last.toStringAsFixed(2)
+                                    sensorHistory['Sensor O2 ${i + 1} (AFR)']
+                                                ?.isNotEmpty ==
+                                            true
+                                        ? sensorHistory[
+                                                'Sensor O2 ${i + 1} (AFR)']!
+                                            .last
+                                            .toStringAsFixed(2)
                                         : '0.00',
                                     unit: 'AFR',
                                     big: false,
                                   ),
-                                  if (i < 3) const SizedBox(height: 10), // Espaciado entre sensores
+                                  if (i < 3)
+                                    const SizedBox(
+                                        height: 10), // Espaciado entre sensores
                                 ],
                               ],
                             ),
@@ -3030,6 +3116,27 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               'Temp. Refrigerante',
                               big: true,
                             ),
+                            _buildTempDetail(
+                              'Carga del motor',
+                              'Carga del motor',
+                              big: false,
+                            ),
+                            _buildTempDetail(
+                              'Nivel Combustible',
+                              'Nivel Combustible',
+                              big: false,
+                            ),
+                            _buildTempDetail(
+                              'Presión Combustible',
+                              'Presión Combustible',
+                              big: false,
+                            ),
+                            _buildTempDetail(
+                              'Tasa de Consumo',
+                              'Consumo',
+                              big: false,
+                            ),
+
                             // _buildTempDetail(
                             //   'Catalizador B1S1',
                             //   'CatB1S1',

@@ -18,10 +18,10 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Login',
       theme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.black,
-        appBarTheme: AppBarTheme(color: Colors.black)
+        scaffoldBackgroundColor: Color(0xFFFFFFFF),
+        appBarTheme: AppBarTheme(color: Color(0xFF0166B3)),
       ),
-      home: HomeScreen(),
+      home: LoginPage(),
     );
   }
 }
