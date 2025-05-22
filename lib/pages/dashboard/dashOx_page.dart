@@ -209,8 +209,8 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 colors: [Colors.white, Colors.red],
               ),
               knobStyle: gauges.KnobStyle(
-                color: Color(0xFF3F3F3F),
-                borderColor: Color(0xFF3F3F3F).withAlpha(150),
+                color: Color(0xFF0166B3),
+                borderColor: Color(0xFF709DCE).withAlpha(150),
                 borderWidth: 2,
               ),
             ),
@@ -225,12 +225,13 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     style: const TextStyle(
                       fontSize: 50,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Color.fromARGB(255, 0, 0, 0),
                       shadows: [
                         Shadow(
-                          color: Colors.white,
-                          blurRadius: 20,
-                        ),
+                          color: const Color(0xFF014C94),
+                          blurRadius: 10,
+                          offset: const Offset(0, 0),
+                        )
                       ],
                     ),
                   ),
@@ -238,7 +239,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     title,
                     style: const TextStyle(
                       fontSize: 20,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Color.fromARGB(255, 0, 0, 0),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -318,8 +319,8 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                 colors: [Colors.white, Colors.red],
               ),
               knobStyle: gauges.KnobStyle(
-                color: Color(0xFF3F3F3F),
-                borderColor: Color(0xFF3F3F3F).withAlpha(150),
+                color: Color(0xFF0166B3),
+                borderColor: Color(0xFF709DCE).withAlpha(150),
                 borderWidth: 2,
               ),
             ),
@@ -334,12 +335,13 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     style: TextStyle(
                       fontSize: 50,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Color.fromARGB(255, 0, 0, 0),
                       shadows: [
                         Shadow(
-                          color: Colors.white,
-                          blurRadius: 20,
-                        ),
+                          color: const Color(0xFF014C94),
+                          blurRadius: 10,
+                          offset: const Offset(0, 0),
+                        )
                       ],
                     ),
                   ),
@@ -347,7 +349,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     title,
                     style: TextStyle(
                       fontSize: 20,
-                      color: Color.fromARGB(255, 255, 255, 255),
+                      color: Color.fromARGB(255, 0, 0, 0),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -386,7 +388,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
               Container(
                 padding: EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Color(0xFF202020),
+                  color: Color(0xFF0166B3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Column(
@@ -394,7 +396,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     Text(
                       'Información Técnica',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 24,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
@@ -408,8 +410,9 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                       'B1: Banco 1 (antes del catalizador)\n'
                       'B2: Banco 2 (después del catalizador)',
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: const Color.fromARGB(179, 255, 255, 255),
                       ),
                     ),
                   ],
@@ -425,15 +428,16 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     child: ElevatedButton.icon(
                       onPressed: () => _mostrarGraficoVoltaje(context),
                       icon: Icon(Icons.show_chart, color: Colors.white),
-                      label: Text(
+                      label: const Text(
                         'Gráfico Voltaje',
                         style: TextStyle(
                           fontSize: 20,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                        backgroundColor: const Color(0xFF0166B3),
                         padding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
@@ -445,15 +449,16 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                     child: ElevatedButton.icon(
                       onPressed: () => _mostrarGraficoAFR(context),
                       icon: Icon(Icons.show_chart, color: Colors.white),
-                      label: Text(
+                      label: const Text(
                         'Gráfico AFR',
                         style: TextStyle(
                           fontSize: 20,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+                        backgroundColor: const Color(0xFF0166B3),
                         padding:
                             EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
@@ -645,14 +650,15 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7E7E7E),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF0166B3),
         centerTitle: true,
         title: const Text(
           "Dashboard - Oxígeno",
           style: TextStyle(
             fontSize: 24,
+            fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 255, 255, 255),
           ),
         ),
@@ -667,12 +673,6 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
             );
           },
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -687,10 +687,10 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: const Color.fromARGB(255, 1, 23, 61), width: 4),
+                      color: const Color.fromARGB(255, 9, 181, 204), width: 4),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black26,
+                      color: Color(0xFF709DCE),
                       blurRadius: 4,
                       offset: Offset(2, 2),
                     ),

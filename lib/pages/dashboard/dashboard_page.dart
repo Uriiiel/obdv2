@@ -24,6 +24,7 @@ class SpeedometerPage extends StatefulWidget {
 }
 
 //CONTADORES PARA LOS GRAFICOS
+String? hoveredItem;
 
 List<FlSpot> _historialAvance = [];
 int _contador = 0;
@@ -240,7 +241,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     startAngle: 140,
                     endAngle: 40,
                     minimum: -10,
-                    maximum: 40,
+                    maximum: 200,
                     radiusFactor: 0.9,
                     axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
@@ -266,8 +267,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: Color(0xFF3F3F3F),
-                          borderColor: Color(0xFF3F3F3F).withAlpha(150),
+                          color: Color(0xFF0166B3),
+                          borderColor: Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -282,9 +283,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -292,7 +297,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Avance de Encendido",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Colors.white,
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -320,7 +325,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450, // Alto fijo
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -338,9 +343,9 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                                color: Color.fromARGB(255, 255, 255, 255),
                               ),
                             ),
                             SizedBox(height: 10),
@@ -352,6 +357,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               '-10° (retraso) – 40° (avance)',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -406,9 +412,9 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                                       primaryYAxis: const charts.NumericAxis(
                                         title: charts.AxisTitle(
                                             text: 'Avance (°)'),
-                                        interval: 10,
+                                        interval: 20,
                                         minimum: -10,
-                                        maximum: 40,
+                                        maximum: 200,
                                         majorGridLines:
                                             charts.MajorGridLines(width: 0.5),
                                       ),
@@ -468,11 +474,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
+                        backgroundColor: Color(0xFF0166B3),
+                        foregroundColor:
+                            const Color.fromARGB(255, 255, 255, 255),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
@@ -569,8 +577,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           ],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -615,12 +623,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
                                   Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 20,
-                                  ),
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -628,7 +637,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Carga del Motor",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -656,7 +665,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -674,7 +683,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -690,6 +699,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               '0% (mínima carga) – 100% (carga máxima)',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -808,10 +818,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -891,8 +902,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -907,9 +918,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -917,7 +932,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Flujo aire masivo",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -945,7 +960,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -963,7 +978,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -977,6 +992,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               '2–20 g/s (gramos por segundo)',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -1095,10 +1111,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -1178,8 +1195,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -1194,9 +1211,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -1204,7 +1225,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Presión Colector Admisión",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1232,7 +1253,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -1250,7 +1271,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -1266,6 +1287,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               'Valores bajos pueden indicar fugas de vacío, mientras que valores altos pueden señalar problemas con el turbocompresor o restricciones en el sistema de escape.',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -1314,13 +1336,12 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                                             const charts.MajorGridLines(
                                                 width: 0.5),
                                       ),
-                                      primaryYAxis: charts.NumericAxis(
+                                      primaryYAxis: const charts.NumericAxis(
                                         title: charts.AxisTitle(
                                             text: 'Presión (kPa)'),
                                         interval: 50,
                                         majorGridLines:
-                                            const charts.MajorGridLines(
-                                                width: 0.5),
+                                            charts.MajorGridLines(width: 0.5),
                                       ),
                                       tooltipBehavior:
                                           charts.TooltipBehavior(enable: true),
@@ -1379,10 +1400,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -1482,8 +1504,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           ],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -1528,9 +1550,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -1538,7 +1564,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Revoluciones por minuto",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1566,7 +1592,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -1584,7 +1610,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -1594,16 +1620,17 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               'Sensor de RPM (Revoluciones Por Minuto). \n'
                               'Mide la velocidad de rotación del cigüeñal del motor. \n\n'
                               'Rangos típicos:\n'
-                              '- Ralentí: 600-1000 RPM (motor caliente)\n'
-                              '- Conducción normal: 1500-3000 RPM\n'
-                              '- Aceleración fuerte: 3000-5000 RPM\n'
-                              '- Límite máximo: Depende del motor (generalmente 6000-8000 RPM)\n\n'
+                              '- Ralentí: 600-1000 RPM (motor caliente).\n'
+                              '- Conducción normal: 1500-3000 RPM.\n'
+                              '- Aceleración fuerte: 3000-5000 RPM.\n'
+                              '- Límite máximo: Depende del motor (generalmente 6000-8000 RPM).\n\n'
                               'Valores anormales:\n'
-                              '- RPM muy altas en ralentí: Problemas con el regulador\n'
-                              '- RPM fluctuantes: Posibles fallos en el sistema de admisión o encendido\n'
-                              '- RPM bajas o irregulares: Problemas con las bujías, inyectores o compresión',
+                              '- RPM muy altas en ralentí: Problemas con el regulador.\n'
+                              '- RPM fluctuantes: Posibles fallos en el sistema de admisión o encendido.\n'
+                              '- RPM bajas o irregulares: Problemas con las bujías, inyectores o compresión.',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -1716,10 +1743,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -1817,8 +1845,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -1833,9 +1861,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -1843,7 +1875,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Temperatura refrigerante",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1871,7 +1903,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -1889,7 +1921,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -1898,20 +1930,21 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Sensor de Temperatura del Refrigerante. \nMide la temperatura del líquido refrigerante que circula por el motor.\n\n'
                               'Rangos normales:\n'
-                              '- Motor frío: 40-70°C\n'
-                              '- Temperatura óptima: 90-100°C\n'
-                              '- Sobrecalentamiento: >105°C\n\n'
+                              '- Motor frío: 40-70°C.\n'
+                              '- Temperatura óptima: 90-100°C.\n'
+                              '- Sobrecalentamiento: >105°C.\n\n'
                               'Importancia:\n'
-                              '- Temperaturas bajas aumentan el consumo\n'
-                              '- Temperaturas altas pueden dañar el motor\n'
-                              '- El termostato regula la temperatura ideal\n\n'
+                              '- Temperaturas bajas aumentan el consumo.\n'
+                              '- Temperaturas altas pueden dañar el motor.\n'
+                              '- El termostato regula la temperatura ideal.\n\n'
                               'Problemas comunes:\n'
-                              '- Sensor defectuoso\n'
-                              '- Termostato atascado\n'
-                              '- Bajo nivel de refrigerante\n'
-                              '- Fallo en el ventilador',
+                              '- Sensor defectuoso.\n'
+                              '- Termostato atascado.\n'
+                              '- Bajo nivel de refrigerante.\n'
+                              '- Fallo en el ventilador.',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -2022,10 +2055,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -2132,8 +2166,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -2148,9 +2182,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -2158,7 +2196,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Velocidad",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -2186,7 +2224,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -2204,7 +2242,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Text(
                               'Información:',
                               style: TextStyle(
-                                fontSize: 22,
+                                fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
                               ),
@@ -2214,14 +2252,15 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               'Velocímetro Digital\n\n'
                               'Muestra la velocidad actual del vehículo en kilómetros por hora.\n\n'
                               'Rangos de color:\n'
-                              '• 0-30 km/h: Rosa (baja velocidad)\n'
-                              '• 30-80 km/h: Verde (velocidad urbana)\n'
-                              '• 80-160 km/h: Ámbar (carretera)\n'
-                              '• 160-240 km/h: Rojo (alta velocidad)\n\n'
-                              'Precisión: ±1 km/h\n'
-                              'Rango máximo: 240 km/h',
+                              '• 0-30 km/h: Rosa (baja velocidad).\n'
+                              '• 30-80 km/h: Verde (velocidad urbana).\n'
+                              '• 80-160 km/h: Ámbar (carretera).\n'
+                              '• 160-240 km/h: Rojo (alta velocidad).\n\n'
+                              'Precisión: ±1 km/h.\n'
+                              'Rango máximo: 240 km/h.',
                               style: TextStyle(
                                 fontSize: 18,
+                                fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(221, 255, 255, 255),
                                 height: 1.4,
                               ),
@@ -2332,10 +2371,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -2431,8 +2471,8 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -2479,9 +2519,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -2489,7 +2533,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               "Voltaje Batería",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -2517,7 +2561,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       height: 450,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -2537,7 +2581,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                               Text(
                                 'Información:',
                                 style: TextStyle(
-                                  fontSize: 22,
+                                  fontSize: 24,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                 ),
@@ -2547,15 +2591,16 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                                 'Medidor de Voltaje del Sistema\n\n'
                                 'Muestra el voltaje actual de la batería y sistema eléctrico.\n\n'
                                 'Rangos normales:\n'
-                                '• 11-15V: Operación normal\n'
-                                '• <11V: Batería descargándose\n'
-                                '• >15V: Sobrecarga (alternador)\n\n'
+                                '• 11-15V: Operación normal.\n'
+                                '• <11V: Batería descargándose.\n'
+                                '• >15V: Sobrecarga (alternador).\n\n'
                                 'Valores típicos:\n'
-                                '- Motor apagado: 12.6V\n'
-                                '- Motor en marcha: 13.5-14.5V\n'
-                                '- Con carga eléctrica: 12.8-13.8V',
+                                '- Motor apagado: 12.6V.\n'
+                                '- Motor en marcha: 13.5-14.5V.\n'
+                                '- Con carga eléctrica: 12.8-13.8V.',
                                 style: TextStyle(
                                   fontSize: 18,
+                                  fontWeight: FontWeight.bold,
                                   color: Color.fromARGB(221, 255, 255, 255),
                                   height: 1.4,
                                 ),
@@ -2605,13 +2650,12 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                                             const charts.MajorGridLines(
                                                 width: 0.5),
                                       ),
-                                      primaryYAxis: charts.NumericAxis(
+                                      primaryYAxis: const charts.NumericAxis(
                                         title: charts.AxisTitle(
                                             text: 'Voltaje (V)'),
                                         interval: 2,
                                         majorGridLines:
-                                            const charts.MajorGridLines(
-                                                width: 0.5),
+                                            charts.MajorGridLines(width: 0.5),
                                       ),
                                       tooltipBehavior:
                                           charts.TooltipBehavior(enable: true),
@@ -2668,10 +2712,11 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -2694,14 +2739,15 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7E7E7E),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF0166B3),
         centerTitle: true,
         title: const Text(
           "Dashboard - Motor",
           style: TextStyle(
             fontSize: 24,
+            fontWeight: FontWeight.bold,
             color: Colors.white,
           ),
         ),
@@ -2716,12 +2762,6 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             );
           },
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -2735,10 +2775,10 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: const Color.fromARGB(255, 1, 23, 61), width: 4),
+                      color: const Color.fromARGB(255, 9, 181, 204), width: 4),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.black26,
+                      color: Color(0xFF709DCE),
                       blurRadius: 4,
                       offset: Offset(2, 2),
                     ),

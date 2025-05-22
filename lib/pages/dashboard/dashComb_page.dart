@@ -286,8 +286,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -302,12 +302,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
                                   Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 20,
-                                  ),
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -315,7 +316,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Nivel de Combustible",
                               style: TextStyle(
                                   fontSize: 20,
-                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  color: Color.fromARGB(255, 0, 0, 0),
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -343,7 +344,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       width: 500,
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -353,23 +354,47 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Nivel de Combustible\n\n'
-                          'Mide el porcentaje de combustible restante en el tanque.\n\n'
-                          'Interpretación:\n'
-                          '• 0-20%: Reserva de combustible\n'
-                          '• 20-40%: Nivel bajo\n'
-                          '• 40-70%: Nivel medio\n'
-                          '• 70-100%: Tanque lleno\n\n'
-                          'Precisión: ±5%\n'
-                          'Tiempo de respuesta: 2-5 segundos',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          SizedBox(height: 12),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Nivel de Combustible\n\n'
+                                'Mide el porcentaje de combustible restante en el tanque.\n\n'
+                                'Interpretación:\n'
+                                '• 0-20%: Reserva de combustible.\n'
+                                '• 20-40%: Nivel bajo.\n'
+                                '• 40-70%: Nivel medio.\n'
+                                '• 70-100%: Tanque lleno.\n\n'
+                                'Precisión: ±5%.\n'
+                                'Tiempo de respuesta: 2-5 segundos.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.4,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black38,
+                                      blurRadius: 2,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -484,9 +509,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -578,8 +603,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -594,12 +619,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
                                   Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 20,
-                                  ),
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -607,7 +633,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Presión Combustible",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -634,9 +660,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -646,24 +672,48 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Presión de Combustible:\n\n'
-                          'Mide la presión en el riel de inyectores.\n\n'
-                          'Rangos normales:\n'
-                          '• 250-300 kPa: Ralentí\n'
-                          '• 300-350 kPa: Conducción normal\n'
-                          '• 350-400 kPa: Aceleración fuerte\n\n'
-                          'Valores anormales:\n'
-                          '• <250 kPa: Problema bomba de combustible\n'
-                          '• >400 kPa: Regulador de presión defectuoso\n\n'
-                          'Precisión: ±10 kPa',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Presión de Combustible:\n\n'
+                                'Mide la presión en el riel de inyectores.\n\n'
+                                'Rangos normales:\n'
+                                '• 250-300 kPa: Ralentí.\n'
+                                '• 300-350 kPa: Conducción normal.\n'
+                                '• 350-400 kPa: Aceleración fuerte.\n\n'
+                                'Valores anormales:\n'
+                                '• <250 kPa: Problema bomba de combustible.\n'
+                                '• >400 kPa: Regulador de presión defectuoso.\n\n'
+                                'Precisión: ±10 kPa.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.4,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black38,
+                                      blurRadius: 2,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -779,9 +829,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -802,7 +852,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
       valueListenable: _presRielComNotifier,
       builder: (context, nivCom, child) {
         if (nivCom == -1) {
-          return Center(
+          return const Center(
             child: Text(
               "No soportado",
               style: TextStyle(
@@ -873,8 +923,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -889,12 +939,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 50,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
                                   Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 20,
-                                  ),
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -902,7 +953,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Presión Riel Combustible",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -929,9 +980,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -941,24 +992,48 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Presión del Riel de Combustible\n\n'
-                          'Mide la presión en el riel común del sistema de inyección.\n\n'
-                          'Rangos normales:\n'
-                          '• 500-800 kPa: Motores convencionales\n'
-                          '• 800-1200 kPa: Motores de inyección directa\n'
-                          '• 1200-1500 kPa: Sistemas de alta presión\n\n'
-                          'Valores críticos:\n'
-                          '• <500 kPa: Problema en bomba de combustible\n'
-                          '• >1500 kPa: Riesgo de fallo en el sistema\n\n'
-                          'Precisión: ±25 kPa',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Presión del Riel de Combustible\n\n'
+                                'Mide la presión en el riel común del sistema de inyección.\n\n'
+                                'Rangos normales:\n'
+                                '• 500-800 kPa: Motores convencionales.\n'
+                                '• 800-1200 kPa: Motores de inyección directa.\n'
+                                '• 1200-1500 kPa: Sistemas de alta presión.\n\n'
+                                'Valores críticos:\n'
+                                '• <500 kPa: Problema en bomba de combustible.\n'
+                                '• >1500 kPa: Riesgo de fallo en el sistema.\n\n'
+                                'Precisión: ±25 kPa.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.4,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black38,
+                                      blurRadius: 2,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: 20),
@@ -1074,7 +1149,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -1166,8 +1241,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -1183,12 +1258,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 38,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
                                   Shadow(
-                                    color: Colors.white,
-                                    blurRadius: 20,
-                                  ),
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -1196,7 +1272,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Tasa Combustible",
                               style: TextStyle(
                                 fontSize: 20,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -1223,9 +1299,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: const [
                           BoxShadow(
@@ -1235,25 +1311,49 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Tasa de Combustible\n\n'
-                          'Mide la cantidad de combustible inyectado por ciclo de combustión.\n\n'
-                          'Rangos normales:\n'
-                          '• 1-5 mg: Ralentí\n'
-                          '• 5-10 mg: Conducción normal\n'
-                          '• 10-15 mg: Aceleración moderada\n'
-                          '• 15-20 mg: Aceleración fuerte\n\n'
-                          'Valores críticos:\n'
-                          '• <1 mg: Posible obstrucción en inyectores\n'
-                          '• >20 mg: Exceso de combustible\n\n'
-                          'Unidad: mg/combustión',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Tasa de Combustible\n\n'
+                                'Mide la cantidad de combustible inyectado por ciclo de combustión.\n\n'
+                                'Rangos normales:\n'
+                                '• 1-5 mg: Ralentí.\n'
+                                '• 5-10 mg: Conducción normal.\n'
+                                '• 10-15 mg: Aceleración moderada.\n'
+                                '• 15-20 mg: Aceleración fuerte.\n\n'
+                                'Valores críticos:\n'
+                                '• <1 mg: Posible obstrucción en inyectores.\n'
+                                '• >20 mg: Exceso de combustible.\n\n'
+                                'Unidad: mg/combustión.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.4,
+                                  shadows: [
+                                    Shadow(
+                                      color: Colors.black38,
+                                      blurRadius: 2,
+                                      offset: Offset(1, 1),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: 20),
@@ -1369,7 +1469,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -1393,7 +1493,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
       valueListenable: _ban1CComNotifier,
       builder: (context, presRielDir, child) {
         if (presRielDir == -11) {
-          return Center(
+          return const Center(
             child: Text(
               "No soportado",
               style: TextStyle(
@@ -1448,8 +1548,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -1464,9 +1564,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -1474,7 +1578,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Banco 1 - Corto",
                               style: TextStyle(
                                   fontSize: 20,
-                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  color: Color.fromARGB(255, 0, 0, 0),
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -1501,9 +1605,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -1513,29 +1617,44 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Presión del Riel - Banco 1 (Corto)\n\n'
-                          'Mide la presión del combustible en el riel de inyección.\n\n'
-                          'Rangos normales:\n'
-                          '• -10% a -5%: Presión baja\n'
-                          '• -5% a 5%: Rango óptimo\n'
-                          '• 5% a 10%: Presión alta\n\n'
-                          'Valores críticos:\n'
-                          '• < -10%: Riesgo de fallo de inyección\n'
-                          '• > 10%: Riesgo de daño en componentes\n\n'
-                          'Unidad: % de variación respecto a presión nominal',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Presión del Riel - Banco 1 (Corto)\n\n'
+                                'Mide la presión del combustible en el riel de inyección.\n\n'
+                                'Rangos normales:\n'
+                                '• -10% a -5%: Presión baja.\n'
+                                '• -5% a 5%: Rango óptimo.\n'
+                                '• 5% a 10%: Presión alta.\n\n'
+                                'Valores críticos:\n'
+                                '• < -10%: Riesgo de fallo de inyección.\n'
+                                '• > 10%: Riesgo de daño en componentes.\n\n'
+                                'Unidad: % de variación respecto a presión nominal.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     ElevatedButton.icon(
                       onPressed: () {
                         Timer? timer;
@@ -1647,7 +1766,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -1726,8 +1845,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -1742,9 +1861,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -1752,7 +1875,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Banco 1 - Largo",
                               style: TextStyle(
                                   fontSize: 20,
-                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  color: Color.fromARGB(255, 0, 0, 0),
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -1779,9 +1902,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -1791,32 +1914,47 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Presión del Riel - Banco 1 (Largo)\n\n'
-                          'Mide la presión del combustible en el riel de inyección '
-                          'para el banco largo del motor.\n\n'
-                          'Rangos normales:\n'
-                          '• -10% a -5%: Presión baja\n'
-                          '• -5% a 5%: Rango óptimo\n'
-                          '• 5% a 10%: Presión alta\n\n'
-                          'Comparación entre bancos:\n'
-                          '• Diferencias > 2% entre bancos pueden indicar:\n'
-                          '  - Desbalance en la bomba de combustible\n'
-                          '  - Filtro obstruido parcialmente\n'
-                          '  - Problemas en regulador de presión\n\n'
-                          'Unidad: % de variación respecto a presión nominal',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Presión del Riel - Banco 1 (Largo)\n\n'
+                                'Mide la presión del combustible en el riel de inyección '
+                                'para el banco largo del motor.\n\n'
+                                'Rangos normales:\n'
+                                '• -10% a -5%: Presión baja.\n'
+                                '• -5% a 5%: Rango óptimo.\n'
+                                '• 5% a 10%: Presión alta.\n\n'
+                                'Comparación entre bancos:\n'
+                                '• Diferencias > 2% entre bancos pueden indicar:\n'
+                                '  - Desbalance en la bomba de combustible.\n'
+                                '  - Filtro obstruido parcialmente.\n'
+                                '  - Problemas en regulador de presión.\n\n'
+                                'Unidad: % de variación respecto a presión nominal.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     // Botón para gráfico histórico
                     ElevatedButton.icon(
                       onPressed: () {
@@ -1929,7 +2067,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -2008,8 +2146,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -2024,9 +2162,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -2034,7 +2176,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Banco 2 - Corto",
                               style: TextStyle(
                                   fontSize: 20,
-                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  color: Color.fromARGB(255, 0, 0, 0),
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -2061,9 +2203,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -2073,32 +2215,47 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Presión del Riel - Banco 2 (Corto)\n\n'
-                          'Mide la presión del combustible en el riel de inyección '
-                          'para el banco corto del motor (cilindros 2 y 4).\n\n'
-                          'Rangos normales:\n'
-                          '• -10% a -5%: Presión baja\n'
-                          '• -5% a 5%: Rango óptimo\n'
-                          '• 5% a 10%: Presión alta\n\n'
-                          'Diagnóstico comparativo:\n'
-                          '• Diferencias > 3% con Banco 1 pueden indicar:\n'
-                          '  - Problemas en la rampa de inyección\n'
-                          '  - Filtro de combustible parcialmente obstruido\n'
-                          '  - Fallo en sensor de presión\n\n'
-                          'Unidad: % de variación respecto a presión nominal',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Presión del Riel - Banco 2 (Corto)\n\n'
+                                'Mide la presión del combustible en el riel de inyección '
+                                'para el banco corto del motor (cilindros 2 y 4).\n\n'
+                                'Rangos normales:\n'
+                                '• -10% a -5%: Presión baja.\n'
+                                '• -5% a 5%: Rango óptimo.\n'
+                                '• 5% a 10%: Presión alta.\n\n'
+                                'Diagnóstico comparativo:\n'
+                                '• Diferencias > 3% con Banco 1 pueden indicar:\n'
+                                '  - Problemas en la rampa de inyección.\n'
+                                '  - Filtro de combustible parcialmente obstruido.\n'
+                                '  - Fallo en sensor de presión.\n\n'
+                                'Unidad: % de variación respecto a presión nominal.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     // Botón para gráfico histórico
                     ElevatedButton.icon(
                       onPressed: () {
@@ -2211,7 +2368,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -2289,8 +2446,8 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           colors: [Colors.white, Colors.red],
                         ),
                         knobStyle: gauges.KnobStyle(
-                          color: const Color(0xFF3F3F3F),
-                          borderColor: const Color(0xFF3F3F3F).withAlpha(150),
+                          color: const Color(0xFF0166B3),
+                          borderColor: const Color(0xFF709DCE).withAlpha(150),
                           borderWidth: 2,
                         ),
                       ),
@@ -2305,9 +2462,13 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 255, 255, 255),
+                                color: Color.fromARGB(255, 0, 0, 0),
                                 shadows: [
-                                  Shadow(color: Colors.white, blurRadius: 20)
+                                  Shadow(
+                                    color: const Color(0xFF014C94),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 0),
+                                  )
                                 ],
                               ),
                             ),
@@ -2315,7 +2476,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                               "Banco 2 - Largo",
                               style: TextStyle(
                                   fontSize: 20,
-                                  color: Color.fromARGB(255, 255, 255, 255),
+                                  color: Color.fromARGB(255, 0, 0, 0),
                                   fontWeight: FontWeight.bold),
                             ),
                           ],
@@ -2342,9 +2503,9 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       padding: const EdgeInsets.all(16),
                       height: 450,
                       width: 500,
-                      alignment: Alignment.center,
+                      alignment: Alignment.topLeft,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF202020),
+                        color: const Color(0xFF0166B3),
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -2354,32 +2515,47 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                           ),
                         ],
                       ),
-                      child: const SingleChildScrollView(
-                        child: Text(
-                          'Sensor de Tipo de Combustible - Banco 2 (Largo)\n\n'
-                          'Mide las características del combustible en el riel '
-                          'para el banco largo del motor (cilindros 1, 3 y 5).\n\n'
-                          'Interpretación de valores:\n'
-                          '• -10% a 0%: Combustible con baja densidad energética\n'
-                          '• 0% a 5%: Mezcla óptima\n'
-                          '• 5% a 10%: Alto contenido de aditivos\n\n'
-                          'Diagnóstico comparativo:\n'
-                          '• Diferencias > 2% entre bancos indican:\n'
-                          '  - Contaminación de combustible en un banco\n'
-                          '  - Problemas con el sensor de calidad\n'
-                          '  - Variaciones en la mezcla de aditivos\n\n'
-                          'Unidad: % de variación respecto al estándar',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.white70,
-                            height: 1.4,
+                      child: const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Información:',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          const Expanded(
+                            child: SingleChildScrollView(
+                              child: Text(
+                                'Sensor de Tipo de Combustible - Banco 2 (Largo)\n\n'
+                                'Mide las características del combustible en el riel '
+                                'para el banco largo del motor (cilindros 1, 3 y 5).\n\n'
+                                'Interpretación de valores:\n'
+                                '• -10% a 0%: Combustible con baja densidad energética.\n'
+                                '• 0% a 5%: Mezcla óptima.\n'
+                                '• 5% a 10%: Alto contenido de aditivos.\n\n'
+                                'Diagnóstico comparativo:\n'
+                                '• Diferencias > 2% entre bancos indican:\n'
+                                '  - Contaminación de combustible en un banco.\n'
+                                '  - Problemas con el sensor de calidad.\n'
+                                '  - Variaciones en la mezcla de aditivos.\n\n'
+                                'Unidad: % de variación respecto al estándar.',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
                     // Botón para gráfico histórico
                     ElevatedButton.icon(
                       onPressed: () {
@@ -2492,7 +2668,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.black,
+                        backgroundColor: Color(0xFF0166B3),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
@@ -2514,14 +2690,15 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF7E7E7E),
+      backgroundColor: const Color(0xFFFFFFFF),
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Color(0xFF0166B3),
         centerTitle: true,
         title: const Text(
           "Dashboard - Combustible",
           style: TextStyle(
             fontSize: 24,
+            fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 255, 255, 255),
           ),
         ),
@@ -2536,12 +2713,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             );
           },
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: SafeArea(
         child: Column(
@@ -2556,11 +2727,11 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: const Color.fromARGB(255, 1, 23, 61),
+                      color: const Color.fromARGB(255, 9, 181, 204),
                       width: 4), // Borde azul
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black26,
+                      color: Color(0xFF709DCE),
                       blurRadius: 4,
                       offset: Offset(2, 2), // Sombra ligera
                     ),
@@ -2577,13 +2748,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     'Banco 1 - Largo',
                     'Banco 2 - Corto',
                     'Banco 2 - Largo',
-                    //'Estado del sistema de combustible',
-                    //'Nivel de combustible',
-                    //'Porcentaje etanol en combustible',
-                    //'Presion Riel combustible directa',
-                    //'Presion Riel combustible relativa',
-                    //'Presión de la bomba de combustible',
-                    //'Tipo combustible',
                   ]
                       .map((String value) => DropdownMenuItem<String>(
                             value: value,
