@@ -3,13 +3,14 @@ import 'package:firebase_database/firebase_database.dart';
 //import 'package:obdv2/pages/dashboard/home_dash.dart';
 import 'package:obdv2/pages/home_page.dart';
 
-import 'package:syncfusion_flutter_gauges/gauges.dart';
-// import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:syncfusion_flutter_gauges/gauges.dart' as gauges;
+import 'package:syncfusion_flutter_charts/charts.dart' as charts;
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 final Color colorPrimary = Color(0xFF007AFF); // Azul principal
 
@@ -172,7 +173,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
       }
     });
 
-    _databaseRef.child('/SensoresMotor/Voltaje').onValue.listen((event) {
+    _databaseRef.child('SensoresMotor/Voltaje').onValue.listen((event) {
       final data = event.snapshot.value;
       if (data != null) {
         if (data == "No soportado") {
@@ -233,38 +234,38 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge intacto
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: -10,
                     maximum: 40,
                     radiusFactor: 0.9,
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.0, 0.3, 1],
                       ),
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: avanen.clamp(-10, 40),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Color.fromARGB(255, 255, 17, 0),
                         needleLength: 0.75,
                         animationDuration: 1500,
-                        gradient: LinearGradient(
+                        gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: Color(0xFF3F3F3F),
                           borderColor: Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -272,13 +273,13 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             SizedBox(height: 180),
                             Text(
                               "${avanen.toStringAsFixed(2)}°",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 45,
                                 fontWeight: FontWeight.bold,
                                 color: Color.fromARGB(255, 255, 255, 255),
@@ -287,7 +288,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                                 ],
                               ),
                             ),
-                            Text(
+                            const Text(
                               "Avance de Encendido",
                               style: TextStyle(
                                 fontSize: 20,
@@ -365,107 +366,121 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: const Text(
-                              'Gráfico de avance',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            Timer? timer;
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                // Inicia el Timer dentro del builder
+                                timer ??= Timer.periodic(
+                                    const Duration(seconds: 2), (_) {
+                                  if (Navigator.of(context).canPop()) {
+                                    setStateDialog(
+                                        () {}); // Redibuja el gráfico
+                                  }
+                                });
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de avance',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval:
                                             (_contador / 4).ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(
+                                            text: 'Avance (°)'),
                                         interval: 10,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}°',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        minimum: -10,
+                                        maximum: 40,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialAvance,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialAvance,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer
+                                            ?.cancel(); // Cancela el timer al cerrar
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                      color: Colors.blueAccent,
-                                      width: 2), // Borde azul
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Cerrar',
-                                  style: TextStyle(
-                                      color: Colors
-                                          .blueAccent), // Texto del mismo color
-                                ),
-                              ),
-                            ],
-                          ),
+                                );
+                              },
+                            );
+                          },
                         );
                       },
-                      icon: Icon(Icons.show_chart),
-                      label: Text(
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
                         "Gráfico",
-                        style: TextStyle(fontSize: 20), // Texto más grande
+                        style: TextStyle(fontSize: 20),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 32,
-                            vertical: 16), // Más espacio interno
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(
-                            160, 60), // Tamaño mínimo del botón (ancho x alto)
+                        minimumSize: const Size(160, 60),
                       ),
-                    ),
+                    )
                   ],
                 ),
               ),
@@ -502,26 +517,26 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge intacto
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 0,
                     maximum: 100,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [
@@ -533,15 +548,15 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         stops: [0.25, 0.5, 0.75, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                         fontSize: 18,
                         color: Color.fromARGB(255, 0, 0, 0),
                         fontWeight: FontWeight.bold),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: carmotor.clamp(0, 100),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -553,7 +568,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Colors.red,
                           ],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -561,28 +576,28 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     ranges: [
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 0,
                         endValue: 25,
                         color: Colors.green,
                         startWidth: 15,
                         endWidth: 15,
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 25,
                         endValue: 50,
                         color: Colors.yellow,
                         startWidth: 15,
                         endWidth: 15,
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 50,
                         endValue: 75,
                         color: Colors.orange,
                         startWidth: 15,
                         endWidth: 15,
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 75,
                         endValue: 100,
                         color: Colors.red,
@@ -591,7 +606,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -687,102 +702,123 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        Timer? timer;
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: Text(
-                              'Gráfico de carga del motor',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                // Timer que actualiza cada 2 segundos mientras el diálogo está activo
+                                timer ??= Timer.periodic(
+                                    const Duration(seconds: 2), (_) {
+                                  if (context.mounted) {
+                                    setStateDialog(() {});
+                                  }
+                                });
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de carga del motor',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval:
                                             (_contadorCarga / 4).ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title:
+                                            charts.AxisTitle(text: 'Carga (%)'),
                                         interval: 20,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}%',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        minimum: 0,
+                                        maximum: 100,
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts.LineSeries>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialCargaMotor,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialCargaMotor,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer
+                                            ?.cancel(); // Detener el timer al cerrar
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) {
+                          timer
+                              ?.cancel(); // Asegurar cancelación al cerrar el diálogo
+                        });
                       },
-                      icon: Icon(Icons.show_chart),
-                      label: Text(
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
                         "Gráfico",
                         style: TextStyle(fontSize: 20),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(160, 60),
+                        minimumSize: const Size(160, 60),
                       ),
                     ),
                   ],
@@ -823,38 +859,38 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 2,
                     maximum: 20,
                     radiusFactor: 0.9,
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.0, 0.3, 1],
                       ),
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: flujoair.clamp(2, 20),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -862,7 +898,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -953,102 +989,123 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        charts.TooltipBehavior tooltip =
+                            charts.TooltipBehavior(enable: true);
+                        Timer? timer;
+
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: Text(
-                              'Gráfico de flujo de aire',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                // Timer para refrescar el gráfico cada 2 segundos
+                                timer ??= Timer.periodic(
+                                    const Duration(seconds: 2), (_) {
+                                  if (context.mounted) {
+                                    setStateDialog(
+                                        () {}); // Refresca el gráfico
+                                  }
+                                });
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de flujo de aire',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      tooltipBehavior: tooltip,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval: (_contadorFlujoAire / 4)
                                             .ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(
+                                            text: 'Flujo (g/s)'),
                                         interval: 2,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}g/s',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialFlujoAire,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialFlujoAire,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer
+                                            ?.cancel(); // Detener timer al cerrar
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) {
+                          timer?.cancel(); // Asegurarse de cancelar al salir
+                        });
                       },
-                      icon: Icon(Icons.show_chart),
-                      label: Text(
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
                         "Gráfico",
                         style: TextStyle(fontSize: 20),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(160, 60),
+                        minimumSize: const Size(160, 60),
                       ),
                     ),
                   ],
@@ -1089,38 +1146,38 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 20,
                     maximum: 250,
                     radiusFactor: 0.9,
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.0, 0.043, 1],
                       ),
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: prescoladm.clamp(20, 250),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1128,7 +1185,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -1221,102 +1278,118 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        Timer? timer;
+
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: Text(
-                              'Gráfico de presión',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de presión',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval: (_contadorPresionAdm / 4)
                                             .ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(
+                                            text: 'Presión (kPa)'),
                                         interval: 50,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}kPa',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialPresionAdmision,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialPresionAdmision,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer
+                                            ?.cancel(); // Cancelar el timer al cerrar
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer
+                            ?.cancel()); // Cancelar si el diálogo se cierra por otros medios
                       },
-                      icon: Icon(Icons.show_chart),
-                      label: Text(
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
                         "Gráfico",
                         style: TextStyle(fontSize: 20),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(160, 60),
+                        minimumSize: const Size(160, 60),
                       ),
                     ),
                   ],
@@ -1356,26 +1429,26 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 0,
                     maximum: 8000,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [
@@ -1387,16 +1460,16 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         stops: [0.25, 0.5, 0.75, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: rpm.clamp(0, 8000),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -1408,7 +1481,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                             Colors.red,
                           ],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1416,28 +1489,28 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     ranges: [
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 0,
                         endValue: 2000,
                         color: Colors.green,
                         startWidth: 15,
                         endWidth: 15,
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 2000,
                         endValue: 5000,
                         color: Colors.yellow,
                         startWidth: 15,
                         endWidth: 15,
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 5000,
                         endValue: 7000,
                         color: Colors.orange,
                         startWidth: 15,
                         endWidth: 15,
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 7000,
                         endValue: 8000,
                         color: Colors.red,
@@ -1446,7 +1519,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -1543,102 +1616,117 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        Timer? timer;
+
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: Text(
-                              'Gráfico de RPM',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de RPM',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval:
                                             (_contadorRPM / 4).ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'RPM'),
                                         interval: 1000,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialRPM,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialRPM,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer
+                                            ?.cancel(); // Cancelar el timer al cerrar
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) =>
+                            timer?.cancel()); // Por si se cierra de otra forma
                       },
-                      icon: Icon(Icons.show_chart),
-                      label: Text(
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
                         "Gráfico",
                         style: TextStyle(fontSize: 20),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(160, 60),
+                        minimumSize: const Size(160, 60),
                       ),
                     ),
                   ],
@@ -1685,20 +1773,20 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: min,
                     maximum: max,
                     radiusFactor: 0.9,
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    axisLineStyle: AxisLineStyle(
+                    axisLineStyle: gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [
@@ -1717,18 +1805,18 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         ],
                       ),
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: tempref.clamp(min, max),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1736,7 +1824,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -1836,102 +1924,115 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        Timer? timer;
+
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: Text(
-                              'Gráfico de temperatura',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de temperatura',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval: (_contadorTempRef / 4)
                                             .ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: '°C'),
                                         interval: 20,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}°C',
-                                          style: TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialTempRef,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialTempRef,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
                       },
-                      icon: Icon(Icons.show_chart),
-                      label: Text(
+                      icon: const Icon(Icons.show_chart),
+                      label: const Text(
                         "Gráfico",
                         style: TextStyle(fontSize: 20),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(160, 60),
+                        minimumSize: const Size(160, 60),
                       ),
                     ),
                   ],
@@ -1976,26 +2077,26 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: min,
                     maximum: max,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: AxisLineStyle(
+                    axisLineStyle: gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [
@@ -2012,16 +2113,16 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         ],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: velocidad.clamp(min, max),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -2030,7 +2131,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -2038,7 +2139,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -2133,89 +2234,102 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        Timer? timer;
+
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: const Text(
-                              'Gráfico de velocidad',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de velocidad',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval: (_contadorVelocidad / 4)
                                             .ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'km/h'),
                                         interval: 40,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}km/h',
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialVelocidad,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: const FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialVelocidad,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: const FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
                       },
-                      icon: Icon(Icons.show_chart),
+                      icon: const Icon(Icons.show_chart),
                       label: const Text(
                         "Gráfico",
                         style: TextStyle(fontSize: 20),
@@ -2228,7 +2342,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        minimumSize: Size(160, 60),
+                        minimumSize: const Size(160, 60),
                       ),
                     ),
                   ],
@@ -2268,26 +2382,26 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 6,
                     maximum: 20,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [
@@ -2298,16 +2412,16 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         stops: [0.0, 0.55, 1.0],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: voltaje.clamp(6, 20),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -2316,7 +2430,7 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -2324,39 +2438,39 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                       ),
                     ],
                     ranges: [
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 6,
                         endValue: 11,
                         color: Colors.red,
                         startWidth: 15,
                         endWidth: 15,
                         label: 'Bajo',
-                        labelStyle: const GaugeTextStyle(
+                        labelStyle: const gauges.GaugeTextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 11,
                         endValue: 15,
                         color: Colors.green,
                         startWidth: 15,
                         endWidth: 15,
                         label: 'Óptimo',
-                        labelStyle: const GaugeTextStyle(
+                        labelStyle: const gauges.GaugeTextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
-                      GaugeRange(
+                      gauges.GaugeRange(
                         startValue: 15,
                         endValue: 20,
                         color: Colors.red,
                         startWidth: 15,
                         endWidth: 15,
                         label: 'Alto',
-                        labelStyle: const GaugeTextStyle(
+                        labelStyle: const gauges.GaugeTextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -2455,88 +2569,101 @@ class _SpeedometerPageState extends State<SpeedometerPage> {
                     const SizedBox(height: 20),
                     ElevatedButton.icon(
                       onPressed: () {
+                        Timer? timer;
+
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            title: const Text(
-                              'Gráfico de voltaje',
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            content: SizedBox(
-                              height: 450,
-                              width: 500,
-                              child: LineChart(
-                                LineChartData(
-                                  backgroundColor: Colors.grey.shade100,
-                                  titlesData: FlTitlesData(
-                                    bottomTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
-                                        reservedSize: 22,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Gráfico de voltaje',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.white,
+                                      plotAreaBorderWidth: 1,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
                                         interval: (_contadorVoltaje / 4)
                                             .ceilToDouble(),
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}',
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
-                                    ),
-                                    leftTitles: AxisTitles(
-                                      sideTitles: SideTitles(
-                                        showTitles: true,
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(
+                                            text: 'Voltaje (V)'),
                                         interval: 2,
-                                        getTitlesWidget: (value, meta) => Text(
-                                          '${value.toInt()}V',
-                                          style: const TextStyle(fontSize: 12),
-                                        ),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
                                       ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialVoltaje,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  borderData: FlBorderData(
-                                    show: true,
-                                    border: Border.all(color: Colors.black12),
-                                  ),
-                                  gridData: const FlGridData(show: true),
-                                  lineBarsData: [
-                                    LineChartBarData(
-                                      spots: _historialVoltaje,
-                                      isCurved: true,
-                                      color: Colors.blueAccent,
-                                      barWidth: 3,
-                                      belowBarData: BarAreaData(
-                                        show: true,
-                                        color:
-                                            // ignore: deprecated_member_use
-                                            Colors.blueAccent.withOpacity(0.2),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
                                       ),
-                                      dotData: const FlDotData(show: true),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
                                     ),
                                   ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              OutlinedButton(
-                                onPressed: () => Navigator.pop(context),
-                                style: OutlinedButton.styleFrom(
-                                  side: const BorderSide(
-                                      color: Colors.blueAccent, width: 2),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: const Text(
-                                  'Cerrar',
-                                  style: TextStyle(color: Colors.blueAccent),
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
                       },
                       icon: const Icon(Icons.show_chart),
                       label: const Text(

@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:obdv2/pages/home_page.dart';
 //import 'package:obdv2/pages/dashboard/home_dash.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+
+import 'package:syncfusion_flutter_gauges/gauges.dart' as gauges;
+import 'package:syncfusion_flutter_charts/charts.dart' as charts;
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -234,42 +238,42 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 0,
                     maximum: 100,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: conInsCom.clamp(0, 100),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -281,7 +285,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                             Colors.red,
                           ],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -289,7 +293,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -368,32 +372,126 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoCombustible(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Historial de Nivel de Combustible',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorCombustible / 4)
+                                            .ceilToDouble(),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title:
+                                            charts.AxisTitle(text: 'Nivel (%)'),
+                                        minimum: 0,
+                                        maximum: 100,
+                                        interval: 20,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialCombustible,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 0, 0, 0),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        backgroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -404,71 +502,12 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
     );
   }
 
-  void _mostrarGraficoCombustible(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Historial de Nivel de Combustible'),
-        content: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: 300,
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(show: true),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) => Text('${value.toInt()}%'),
-                    reservedSize: 40,
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) => Text('${value.toInt()}'),
-                  ),
-                ),
-              ),
-              borderData: FlBorderData(show: true),
-              minX: 0,
-              maxX: _historialCombustible.isNotEmpty
-                  ? _historialCombustible.last.x
-                  : 10,
-              minY: 0,
-              maxY: 100,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialCombustible,
-                  isCurved: true,
-                  color: Colors.blue,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blue.withOpacity(0.1),
-                  ),
-                  dotData: FlDotData(show: false),
-                ),
-              ],
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: Text('Cerrar'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget buildEstSisComGauge() {
     return ValueListenableBuilder<double>(
       valueListenable: _presComNotifier,
       builder: (context, estSisCom, child) {
         if (estSisCom == -1) {
-          return Center(
+          return const Center(
             child: Text(
               "No soportado",
               style: TextStyle(
@@ -491,42 +530,42 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 250,
                     maximum: 400,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: estSisCom.clamp(250, 400),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -538,7 +577,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                             Colors.red,
                           ],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -546,7 +585,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -627,31 +666,124 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         ),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: () =>
-                          _mostrarGraficoPresionCombustible(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Historial de Presión Combustible',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    height: 450,
+                                    width: 500,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorPresionComb / 4)
+                                            .ceilToDouble(),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'kPa'),
+                                        minimum: 250,
+                                        maximum: 400,
+                                        interval: 50,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource:
+                                              _historialPresionCombustible,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                            isVisible: false,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
-                        foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                       ),
                     ),
@@ -662,91 +794,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoPresionCombustible(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          'Historial Presión Combustible',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _contadorPresionComb > 0
-                  ? _contadorPresionComb.toDouble()
-                  : 10,
-              minY: 250,
-              maxY: 400,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialPresionCombustible,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 50,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}kPa',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorPresionComb / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -778,42 +825,42 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 500,
                     maximum: 1500,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 12,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 4,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 6,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 15,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: nivCom.clamp(500, 1500),
                         enableAnimation: true,
-                        animationType: AnimationType.easeOutBack,
+                        animationType: gauges.AnimationType.easeOutBack,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -825,7 +872,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                             Colors.red,
                           ],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -833,7 +880,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -916,26 +963,121 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoPresionRiel(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Historial Presión Riel',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    width: 500,
+                                    height: 400,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorPresionRiel / 4)
+                                            .ceilToDouble()
+                                            .clamp(1, 100),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'kPa'),
+                                        minimum: 500,
+                                        maximum: 1500,
+                                        interval: 200,
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialPresionRiel,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -948,91 +1090,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoPresionRiel(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          'Historial Presión Riel',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _contadorPresionRiel > 0
-                  ? _contadorPresionRiel.toDouble()
-                  : 10,
-              minY: 500,
-              maxY: 1500,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialPresionRiel,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 200,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}kPa',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorPresionRiel / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1064,42 +1121,42 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: 1,
                     maximum: 20,
                     radiusFactor: 0.9,
-                    majorTickStyle: const MajorTickStyle(
+                    majorTickStyle: const gauges.MajorTickStyle(
                       length: 10,
                       thickness: 2,
                       color: Colors.black,
                     ),
                     minorTicksPerInterval: 2,
-                    minorTickStyle: const MinorTickStyle(
+                    minorTickStyle: const gauges.MinorTickStyle(
                       length: 5,
                       thickness: 1,
                       color: Colors.grey,
                     ),
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: porEtaCom.clamp(1, 20),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleStartWidth: 1,
                         needleEndWidth: 5,
@@ -1108,7 +1165,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1116,7 +1173,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -1201,26 +1258,121 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                     ),
                     SizedBox(height: 20),
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoTasaCombustible(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Tasa combustible',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    width: 500,
+                                    height: 400,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorTasaCombustible / 4)
+                                            .ceilToDouble()
+                                            .clamp(1, 100),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(
+                                            text: 'mg/combustion'),
+                                        minimum: 1,
+                                        maximum: 20,
+                                        interval: 2,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialTasaCombustible,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
                         foregroundColor: Colors.white,
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -1233,91 +1385,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoTasaCombustible(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          'Historial Tasa Combustible',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _contadorTasaCombustible > 0
-                  ? _contadorTasaCombustible.toDouble()
-                  : 10,
-              minY: 1,
-              maxY: 20,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialTasaCombustible,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 2,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}mg',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorTasaCombustible / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1349,38 +1416,38 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge (mantenido exactamente igual)
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: -10,
                     maximum: 10,
                     radiusFactor: 0.9,
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: presRielDir.clamp(-10, 10),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1388,7 +1455,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -1469,21 +1536,114 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
 
                     const SizedBox(height: 20),
 
-                    // Botón para gráfico histórico
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoPresRielDir(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Banco 1 - Corto',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    width: 500,
+                                    height: 400,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorPresRielDir / 4)
+                                            .ceilToDouble()
+                                            .clamp(1, 100),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(text: '%'),
+                                        minimum: -10,
+                                        maximum: 10,
+                                        interval: 2,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialPresRielDir,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -1503,91 +1663,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoPresRielDir(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Historial Presión Riel - Banco 1 (Corto)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _contadorPresRielDir > 0
-                  ? _contadorPresRielDir.toDouble()
-                  : 10,
-              minY: -10,
-              maxY: 10,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialPresRielDir,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: const FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 2,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}%',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorPresRielDir / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: const FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1619,38 +1694,38 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge (mantenido exactamente igual)
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: -10,
                     maximum: 10,
                     radiusFactor: 0.9,
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: presRielRel.clamp(-10, 10),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1658,7 +1733,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -1744,19 +1819,113 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
 
                     // Botón para gráfico histórico
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoPresRielRel(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Banco 1 - Largo',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    width: 500,
+                                    height: 400,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorPresRielRel / 4)
+                                            .ceilToDouble()
+                                            .clamp(1, 100),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(text: '%'),
+                                        minimum: -10,
+                                        maximum: 10,
+                                        interval: 2,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialPresRielRel,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -1776,91 +1945,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoPresRielRel(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Historial Presión Riel - Banco 1 (Largo)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _contadorPresRielRel > 0
-                  ? _contadorPresRielRel.toDouble()
-                  : 10,
-              minY: -10,
-              maxY: 10,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialPresRielRel,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: const FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 2,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}%',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorPresRielRel / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: const FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -1892,38 +1976,38 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge (mantenido exactamente igual)
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: -10,
                     maximum: 10,
                     radiusFactor: 0.9,
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.yellow, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: presBomCom.clamp(-10, 10),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -1931,7 +2015,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -2017,19 +2101,113 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
 
                     // Botón para gráfico histórico
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoPresBomCom(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Banco 2 - Corto',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    width: 500,
+                                    height: 400,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorPresBomCom / 4)
+                                            .ceilToDouble()
+                                            .clamp(1, 100),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(text: '%'),
+                                        minimum: -10,
+                                        maximum: 10,
+                                        interval: 2,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialPresBomCom,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -2049,90 +2227,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoPresBomCom(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Historial Presión Riel - Banco 2 (Corto)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX:
-                  _contadorPresBomCom > 0 ? _contadorPresBomCom.toDouble() : 10,
-              minY: -10,
-              maxY: 10,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialPresBomCom,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: const FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 2,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}%',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorPresBomCom / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: const FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -2163,38 +2257,38 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
             // Gauge (mantenido exactamente igual)
             Expanded(
               flex: 2,
-              child: SfRadialGauge(
-                axes: <RadialAxis>[
-                  RadialAxis(
+              child: gauges.SfRadialGauge(
+                axes: <gauges.RadialAxis>[
+                  gauges.RadialAxis(
                     startAngle: 140,
                     endAngle: 40,
                     minimum: -10,
                     maximum: 10,
                     radiusFactor: 0.9,
-                    axisLineStyle: const AxisLineStyle(
+                    axisLineStyle: const gauges.AxisLineStyle(
                       thickness: 12,
                       gradient: SweepGradient(
                         colors: [Colors.red, Colors.green, Colors.green],
                         stops: [0.3, 0.7, 1],
                       ),
                     ),
-                    axisLabelStyle: const GaugeTextStyle(
+                    axisLabelStyle: const gauges.GaugeTextStyle(
                       fontSize: 18,
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                    pointers: <GaugePointer>[
-                      NeedlePointer(
+                    pointers: <gauges.GaugePointer>[
+                      gauges.NeedlePointer(
                         value: tipoCom.clamp(-10, 10),
                         enableAnimation: true,
-                        animationType: AnimationType.elasticOut,
+                        animationType: gauges.AnimationType.elasticOut,
                         needleColor: Colors.red,
                         needleLength: 0.75,
                         animationDuration: 1500,
                         gradient: const LinearGradient(
                           colors: [Colors.white, Colors.red],
                         ),
-                        knobStyle: KnobStyle(
+                        knobStyle: gauges.KnobStyle(
                           color: const Color(0xFF3F3F3F),
                           borderColor: const Color(0xFF3F3F3F).withAlpha(150),
                           borderWidth: 2,
@@ -2202,7 +2296,7 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
                       ),
                     ],
                     annotations: [
-                      GaugeAnnotation(
+                      gauges.GaugeAnnotation(
                         widget: Column(
                           children: [
                             const SizedBox(height: 180),
@@ -2288,19 +2382,113 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
 
                     // Botón para gráfico histórico
                     ElevatedButton.icon(
-                      onPressed: () => _mostrarGraficoTipoCom(context),
+                      onPressed: () {
+                        Timer? timer;
+
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return StatefulBuilder(
+                              builder: (context, setStateDialog) {
+                                timer ??= Timer.periodic(
+                                  const Duration(seconds: 2),
+                                  (_) => setStateDialog(() {}),
+                                );
+
+                                return AlertDialog(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text(
+                                    'Banco 2 - Largo',
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
+                                  content: SizedBox(
+                                    width: 500,
+                                    height: 400,
+                                    child: charts.SfCartesianChart(
+                                      backgroundColor: Colors.grey.shade100,
+                                      primaryXAxis: charts.NumericAxis(
+                                        title: charts.AxisTitle(text: 'Tiempo'),
+                                        interval: (_contadorTipoCom / 4)
+                                            .ceilToDouble()
+                                            .clamp(1, 100),
+                                        majorGridLines:
+                                            const charts.MajorGridLines(
+                                                width: 0.5),
+                                      ),
+                                      primaryYAxis: const charts.NumericAxis(
+                                        title: charts.AxisTitle(text: '%'),
+                                        minimum: -10,
+                                        maximum: 10,
+                                        interval: 2,
+                                        majorGridLines:
+                                            charts.MajorGridLines(width: 0.5),
+                                      ),
+                                      tooltipBehavior:
+                                          charts.TooltipBehavior(enable: true),
+                                      series: <charts
+                                          .LineSeries<FlSpot, double>>[
+                                        charts.LineSeries<FlSpot, double>(
+                                          dataSource: _historialTipoCom,
+                                          xValueMapper: (FlSpot spot, _) =>
+                                              spot.x,
+                                          yValueMapper: (FlSpot spot, _) =>
+                                              spot.y,
+                                          color: Colors.blueAccent,
+                                          width: 3,
+                                          markerSettings:
+                                              const charts.MarkerSettings(
+                                            isVisible: true,
+                                            shape: charts.DataMarkerType.circle,
+                                            color: Colors.blue,
+                                          ),
+                                          dataLabelSettings:
+                                              const charts.DataLabelSettings(
+                                                  isVisible: false),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  actions: [
+                                    OutlinedButton(
+                                      onPressed: () {
+                                        timer?.cancel();
+                                        Navigator.pop(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        side: const BorderSide(
+                                            color: Colors.blueAccent, width: 2),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Cerrar',
+                                        style:
+                                            TextStyle(color: Colors.blueAccent),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ).then((_) => timer?.cancel());
+                      },
                       icon: const Icon(
                         Icons.show_chart,
-                        //size: 28, // Tamaño del icono
-                        color: Color.fromARGB(255, 255, 255, 255),
+                        color: Colors.white,
                       ),
                       label: const Text(
                         "Gráfico ",
                         style: TextStyle(
-                          fontSize: 20, // Tamaño del texto
-                          color: Colors.white, // Color del texto
-                          fontWeight:
-                              FontWeight.bold, // Opcional: peso del texto
+                          fontSize: 20,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       style: ElevatedButton.styleFrom(
@@ -2320,89 +2508,6 @@ class _DashboardCombPageState extends State<DashboardCombPage> {
           ],
         );
       },
-    );
-  }
-
-  void _mostrarGraficoTipoCom(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: const Text(
-          'Historial Tipo Combustible - Banco 2 (Largo)',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: SizedBox(
-          width: 500,
-          height: 400,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _contadorTipoCom > 0 ? _contadorTipoCom.toDouble() : 10,
-              minY: -10,
-              maxY: 10,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialTipoCom,
-                  isCurved: true,
-                  color: Colors.blueAccent,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Colors.blueAccent.withOpacity(0.2),
-                  ),
-                  dotData: const FlDotData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: 2,
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}%',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    interval: (_contadorTipoCom / 5).ceilToDouble(),
-                    getTitlesWidget: (value, meta) => Text(
-                      '${value.toInt()}',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-              gridData: const FlGridData(show: true),
-              borderData: FlBorderData(
-                show: true,
-                border: Border.all(color: Colors.black12),
-              ),
-            ),
-          ),
-        ),
-        actions: [
-          OutlinedButton(
-            onPressed: () => Navigator.pop(context),
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: Colors.blueAccent, width: 2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: Colors.blueAccent),
-            ),
-          ),
-        ],
-      ),
     );
   }
 

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-//import 'package:obdv2/pages/dashboard/home_dash.dart';
 import 'package:obdv2/pages/home_page.dart';
-import 'package:syncfusion_flutter_gauges/gauges.dart';
+
+import 'package:syncfusion_flutter_gauges/gauges.dart' as gauges;
+import 'package:syncfusion_flutter_charts/charts.dart' as charts;
+import 'dart:async';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -161,51 +164,51 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
       );
     }
 
-    return SfRadialGauge(
-      axes: <RadialAxis>[
-        RadialAxis(
+    return gauges.SfRadialGauge(
+      axes: <gauges.RadialAxis>[
+        gauges.RadialAxis(
           startAngle: 140,
           endAngle: 40,
           minimum: 0,
           maximum: 1,
           radiusFactor: 0.7,
-          majorTickStyle: MajorTickStyle(
+          majorTickStyle: const gauges.MajorTickStyle(
             length: 12,
             thickness: 2,
             color: Colors.white,
           ),
           minorTicksPerInterval: 4,
-          minorTickStyle: MinorTickStyle(
+          minorTickStyle: const gauges.MinorTickStyle(
             length: 6,
             thickness: 1,
             color: Colors.grey,
           ),
-          axisLineStyle: AxisLineStyle(
+          axisLineStyle: const gauges.AxisLineStyle(
             thickness: 15,
             gradient: SweepGradient(
               colors: [Colors.red, Colors.green, Colors.red],
               stops: [0, 0.4, 0.6],
             ),
           ),
-          axisLabelStyle: GaugeTextStyle(
+          axisLabelStyle: const gauges.GaugeTextStyle(
             fontSize: 18,
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
-          pointers: <GaugePointer>[
-            NeedlePointer(
+          pointers: <gauges.GaugePointer>[
+            gauges.NeedlePointer(
               value: value,
               enableAnimation: true,
-              animationType: AnimationType.easeOutBack,
+              animationType: gauges.AnimationType.easeOutBack,
               needleColor: Colors.red,
               needleStartWidth: 1,
               needleEndWidth: 5,
               needleLength: 0.75,
               animationDuration: 2000,
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 colors: [Colors.white, Colors.red],
               ),
-              knobStyle: KnobStyle(
+              knobStyle: gauges.KnobStyle(
                 color: Color(0xFF3F3F3F),
                 borderColor: Color(0xFF3F3F3F).withAlpha(150),
                 borderWidth: 2,
@@ -213,13 +216,13 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
             ),
           ],
           annotations: [
-            GaugeAnnotation(
+            gauges.GaugeAnnotation(
               widget: Column(
                 children: [
                   SizedBox(height: 180),
                   Text(
                     "${value.toStringAsFixed(2)} V",
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 50,
                       fontWeight: FontWeight.bold,
                       color: Color.fromARGB(255, 255, 255, 255),
@@ -233,7 +236,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
                   ),
                   Text(
                     title,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       color: Color.fromARGB(255, 255, 255, 255),
                       fontWeight: FontWeight.bold,
@@ -252,7 +255,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
 
   Widget buildAFRGauge(double value, String title) {
     if (value == -1) {
-      return Center(
+      return const Center(
         child: Text(
           "No soportado",
           style: TextStyle(
@@ -264,26 +267,26 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
       );
     }
 
-    return SfRadialGauge(
-      axes: <RadialAxis>[
-        RadialAxis(
+    return gauges.SfRadialGauge(
+      axes: <gauges.RadialAxis>[
+        gauges.RadialAxis(
           startAngle: 140,
           endAngle: 40,
           minimum: 10,
           maximum: 20,
           radiusFactor: 0.7,
-          majorTickStyle: MajorTickStyle(
+          majorTickStyle: const gauges.MajorTickStyle(
             length: 12,
             thickness: 2,
             color: Colors.white,
           ),
           minorTicksPerInterval: 4,
-          minorTickStyle: MinorTickStyle(
+          minorTickStyle: const gauges.MinorTickStyle(
             length: 6,
             thickness: 1,
             color: Colors.grey,
           ),
-          axisLineStyle: AxisLineStyle(
+          axisLineStyle: const gauges.AxisLineStyle(
             thickness: 15,
             gradient: SweepGradient(
               colors: [
@@ -296,16 +299,16 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
               stops: [0, 0.25, 0.35, 0.6, 0.85],
             ),
           ),
-          axisLabelStyle: GaugeTextStyle(
+          axisLabelStyle: const gauges.GaugeTextStyle(
             fontSize: 18,
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
-          pointers: <GaugePointer>[
-            NeedlePointer(
+          pointers: <gauges.GaugePointer>[
+            gauges.NeedlePointer(
               value: value,
               enableAnimation: true,
-              animationType: AnimationType.easeOutBack,
+              animationType: gauges.AnimationType.easeOutBack,
               needleColor: Colors.red,
               needleStartWidth: 1,
               needleEndWidth: 5,
@@ -314,7 +317,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
               gradient: LinearGradient(
                 colors: [Colors.white, Colors.red],
               ),
-              knobStyle: KnobStyle(
+              knobStyle: gauges.KnobStyle(
                 color: Color(0xFF3F3F3F),
                 borderColor: Color(0xFF3F3F3F).withAlpha(150),
                 borderWidth: 2,
@@ -322,7 +325,7 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
             ),
           ],
           annotations: [
-            GaugeAnnotation(
+            gauges.GaugeAnnotation(
               widget: Column(
                 children: [
                   SizedBox(height: 180),
@@ -512,48 +515,59 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Historial de Voltaje - $selectedSensor'),
-        content: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: 300,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX:
-                  _historialVoltaje.isNotEmpty ? _historialVoltaje.last.x : 10,
-              minY: 0,
-              maxY: 1,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialVoltaje,
-                  isCurved: true,
-                  color: Colors.blue,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) =>
-                        Text('${value.toStringAsFixed(1)}V'),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            // Escucha cambios en tiempo real al notifier
+            _getVoltajeNotifier().addListener(() {
+              setState(() {
+                _actualizarHistorial();
+              });
+            });
+
+            return AlertDialog(
+              title: Text('Historial de Voltaje - $selectedSensor'),
+              content: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: 300,
+                child: charts.SfCartesianChart(
+                  primaryXAxis: charts.NumericAxis(
+                    title: charts.AxisTitle(text: 'Tiempo'),
                   ),
+                  primaryYAxis: charts.NumericAxis(
+                    title: charts.AxisTitle(text: 'Voltaje (V)'),
+                    minimum: 0,
+                    maximum: 1,
+                    labelFormat: '{value}V',
+                  ),
+                  series: <charts.LineSeries<FlSpot, double>>[
+                    charts.LineSeries<FlSpot, double>(
+                      dataSource: _historialVoltaje,
+                      xValueMapper: (FlSpot spot, _) => spot.x,
+                      yValueMapper: (FlSpot spot, _) => spot.y,
+                      color: Colors.blueAccent,
+                      width: 3,
+                      markerSettings: const charts.MarkerSettings(
+                        isVisible: true,
+                        shape: charts.DataMarkerType.circle,
+                        color: Colors.blue,
+                      ),
+                      dataLabelSettings:
+                          const charts.DataLabelSettings(isVisible: false),
+                    ),
+                  ],
                 ),
               ),
-              gridData: FlGridData(show: true),
-              borderData: FlBorderData(show: true),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: Text('Cerrar'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
+              actions: [
+                TextButton(
+                  child: Text('Cerrar'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -562,47 +576,59 @@ class _DashboardOxPageState extends State<DashboardOxPage> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Historial AFR - $selectedSensor'),
-        content: Container(
-          width: MediaQuery.of(context).size.width * 0.8,
-          height: 300,
-          child: LineChart(
-            LineChartData(
-              minX: 0,
-              maxX: _historialAFR.isNotEmpty ? _historialAFR.last.x : 10,
-              minY: 10,
-              maxY: 20,
-              lineBarsData: [
-                LineChartBarData(
-                  spots: _historialAFR,
-                  isCurved: true,
-                  color: Colors.green,
-                  barWidth: 3,
-                  belowBarData: BarAreaData(show: false),
-                ),
-              ],
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) =>
-                        Text('${value.toStringAsFixed(1)}'),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            // Escucha cambios del notifier AFR
+            _getAFRNotifier().addListener(() {
+              setState(() {
+                _actualizarHistorial();
+              });
+            });
+
+            return AlertDialog(
+              title: Text('Historial AFR - $selectedSensor'),
+              content: Container(
+                width: MediaQuery.of(context).size.width * 0.8,
+                height: 300,
+                child: charts.SfCartesianChart(
+                  primaryXAxis: charts.NumericAxis(
+                    title: charts.AxisTitle(text: 'Tiempo'),
                   ),
+                  primaryYAxis: charts.NumericAxis(
+                    title: charts.AxisTitle(text: 'AFR'),
+                    minimum: 10,
+                    maximum: 20,
+                    labelFormat: '{value}',
+                  ),
+                  series: <charts.LineSeries<FlSpot, double>>[
+                    charts.LineSeries<FlSpot, double>(
+                      dataSource: _historialAFR,
+                      xValueMapper: (FlSpot spot, _) => spot.x,
+                      yValueMapper: (FlSpot spot, _) => spot.y,
+                      color: const Color.fromARGB(255, 17, 255, 0),
+                      width: 3,
+                      markerSettings: const charts.MarkerSettings(
+                        isVisible: true,
+                        shape: charts.DataMarkerType.circle,
+                        color: Colors.blue,
+                      ),
+                      dataLabelSettings:
+                          const charts.DataLabelSettings(isVisible: false),
+                    ),
+                  ],
                 ),
               ),
-              gridData: FlGridData(show: true),
-              borderData: FlBorderData(show: true),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: Text('Cerrar'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
+              actions: [
+                TextButton(
+                  child: Text('Cerrar'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
