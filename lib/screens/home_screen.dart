@@ -464,16 +464,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> generarYGuardarPDF() async {
     final pdf = pw.Document();
-    String _formatDateTime(DateTime date) {
-      final String fecha = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      final int hour = date.hour;
-      final String period = hour < 12 ? 'AM' : 'PM';
-      final String hora12 = (hour % 12 == 0 ? 12 : hour % 12).toString().padLeft(2, '0');
-      final String minutos = date.minute.toString().padLeft(2, '0');
-      final String segundos = date.second.toString().padLeft(2, '0');
-      
-      return '$fecha $hora12:$minutos:$segundos $period';
-    }
     pdf.addPage(
       pw.MultiPage(
           build: (context) => [
@@ -486,8 +476,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
                 pw.SizedBox(height: 20),
                 pw.Text(
-                  'Fecha y Hora del Informe: ${_formatDateTime(DateTime.now().toLocal())}',
+                  'Fecha y hora del informe: ${DateTime.now().toLocal().toString().split(' ')[0]} '
+                  '${(DateTime.now().hour % 12 == 0 ? 12 : DateTime.now().hour % 12).toString().padLeft(2, '0')}:'
+                  '${DateTime.now().minute.toString().padLeft(2, '0')}:'
+                  '${DateTime.now().second.toString().padLeft(2, '0')} '
+                  '${DateTime.now().hour >= 12 ? 'PM' : 'AM'}',
                 ),
+
                 pw.SizedBox(height: 20),
                 // --- Título de Sección: Sensores del Motor ---
                 pw.Text('SENSORES DEL MOTOR',
@@ -984,9 +979,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               ]),
     );
     // Solicitar permisos de almacenamiento externo
-    var status = await Permission.storage.request();
-    if (status.isGranted) {
-      // Obtener el directorio de Descargas
+    final sdkInt = int.parse(Platform.version
+        .split(' ')
+        .firstWhere((e) => int.tryParse(e) != null, orElse: () => '0'));
+
+    bool permisoConcedido = false;
+
+    if (sdkInt >= 30) {
+      // Android 11+
+      var status = await Permission.manageExternalStorage.request();
+      if (status.isGranted) {
+        permisoConcedido = true;
+      } else if (status.isPermanentlyDenied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Permiso de almacenamiento denegado permanentemente. Actívalo en ajustes.')),
+        );
+        openAppSettings();
+        return;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Permiso de almacenamiento denegado.')),
+        );
+        return;
+      }
+    } else {
+      // Android 10 o menor
+      var status = await Permission.storage.request();
+      if (status.isGranted) {
+        permisoConcedido = true;
+      } else if (status.isPermanentlyDenied) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Permiso de almacenamiento denegado permanentemente. Actívalo en ajustes.')),
+        );
+        openAppSettings();
+        return;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Permiso de almacenamiento denegado.')),
+        );
+        return;
+      }
+    }
+
+    if (permisoConcedido) {
+      // Crear nombre de archivo
       final now = DateTime.now();
       final dateTimeFormatted = "${now.year}-"
           "${now.month.toString().padLeft(2, '0')}-"
@@ -996,25 +1036,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           "${now.second.toString().padLeft(2, '0')}";
       final filename = "analisis_informe_obd_$dateTimeFormatted.pdf";
 
-      final downloadsDir = Directory('/storage/emulated/0/Download');
+      final downloadsDir =
+          Directory('/storage/emulated/0/Download'); // carpeta pública
       final file = File("${downloadsDir.path}/$filename");
 
       await file.writeAsBytes(await pdf.save());
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('PDF guardado en: ${file.path}')),
+        SnackBar(content: Text('✅ PDF guardado en: ${file.path}')),
       );
-    } else if (status.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de almacenamiento denegado.')),
-      );
-    } else if (status.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Permiso de almacenamiento denegado permanentemente. Por favor, habilítalo en la configuración de la aplicación.')),
-      );
-      openAppSettings();
     }
   }
   //pruebas sin obd
@@ -3622,7 +3652,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 //   ),
                 // ),
 
-                /// Battery Screen start here
+               /// Battery Screen start here
                 Positioned(
                   top: 50 * (1 - batteryStatusAnimation.value),
                   height: constraints.maxHeight,
@@ -3690,6 +3720,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
+
                 /// Battery Screen end here
                 ///
                 /// temprature screen start here
