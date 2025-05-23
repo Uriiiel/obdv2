@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   };
 
   //pruebas sin obd
-  bool _mockMode = true;
+  // bool _mockMode = true;
   //pruebas sin obd
   final _formKey = GlobalKey<FormState>();
 
@@ -283,15 +283,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
     //pruebas sin obd
 
-    if (_mockMode) {
-      _isConnected = true; // Simular conexión exitosa
-      _startMockDataGeneration();
-    } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _ensureConnection();
-      });
-      _checkBluetoothState();
-    }
+    // if (_mockMode) {
+    //   _isConnected = true; // Simular conexión exitosa
+    //   _startMockDataGeneration();
+    // } else {
+    //   WidgetsBinding.instance.addPostFrameCallback((_) {
+    //     _ensureConnection();
+    //   });
+    //   _checkBluetoothState();
+    // }
 
     //pruebas sin obd
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -310,93 +310,93 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   //pruebas sin obd
-  void _startMockDataGeneration() {
-    Timer.periodic(Duration(milliseconds: 2000), (timer) {
-      if (!_mockMode) {
-        timer.cancel();
-        return;
-      }
+  // void _startMockDataGeneration() {
+  //   Timer.periodic(Duration(milliseconds: 2000), (timer) {
+  //     if (!_mockMode) {
+  //       timer.cancel();
+  //       return;
+  //     }
 
-      final random = Random();
-      // Genera valores aleatorios para TODOS los sensores
-      final newSpeed = random.nextDouble() * 200;
-      final newRpm = random.nextDouble() * 8000;
-      final newVoltaje = random.nextDouble() * 20;
-      final newTemp = random.nextDouble() * 105;
-      final newO2Voltage = List.generate(4, (index) => random.nextDouble() * 5);
-      final newO2AFR = List.generate(4, (index) => random.nextDouble() * 20);
+  //     final random = Random();
+  //     // Genera valores aleatorios para TODOS los sensores
+  //     final newSpeed = random.nextDouble() * 200;
+  //     final newRpm = random.nextDouble() * 8000;
+  //     final newVoltaje = random.nextDouble() * 20;
+  //     final newTemp = random.nextDouble() * 105;
+  //     final newO2Voltage = List.generate(4, (index) => random.nextDouble() * 5);
+  //     final newO2AFR = List.generate(4, (index) => random.nextDouble() * 20);
 
-      final newCM = random.nextDouble() * 100;
-      final newAE = random.nextDouble() * 40;
-      final newFAM = random.nextDouble() * 20;
-      final newPCA = random.nextDouble() * 100;
-      final newAFR = random.nextDouble() * 20;
-      final newNC = random.nextDouble() * 100;
-      final newPC = random.nextDouble() * 400;
-      final newPR = random.nextDouble() * 1500;
-      final newC = random.nextDouble() * 20;
-      final newB1S = random.nextDouble() * 10;
-      final newB1L = random.nextDouble() * 10;
-      final newB2S = random.nextDouble() * 10;
-      final newB2L = random.nextDouble() * 10;
+  //     final newCM = random.nextDouble() * 100;
+  //     final newAE = random.nextDouble() * 40;
+  //     final newFAM = random.nextDouble() * 20;
+  //     final newPCA = random.nextDouble() * 100;
+  //     final newAFR = random.nextDouble() * 20;
+  //     final newNC = random.nextDouble() * 100;
+  //     final newPC = random.nextDouble() * 400;
+  //     final newPR = random.nextDouble() * 1500;
+  //     final newC = random.nextDouble() * 20;
+  //     final newB1S = random.nextDouble() * 10;
+  //     final newB1L = random.nextDouble() * 10;
+  //     final newB2S = random.nextDouble() * 10;
+  //     final newB2L = random.nextDouble() * 10;
 
-      // Actualiza sensorHistory
-      _onSensorDataReceived('Voltaje', newVoltaje);
-      _onSensorDataReceived('Temp. Refrigerante', newTemp);
-      for (int i = 0; i < 4; i++) {
-        _onSensorDataReceived('Sensor O2 ${i + 1} (V)', newO2Voltage[i]);
-        _onSensorDataReceived('Sensor O2 ${i + 1} (AFR)', newO2AFR[i]);
-      }
+  //     // Actualiza sensorHistory
+  //     _onSensorDataReceived('Voltaje', newVoltaje);
+  //     _onSensorDataReceived('Temp. Refrigerante', newTemp);
+  //     for (int i = 0; i < 4; i++) {
+  //       _onSensorDataReceived('Sensor O2 ${i + 1} (V)', newO2Voltage[i]);
+  //       _onSensorDataReceived('Sensor O2 ${i + 1} (AFR)', newO2AFR[i]);
+  //     }
 
-      // Actualiza ValueNotifiers y estado
-      setState(() {
-        _speed = newSpeed;
-        _rpm = newRpm;
-        _voltage = newVoltaje;
-        _o2Voltage = newO2Voltage;
-        _o2AFR = newO2AFR;
-        _coolantTemp = newTemp;
-        _engineLoad = newCM;
-        _ignitionAdvance = newAE;
-        _maf = newFAM;
-        _intakeManifoldPressure = newPCA;
-        _commandedAFR = newAFR;
-        _fuelLevel = newNC;
-        _fuelPressure = newPC;
-        _fuelRailPressure = newPR;
-        _fuelRate = newC;
-        _fuelTrimBank1ShortTerm = newB1S;
-        _fuelTrimBank1LongTerm = newB1L;
-        _fuelTrimBank2ShortTerm = newB2S;
-        _fuelTrimBank2LongTerm = newB2L;
-      });
+  //     // Actualiza ValueNotifiers y estado
+  //     setState(() {
+  //       _speed = newSpeed;
+  //       _rpm = newRpm;
+  //       _voltage = newVoltaje;
+  //       _o2Voltage = newO2Voltage;
+  //       _o2AFR = newO2AFR;
+  //       _coolantTemp = newTemp;
+  //       _engineLoad = newCM;
+  //       _ignitionAdvance = newAE;
+  //       _maf = newFAM;
+  //       _intakeManifoldPressure = newPCA;
+  //       _commandedAFR = newAFR;
+  //       _fuelLevel = newNC;
+  //       _fuelPressure = newPC;
+  //       _fuelRailPressure = newPR;
+  //       _fuelRate = newC;
+  //       _fuelTrimBank1ShortTerm = newB1S;
+  //       _fuelTrimBank1LongTerm = newB1L;
+  //       _fuelTrimBank2ShortTerm = newB2S;
+  //       _fuelTrimBank2LongTerm = newB2L;
+  //     });
 
-      _speedNotifier.value = newSpeed;
-      _rpmNotifier.value = newRpm;
-      _voltageNotifier.value = newVoltaje;
-      _cooltempNotifier.value = newTemp;
-      _o2VNotifier.value = newO2Voltage;
-      _o2AFRNotifier.value = newO2AFR;
-      _engineNotifier.value = newCM;
-      _ignitionNotifier.value = newAE;
-      _mafNotifier.value = newFAM;
-      _intakeMPNotifier.value = newPCA;
-      _commandedAFRNotifier.value = newAFR;
-      _fuelLevelNotifier.value = newNC;
-      _fuelPressureNotifier.value = newPC;
-      _fuelRailPNotifier.value = newPR;
-      _fuelRateNotifier.value = newC;
-      _fuelTrimB1SNotifier.value = newB1S;
-      _fuelTrimB1LNotifier.value = newB1L;
-      _fuelTrimB2SNotifier.value = newB2S;
-      _fuelTrimB2LNotifier.value = newB2L;
+  //     _speedNotifier.value = newSpeed;
+  //     _rpmNotifier.value = newRpm;
+  //     _voltageNotifier.value = newVoltaje;
+  //     _cooltempNotifier.value = newTemp;
+  //     _o2VNotifier.value = newO2Voltage;
+  //     _o2AFRNotifier.value = newO2AFR;
+  //     _engineNotifier.value = newCM;
+  //     _ignitionNotifier.value = newAE;
+  //     _mafNotifier.value = newFAM;
+  //     _intakeMPNotifier.value = newPCA;
+  //     _commandedAFRNotifier.value = newAFR;
+  //     _fuelLevelNotifier.value = newNC;
+  //     _fuelPressureNotifier.value = newPC;
+  //     _fuelRailPNotifier.value = newPR;
+  //     _fuelRateNotifier.value = newC;
+  //     _fuelTrimB1SNotifier.value = newB1S;
+  //     _fuelTrimB1LNotifier.value = newB1L;
+  //     _fuelTrimB2SNotifier.value = newB2S;
+  //     _fuelTrimB2LNotifier.value = newB2L;
 
-      //print(_voltage);
-      print(_coolantTemp);
+  //     //print(_voltage);
+  //     print(_coolantTemp);
 
-      _updateSensors();
-    });
-  }
+  //     _updateSensors();
+  //   });
+  // }
 
   Future<void> _requestPermissions() async {
     // BLUETOOTH CONNECT (Android 12+)
@@ -1011,26 +1011,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _ensureConnection() {
     //pruebas sin obd
-    if (!_mockMode && !_isConnected) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          title: const Text('Conectar OBD'),
-          content: const Text(
-              'Debes conectar el dispositivo OBD por Bluetooth para continuar.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                _showDeviceList(context);
-              },
-              child: const Text('Conectar'),
-            ),
-          ],
-        ),
-      );
-    }
+    // if (!_mockMode && !_isConnected) {
+    //   showDialog(
+    //     context: context,
+    //     barrierDismissible: false,
+    //     builder: (_) => AlertDialog(
+    //       title: const Text('Conectar OBD'),
+    //       content: const Text(
+    //           'Debes conectar el dispositivo OBD por Bluetooth para continuar.'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () {
+    //             Navigator.of(context).pop();
+    //             _showDeviceList(context);
+    //           },
+    //           child: const Text('Conectar'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
     //pruebas sin obd
     if (!_isConnected) {
       showDialog(
@@ -1092,7 +1092,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _connectToDevice(BluetoothDevice device) async {
     //pruebas sin obd
-    if (_mockMode) return;
+    // if (_mockMode) return;
     //pruebas sin obd
     if (_isConnecting) return;
 
@@ -1627,7 +1627,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _sendCommand(String command) {
     //pruebas sin obd
-    if (_mockMode) return;
+    // if (_mockMode) return;
     //pruebas sin obd
     if (_isConnected && _connection != null) {
       command = '$command\r';
@@ -2506,22 +2506,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _showDeviceList(BuildContext context) {
     //pruebas sin obd
-    if (_mockMode) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Modo Simulación'),
-          content: Text('Usando datos de prueba'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text('Cerrar'),
-            ),
-          ],
-        ),
-      );
-      return;
-    }
+    // if (_mockMode) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) => AlertDialog(
+    //       title: Text('Modo Simulación'),
+    //       content: Text('Usando datos de prueba'),
+    //       actions: [
+    //         TextButton(
+    //           onPressed: () => Navigator.pop(context),
+    //           child: Text('Cerrar'),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    //   return;
+    // }
     //pruebas sin obd
     showDialog(
       context: context,
