@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:io';
 import 'package:obdv2/core/constants.dart';
 import 'package:obdv2/core/home_controller.dart';
 import 'package:obdv2/core/model/tyres_model.dart';
@@ -21,6 +22,8 @@ import 'dart:typed_data';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:collection/collection.dart';
 import 'package:obdv2/pages/login_page.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:pdf/widgets.dart' as pw;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -50,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   //pruebas sin obd
   bool _mockMode = true;
   //pruebas sin obd
+  final _formKey = GlobalKey<FormState>();
 
   // bluetooth
   final FlutterBluetoothSerial _bluetooth = FlutterBluetoothSerial.instance;
@@ -267,6 +271,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _requestPermissions();
     sensorHistory['Voltaje'] = [];
     sensorHistory['Carga del motor'] = [];
     sensorHistory['Nivel Combustible'] = [];
@@ -391,6 +396,603 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
       _updateSensors();
     });
+  }
+
+  Future<void> _requestPermissions() async {
+    // BLUETOOTH CONNECT (Android 12+)
+    var bluetoothConnectStatus = await Permission.bluetoothConnect.request();
+
+    if (bluetoothConnectStatus.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de Bluetooth concedido.')),
+      );
+    } else if (bluetoothConnectStatus.isDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de Bluetooth denegado.')),
+      );
+    } else if (bluetoothConnectStatus.isPermanentlyDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Permiso de Bluetooth denegado permanentemente. Por favor, habilítalo en la configuración.'),
+        ),
+      );
+      openAppSettings();
+    }
+
+    // NEARBY DEVICES (Android 12+)
+    var nearbyStatus = await Permission.nearbyWifiDevices.request();
+
+    if (nearbyStatus.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de dispositivos cercanos concedido.')),
+      );
+    } else if (nearbyStatus.isDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de dispositivos cercanos denegado.')),
+      );
+    } else if (nearbyStatus.isPermanentlyDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Permiso de dispositivos cercanos denegado permanentemente. Por favor, habilítalo en la configuración.'),
+        ),
+      );
+      openAppSettings();
+    }
+    // LOCATION (IMPORTANTE PARA ESCANEOS EN ALGUNAS VERSIONES)
+    var locationStatus = await Permission.location.request();
+
+    if (locationStatus.isGranted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de ubicación concedido.')),
+      );
+    } else if (locationStatus.isDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de ubicación denegado.')),
+      );
+    } else if (locationStatus.isPermanentlyDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Permiso de ubicación denegado permanentemente. Habilítalo en la configuración.'),
+        ),
+      );
+      openAppSettings();
+    }
+  }
+
+  Future<void> generarYGuardarPDF() async {
+    final pdf = pw.Document();
+    pdf.addPage(
+      pw.MultiPage(
+          build: (context) => [
+                pw.Center(
+                  child: pw.Text(
+                    'Informe de Diagnóstico OBDII',
+                    style: pw.TextStyle(
+                        fontSize: 24, fontWeight: pw.FontWeight.bold),
+                  ),
+                ),
+                pw.SizedBox(height: 20),
+                pw.Text(
+                  'Fecha y Hora del Informe: ${DateTime.now().toLocal().toString().split(' ')[0]} ${DateTime.now().toLocal().hour.toString().padLeft(2, '0')}:${DateTime.now().toLocal().minute.toString().padLeft(2, '0')}:${DateTime.now().toLocal().second.toString().padLeft(2, '0')}',
+                ),
+                pw.SizedBox(height: 20),
+                // --- Título de Sección: Sensores del Motor ---
+                pw.Text('SENSORES DEL MOTOR',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 5), // Espacio pequeño entre título y tabla
+
+                // --- Tabla de Sensores del Motor ---
+                pw.Table(
+                  border: pw.TableBorder.all(width: 0.5),
+                  columnWidths: {
+                    0: pw.FlexColumnWidth(4), // Columna para la etiqueta
+                    1: pw.FlexColumnWidth(6), // Columna para el valor
+                  },
+                  children: [
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Velocidad:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_speed km/h'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('RPM:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_rpm RPM'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Temp. Refrigerante:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_coolantTemp °C'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Carga del Motor:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_engineLoad %'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Avance Encendido:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_ignitionAdvance °'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Flujo MAF:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_maf g/s'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Presión Múltiple Admisión:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_intakeManifoldPressure kPa'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Voltaje Batería:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_voltage V'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 15),
+
+                // --- Título de Sección: Sensores de Oxígeno ---
+                pw.Text('SENSORES DE OXÍGENO',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 5), // Espacio pequeño entre título y tabla
+
+                // --- Tabla de Sensores de Oxígeno ---
+                pw.Table(
+                  border: pw.TableBorder.all(width: 0.5),
+                  columnWidths: {
+                    0: pw.FlexColumnWidth(4),
+                    1: pw.FlexColumnWidth(6),
+                  },
+                  children: [
+                    for (int i = 0; i < _o2Voltage.length; i++)
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 4,
+                            child: pw.Padding(
+                              padding: const pw.EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 5),
+                              child: pw.Text('O2 Sensor ${i + 1} Voltaje:',
+                                  style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold)),
+                            ),
+                          ),
+                          pw.Expanded(
+                            flex: 6,
+                            child: pw.Padding(
+                              padding: const pw.EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 5),
+                              child: pw.Text('${_o2Voltage[i]} V'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    for (int i = 0; i < _o2AFR.length; i++)
+                      pw.TableRow(
+                        children: [
+                          pw.Expanded(
+                            flex: 4,
+                            child: pw.Padding(
+                              padding: const pw.EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 5),
+                              child: pw.Text('O2 Sensor ${i + 1} AFR:',
+                                  style: pw.TextStyle(
+                                      fontWeight: pw.FontWeight.bold)),
+                            ),
+                          ),
+                          pw.Expanded(
+                            flex: 6,
+                            child: pw.Padding(
+                              padding: const pw.EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 5),
+                              child: pw.Text('${_o2AFR[i]}'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('AFR Comandado:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_commandedAFR'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 15),
+
+                // --- Título de Sección: Sistema de Combustible ---
+                pw.Text('SISTEMA DE COMBUSTIBLE',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 5), // Espacio pequeño entre título y tabla
+
+                // --- Tabla de Sistema de Combustible ---
+                pw.Table(
+                  border: pw.TableBorder.all(width: 0.5),
+                  columnWidths: {
+                    0: pw.FlexColumnWidth(4),
+                    1: pw.FlexColumnWidth(6),
+                  },
+                  children: [
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Nivel de Combustible:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelLevel %'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Presión de Combustible:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelPressure kPa'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Presión Riel Combustible:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelRailPressure kPa'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Tasa de Consumo:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelRate L/h'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Ajuste Comb. Corto Plazo B1:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelTrimBank1ShortTerm %'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Ajuste Comb. Largo Plazo B1:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelTrimBank1LongTerm %'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Ajuste Comb. Corto Plazo B2:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelTrimBank2ShortTerm %'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    pw.TableRow(
+                      children: [
+                        pw.Expanded(
+                          flex: 4,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('Ajuste Comb. Largo Plazo B2:',
+                                style: pw.TextStyle(
+                                    fontWeight: pw.FontWeight.bold)),
+                          ),
+                        ),
+                        pw.Expanded(
+                          flex: 6,
+                          child: pw.Padding(
+                            padding: const pw.EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 5),
+                            child: pw.Text('$_fuelTrimBank2LongTerm %'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 20),
+
+                pw.Text(
+                  'Nota: Los valores mostrados son instantáneas del diagnóstico al momento de la generación del informe.',
+                  style: pw.TextStyle(
+                      fontSize: 10, fontStyle: pw.FontStyle.italic),
+                ),
+              ]),
+    );
+    // Solicitar permisos de almacenamiento externo
+    var status = await Permission.storage.request();
+    if (status.isGranted) {
+      // Obtener el directorio de Descargas
+      final now = DateTime.now();
+      final dateTimeFormatted = "${now.year}-"
+          "${now.month.toString().padLeft(2, '0')}-"
+          "${now.day.toString().padLeft(2, '0')}_"
+          "${now.hour.toString().padLeft(2, '0')}-"
+          "${now.minute.toString().padLeft(2, '0')}-"
+          "${now.second.toString().padLeft(2, '0')}";
+      final filename = "analisis_informe_obd_$dateTimeFormatted.pdf";
+
+      final downloadsDir = Directory('/storage/emulated/0/Download');
+      final file = File("${downloadsDir.path}/$filename");
+
+      await file.writeAsBytes(await pdf.save());
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('PDF guardado en: ${file.path}')),
+      );
+    } else if (status.isDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Permiso de almacenamiento denegado.')),
+      );
+    } else if (status.isPermanentlyDenied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(
+                'Permiso de almacenamiento denegado permanentemente. Por favor, habilítalo en la configuración de la aplicación.')),
+      );
+      openAppSettings();
+    }
   }
   //pruebas sin obd
 
@@ -553,43 +1155,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   // Diálogo de información del VIN
-  void _showVinDialog() {
-    print("VinDialog iniciado");
+  Future<void> _showVinDialog() async {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        backgroundColor: Colors.blueGrey[800],
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        title: const Text('Información del VIN',
-            style: TextStyle(color: Colors.white)),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildVinInfoRow('VIN:', '1HGCM82633A123456'),
-              _buildVinInfoRow('Marca:', 'Honda'),
-              _buildVinInfoRow('Modelo:', 'Accord EX-L'),
-              _buildVinInfoRow('Año:', '2023'),
-              _buildVinInfoRow('Motor:', '2.0L Turbo L4'),
-              _buildVinInfoRow('País:', 'Estados Unidos'),
-              const SizedBox(height: 15),
-              const Text('Características:',
-                  style: TextStyle(
-                      color: Colors.white, fontWeight: FontWeight.bold)),
-              _buildFeatureChip('Control de crucero adaptativo'),
-              _buildFeatureChip('Asistente de carril'),
-              _buildFeatureChip('Sistema de infoentretenimiento'),
-            ],
-          ),
-        ),
+        title: const Text('Hola'),
         actions: [
           TextButton(
-            child: const Text('Cerrar',
-                style: TextStyle(color: Colors.blueAccent)),
             onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
           ),
         ],
       ),
@@ -1073,10 +1647,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           backgroundColor: Colors.white,
           insetPadding: const EdgeInsets.all(20),
           shape: RoundedRectangleBorder(
-            side: BorderSide(
-              color: Color(0xFF0166B3),
-              width: 2
-            ),
+            side: BorderSide(color: Color(0xFF0166B3), width: 2),
           ),
           child: DefaultTabController(
             length: 3,
@@ -1404,20 +1975,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('Nombre',
-              style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
           Text('$sensorName',
               style: const TextStyle(color: Colors.black, fontSize: 18)),
           const SizedBox(height: 8),
           Text('Valor actual',
-              style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+              style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
           Text('${value.toStringAsFixed(1)}',
               style: const TextStyle(color: Colors.black, fontSize: 18)),
           const SizedBox(height: 8),
-          const Text('Descripción', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
-          Text('$descripcion',
+          const Text('Descripción',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
+          Text(
+            '$descripcion',
             style: TextStyle(color: Colors.black, fontSize: 18),
           ),
-          const Text('Rango promedio', style: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text('Rango promedio',
+              style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold)),
           Text(
             '$minMax',
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -2704,7 +3290,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void _showfuelB2LDialog(BuildContext context, double _fuelTrimBank2LongTerm) {
     showDialog(
       context: context,
-      barrierColor: Colors.black54,
+      barrierColor: const Color.fromARGB(137, 255, 255, 255),
       builder: (_) => Dialog(
         backgroundColor: Colors.black,
         shape: RoundedRectangleBorder(
@@ -2822,6 +3408,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           title: const Text("Inicio"),
           actions: [
             IconButton(
+              icon: const Icon(Icons.document_scanner),
+              onPressed: () async {
+                await generarYGuardarPDF(); // Nueva función
+              },
+              tooltip: "Generar PDF",
+            ),
+            IconButton(
               icon: const Icon(Icons.bluetooth),
               onPressed: () => _showDeviceList(context),
               tooltip: "Conectar Bluetooth",
@@ -2906,7 +3499,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       vertical: constraints.maxHeight * 0.1,
                     ),
                     child: SvgPicture.asset(
-                      ///
                       "assets/icons/Car.svg",
                       width: double.infinity,
                     ),
@@ -2961,22 +3553,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                 ),
                               ),
                               const SizedBox(height: 30),
-                              // ElevatedButton.icon(
-                              //   icon: Icon(Icons.qr_code_scanner, size: 28),
-                              //   label: const Text(
-                              //     'OBTENER VIN DEL VEHÍCULO',
-                              //     style: TextStyle(fontSize: 16),
-                              //   ),
-                              //   style: ElevatedButton.styleFrom(
-                              //     backgroundColor: Colors.blueAccent,
-                              //     padding: const EdgeInsets.symmetric(
-                              //         horizontal: 30, vertical: 15),
-                              //     shape: RoundedRectangleBorder(
-                              //       borderRadius: BorderRadius.circular(10),
-                              //     ),
-                              //   ),
-                              //   onPressed: _showVinDialog,
-                              // ),
                             ],
                           ),
                         ),
@@ -3163,6 +3739,110 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
+                Positioned(
+                  right: -180 * (1 - temCoolGlowAnimation.value),
+                  child: AnimatedSwitcher(
+                    duration: defaultDuration,
+                    child: homeController.isCoolSelected
+                        ? Image.asset(
+                            "assets/images/Cool_glow_2.png",
+                            width: 200,
+                            key: UniqueKey(),
+                          )
+                        : Image.asset(
+                            "assets/images/Hot_glow_4.png",
+                            width: 200,
+                            key: UniqueKey(),
+                          ),
+                  ),
+                ),
+
+                /// temprature screen end here
+                ///
+                /// tyre screen start here
+                ///
+                if (homeController.isTyresStatus)
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 1.0,
+                      child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                        valueListenable: _sensorsNotifier,
+                        builder: (context, sensors, _) {
+                          final sensoresFiltrados = sensors
+                              .where((sensor) => [
+                                    "Velocidad",
+                                    "RPM",
+                                    "Temp. Refrigerante",
+                                    "Avance encendido",
+                                    "Carga del motor",
+                                    "Flujo aire masivo",
+                                    "Presión colector admisión",
+                                    "Voltaje",
+                                    // "Sensores O2 Activos", ///
+                                    "Sensor O2 1 (V) [0]",
+                                    "Sensor O2 1 (AFR) [0]",
+                                    "Sensor O2 2 (V) [1]",
+                                    "Sensor O2 2 (AFR) [1]",
+                                    "Sensor O2 3 (V) [2]",
+                                    "Sensor O2 3 (AFR) [2]",
+                                    "Sensor O2 4 (V) [3]",
+                                    "Sensor O2 4 (AFR) [3]",
+                                    "AFR Comandado",
+
+                                    ///
+                                    "Nivel Combustible",
+                                    "Presión Combustible",
+                                    "Presión Riel",
+                                    "Consumo",
+                                    "Banco 1 Corto",
+                                    "Banco 1 Largo",
+                                    "Banco 2 Corto",
+                                    "Banco 2 Largo",
+                                    // "CatB1S1",
+                                    // "CatB1S2",
+                                    // "CatB2S1",
+                                    // "CatB2S2"
+                                  ].contains(sensor['nombre']))
+                              .toList();
+
+                          return GridView.builder(
+                            padding: const EdgeInsets.all(8),
+                            physics: const BouncingScrollPhysics(),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 15,
+                              crossAxisSpacing: 15,
+                              childAspectRatio: constraints.maxWidth /
+                                  constraints.maxHeight /
+                                  0.7,
+                            ),
+                            itemCount: sensoresFiltrados.length,
+                            itemBuilder: (context, index) {
+                              final sensor = sensoresFiltrados[index];
+                              return ScaleTransition(
+                                scale: tyresAnimation[
+                                    index % tyresAnimation.length],
+                                child: InkWell(
+                                  onTap: () => _showSensorDialog(
+                                    context,
+                                    sensor[
+                                        'nombre'], // Pasar el nombre del sensor
+                                    sensor['valor'].toDouble(),
+                                  ),
+                                  child: SensorCard(
+                                    title: sensor['nombre'],
+                                    value:
+                                        '${sensor['valor'].toStringAsFixed(1)} ${sensor['unidad']}',
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
                 Positioned(
                   right: -180 * (1 - temCoolGlowAnimation.value),
                   child: AnimatedSwitcher(

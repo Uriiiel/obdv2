@@ -36,7 +36,7 @@
 //     super.key,
 //     required this.isBottomTwoTyres,
 //     required this.sensorData,
-//   }); 
+//   });
 
 //   final bool isBottomTwoTyres;
 //   final SensorData sensorData;
@@ -105,7 +105,7 @@ class SensorCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.3),
+        color: const Color.fromARGB(255, 253, 253, 253).withOpacity(0.3),
         border: Border.all(
           color: Color(0xFF0166B3),
           width: 2,
@@ -117,7 +117,8 @@ class SensorCard extends StatelessWidget {
         children: [
           Text(
             title.toUpperCase(),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           const Spacer(),
           Text(
