@@ -471,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   child: pw.Text(
                     'Informe de Diagnóstico OBDII',
                     style: pw.TextStyle(
-                        fontSize: 24, fontWeight: pw.FontWeight.bold),
+                        fontSize: 20, fontWeight: pw.FontWeight.bold),
                   ),
                 ),
                 pw.SizedBox(height: 20),
@@ -482,7 +482,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 // --- Título de Sección: Sensores del Motor ---
                 pw.Text('SENSORES DEL MOTOR',
                     style: pw.TextStyle(
-                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                        fontSize: 10, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 5), // Espacio pequeño entre título y tabla
 
                 // --- Tabla de Sensores del Motor ---
@@ -510,7 +510,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_speed km/h'),
+                            child: pw.Text('${_speed.toStringAsFixed(2)} km/h'),
                           ),
                         ),
                       ],
@@ -532,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_rpm RPM'),
+                            child: pw.Text('${_rpm.toStringAsFixed(2)} RPM'),
                           ),
                         ),
                       ],
@@ -554,7 +554,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_coolantTemp °C'),
+                            child: pw.Text(
+                                '${_coolantTemp.toStringAsFixed(2)} °C'),
                           ),
                         ),
                       ],
@@ -576,7 +577,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_engineLoad %'),
+                            child:
+                                pw.Text('${_engineLoad.toStringAsFixed(2)} %'),
                           ),
                         ),
                       ],
@@ -598,7 +600,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_ignitionAdvance °'),
+                            child: pw.Text(
+                                '${_ignitionAdvance.toStringAsFixed(2)} °'),
                           ),
                         ),
                       ],
@@ -620,7 +623,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_maf g/s'),
+                            child: pw.Text('${_maf.toStringAsFixed(2)} g/s'),
                           ),
                         ),
                       ],
@@ -642,7 +645,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_intakeManifoldPressure kPa'),
+                            child: pw.Text(
+                                '${_intakeManifoldPressure.toStringAsFixed(2)} kPa'),
                           ),
                         ),
                       ],
@@ -664,7 +668,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_voltage V'),
+                            child: pw.Text('${_voltage.toStringAsFixed(2)} V'),
                           ),
                         ),
                       ],
@@ -676,7 +680,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 // --- Título de Sección: Sensores de Oxígeno ---
                 pw.Text('SENSORES DE OXÍGENO',
                     style: pw.TextStyle(
-                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                        fontSize: 10, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 5), // Espacio pequeño entre título y tabla
 
                 // --- Tabla de Sensores de Oxígeno ---
@@ -705,7 +709,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             child: pw.Padding(
                               padding: const pw.EdgeInsets.symmetric(
                                   vertical: 4, horizontal: 5),
-                              child: pw.Text('${_o2Voltage[i]} V'),
+                              child: pw.Text(
+                                  '${_o2Voltage[i].toStringAsFixed(2)} V'),
                             ),
                           ),
                         ],
@@ -728,7 +733,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             child: pw.Padding(
                               padding: const pw.EdgeInsets.symmetric(
                                   vertical: 4, horizontal: 5),
-                              child: pw.Text('${_o2AFR[i]}'),
+                              child: pw.Text('${_o2AFR[i].toStringAsFixed(2)}'),
                             ),
                           ),
                         ],
@@ -750,7 +755,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_commandedAFR'),
+                            child:
+                                pw.Text('${_commandedAFR.toStringAsFixed(2)}'),
                           ),
                         ),
                       ],
@@ -760,9 +766,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 pw.SizedBox(height: 15),
 
                 // --- Título de Sección: Sistema de Combustible ---
-                pw.Text('SISTEMA DE COMBUSTIBLE',
+                pw.Text('SENSORES DE COMBUSTIBLE',
                     style: pw.TextStyle(
-                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                        fontSize: 10, fontWeight: pw.FontWeight.bold)),
                 pw.SizedBox(height: 5), // Espacio pequeño entre título y tabla
 
                 // --- Tabla de Sistema de Combustible ---
@@ -790,7 +796,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelLevel %'),
+                            child:
+                                pw.Text('${_fuelLevel.toStringAsFixed(2)} %'),
                           ),
                         ),
                       ],
@@ -812,7 +819,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelPressure kPa'),
+                            child: pw.Text(
+                                '${_fuelPressure.toStringAsFixed(2)} kPa'),
                           ),
                         ),
                       ],
@@ -834,7 +842,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelRailPressure kPa'),
+                            child: pw.Text(
+                                '${_fuelRailPressure.toStringAsFixed(2)} kPa'),
                           ),
                         ),
                       ],
@@ -856,7 +865,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelRate L/h'),
+                            child:
+                                pw.Text('${_fuelRate.toStringAsFixed(2)} L/h'),
                           ),
                         ),
                       ],
@@ -878,7 +888,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelTrimBank1ShortTerm %'),
+                            child: pw.Text(
+                                '${_fuelTrimBank1ShortTerm.toStringAsFixed(2)} %'),
                           ),
                         ),
                       ],
@@ -900,7 +911,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelTrimBank1LongTerm %'),
+                            child: pw.Text(
+                                '${_fuelTrimBank1LongTerm.toStringAsFixed(2)} %'),
                           ),
                         ),
                       ],
@@ -922,7 +934,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelTrimBank2ShortTerm %'),
+                            child: pw.Text(
+                                '${_fuelTrimBank2ShortTerm.toStringAsFixed(2)} %'),
                           ),
                         ),
                       ],
@@ -944,14 +957,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           child: pw.Padding(
                             padding: const pw.EdgeInsets.symmetric(
                                 vertical: 4, horizontal: 5),
-                            child: pw.Text('$_fuelTrimBank2LongTerm %'),
+                            child: pw.Text(
+                                '${_fuelTrimBank2LongTerm.toStringAsFixed(2)} %'),
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                pw.SizedBox(height: 20),
 
                 pw.Text(
                   'Nota: Los valores mostrados son instantáneas del diagnóstico al momento de la generación del informe.',
