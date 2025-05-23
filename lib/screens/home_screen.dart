@@ -464,6 +464,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> generarYGuardarPDF() async {
     final pdf = pw.Document();
+    String _formatDateTime(DateTime date) {
+      final String fecha = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+      final int hour = date.hour;
+      final String period = hour < 12 ? 'AM' : 'PM';
+      final String hora12 = (hour % 12 == 0 ? 12 : hour % 12).toString().padLeft(2, '0');
+      final String minutos = date.minute.toString().padLeft(2, '0');
+      final String segundos = date.second.toString().padLeft(2, '0');
+      
+      return '$fecha $hora12:$minutos:$segundos $period';
+    }
     pdf.addPage(
       pw.MultiPage(
           build: (context) => [
@@ -476,7 +486,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
                 pw.SizedBox(height: 20),
                 pw.Text(
-                  'Fecha y Hora del Informe: ${DateTime.now().toLocal().toString().split(' ')[0]} ${DateTime.now().toLocal().hour.toString().padLeft(2, '0')}:${DateTime.now().toLocal().minute.toString().padLeft(2, '0')}:${DateTime.now().toLocal().second.toString().padLeft(2, '0')}',
+                  'Fecha y Hora del Informe: ${_formatDateTime(DateTime.now().toLocal())}',
                 ),
                 pw.SizedBox(height: 20),
                 // --- Título de Sección: Sensores del Motor ---
@@ -3680,9 +3690,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-
-                /// Battery Screen end here
-
                 /// Battery Screen end here
                 ///
                 /// temprature screen start here
@@ -3769,93 +3776,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           ),
                   ),
                 ),
-
-                /// temprature screen end here
-                ///
-                /// tyre screen start here
-                ///
-                if (homeController.isTyresStatus)
-                  Positioned.fill(
-                    child: Opacity(
-                      opacity: 1.0,
-                      child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-                        valueListenable: _sensorsNotifier,
-                        builder: (context, sensors, _) {
-                          final sensoresFiltrados = sensors
-                              .where((sensor) => [
-                                    "Velocidad",
-                                    "RPM",
-                                    "Temp. Refrigerante",
-                                    "Avance encendido",
-                                    "Carga del motor",
-                                    "Flujo aire masivo",
-                                    "Presión colector admisión",
-                                    "Voltaje",
-                                    // "Sensores O2 Activos", ///
-                                    "Sensor O2 1 (V) [0]",
-                                    "Sensor O2 1 (AFR) [0]",
-                                    "Sensor O2 2 (V) [1]",
-                                    "Sensor O2 2 (AFR) [1]",
-                                    "Sensor O2 3 (V) [2]",
-                                    "Sensor O2 3 (AFR) [2]",
-                                    "Sensor O2 4 (V) [3]",
-                                    "Sensor O2 4 (AFR) [3]",
-                                    "AFR Comandado",
-
-                                    ///
-                                    "Nivel Combustible",
-                                    "Presión Combustible",
-                                    "Presión Riel",
-                                    "Consumo",
-                                    "Banco 1 Corto",
-                                    "Banco 1 Largo",
-                                    "Banco 2 Corto",
-                                    "Banco 2 Largo",
-                                    // "CatB1S1",
-                                    // "CatB1S2",
-                                    // "CatB2S1",
-                                    // "CatB2S2"
-                                  ].contains(sensor['nombre']))
-                              .toList();
-
-                          return GridView.builder(
-                            padding: const EdgeInsets.all(8),
-                            physics: const BouncingScrollPhysics(),
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisSpacing: 15,
-                              crossAxisSpacing: 15,
-                              childAspectRatio: constraints.maxWidth /
-                                  constraints.maxHeight /
-                                  0.7,
-                            ),
-                            itemCount: sensoresFiltrados.length,
-                            itemBuilder: (context, index) {
-                              final sensor = sensoresFiltrados[index];
-                              return ScaleTransition(
-                                scale: tyresAnimation[
-                                    index % tyresAnimation.length],
-                                child: InkWell(
-                                  onTap: () => _showSensorDialog(
-                                    context,
-                                    sensor[
-                                        'nombre'], // Pasar el nombre del sensor
-                                    sensor['valor'].toDouble(),
-                                  ),
-                                  child: SensorCard(
-                                    title: sensor['nombre'],
-                                    value:
-                                        '${sensor['valor'].toStringAsFixed(1)} ${sensor['unidad']}',
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ),
                 Positioned(
                   right: -180 * (1 - temCoolGlowAnimation.value),
                   child: AnimatedSwitcher(
