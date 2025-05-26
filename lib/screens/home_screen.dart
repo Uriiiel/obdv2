@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:obdv2/core/constants.dart';
 import 'package:obdv2/core/home_controller.dart';
 import 'package:obdv2/core/model/tyres_model.dart';
@@ -24,6 +25,7 @@ import 'package:collection/collection.dart';
 import 'package:obdv2/pages/login_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -271,7 +273,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _requestPermissions();
+    //_requestPermissions();
+    _checkBluetoothState();
     sensorHistory['Voltaje'] = [];
     sensorHistory['Carga del motor'] = [];
     sensorHistory['Nivel Combustible'] = [];
@@ -297,7 +300,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ensureConnection();
     });
-    _checkBluetoothState();
     setupBatteryAnimated();
     setupTempratureAnimation();
     setupTyresAnimation();
@@ -398,71 +400,71 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   //   });
   // }
 
-  Future<void> _requestPermissions() async {
-    // BLUETOOTH CONNECT (Android 12+)
-    var bluetoothConnectStatus = await Permission.bluetoothConnect.request();
+  // Future<void> _requestPermissions() async {
+  //   // BLUETOOTH CONNECT (Android 12+)
+  //   var bluetoothConnectStatus = await Permission.bluetoothConnect.request();
 
-    if (bluetoothConnectStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de Bluetooth concedido.')),
-      );
-    } else if (bluetoothConnectStatus.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de Bluetooth denegado.')),
-      );
-    } else if (bluetoothConnectStatus.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Permiso de Bluetooth denegado permanentemente. Por favor, habilítalo en la configuración.'),
-        ),
-      );
-      openAppSettings();
-    }
+  //   if (bluetoothConnectStatus.isGranted) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Permiso de Bluetooth concedido.')),
+  //     );
+  //   } else if (bluetoothConnectStatus.isDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Permiso de Bluetooth denegado.')),
+  //     );
+  //   } else if (bluetoothConnectStatus.isPermanentlyDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //             'Permiso de Bluetooth denegado permanentemente. Por favor, habilítalo en la configuración.'),
+  //       ),
+  //     );
+  //     openAppSettings();
+  //   }
 
-    // NEARBY DEVICES (Android 12+)
-    var nearbyStatus = await Permission.nearbyWifiDevices.request();
+  //   // NEARBY DEVICES (Android 12+)
+  //   var nearbyStatus = await Permission.nearbyWifiDevices.request();
 
-    if (nearbyStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de dispositivos cercanos concedido.')),
-      );
-    } else if (nearbyStatus.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de dispositivos cercanos denegado.')),
-      );
-    } else if (nearbyStatus.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Permiso de dispositivos cercanos denegado permanentemente. Por favor, habilítalo en la configuración.'),
-        ),
-      );
-      openAppSettings();
-    }
-    // LOCATION (IMPORTANTE PARA ESCANEOS EN ALGUNAS VERSIONES)
-    var locationStatus = await Permission.location.request();
+  //   if (nearbyStatus.isGranted) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Permiso de dispositivos cercanos concedido.')),
+  //     );
+  //   } else if (nearbyStatus.isDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Permiso de dispositivos cercanos denegado.')),
+  //     );
+  //   } else if (nearbyStatus.isPermanentlyDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //             'Permiso de dispositivos cercanos denegado permanentemente. Por favor, habilítalo en la configuración.'),
+  //       ),
+  //     );
+  //     openAppSettings();
+  //   }
+  //   // LOCATION (IMPORTANTE PARA ESCANEOS EN ALGUNAS VERSIONES)
+  //   var locationStatus = await Permission.location.request();
 
-    if (locationStatus.isGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de ubicación concedido.')),
-      );
-    } else if (locationStatus.isDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Permiso de ubicación denegado.')),
-      );
-    } else if (locationStatus.isPermanentlyDenied) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Permiso de ubicación denegado permanentemente. Habilítalo en la configuración.'),
-        ),
-      );
-      openAppSettings();
-    }
-  }
+  //   if (locationStatus.isGranted) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Permiso de ubicación concedido.')),
+  //     );
+  //   } else if (locationStatus.isDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Permiso de ubicación denegado.')),
+  //     );
+  //   } else if (locationStatus.isPermanentlyDenied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //             'Permiso de ubicación denegado permanentemente. Habilítalo en la configuración.'),
+  //       ),
+  //     );
+  //     openAppSettings();
+  //   }
+  // }
 
-  Future<void> generarYGuardarPDF() async {
+Future<void> generarYGuardarPDF(BuildContext context) async {
     final pdf = pw.Document();
     pdf.addPage(
       pw.MultiPage(
@@ -978,55 +980,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ),
               ]),
     );
-    // Solicitar permisos de almacenamiento externo
-    final sdkInt = int.parse(Platform.version
-        .split(' ')
-        .firstWhere((e) => int.tryParse(e) != null, orElse: () => '0'));
 
-    bool permisoConcedido = false;
+    try {
+// Convert PDF to bytes
+      final bytes = await pdf.save();
 
-    if (sdkInt >= 30) {
-      // Android 11+
-      var status = await Permission.manageExternalStorage.request();
-      if (status.isGranted) {
-        permisoConcedido = true;
-      } else if (status.isPermanentlyDenied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Permiso de almacenamiento denegado permanentemente. Actívalo en ajustes.')),
-        );
-        openAppSettings();
-        return;
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permiso de almacenamiento denegado.')),
-        );
-        return;
-      }
-    } else {
-      // Android 10 o menor
-      var status = await Permission.storage.request();
-      if (status.isGranted) {
-        permisoConcedido = true;
-      } else if (status.isPermanentlyDenied) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(
-                  'Permiso de almacenamiento denegado permanentemente. Actívalo en ajustes.')),
-        );
-        openAppSettings();
-        return;
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Permiso de almacenamiento denegado.')),
-        );
-        return;
-      }
-    }
-
-    if (permisoConcedido) {
-      // Crear nombre de archivo
+      // Create a unique filename for the PDF
       final now = DateTime.now();
       final dateTimeFormatted = "${now.year}-"
           "${now.month.toString().padLeft(2, '0')}-"
@@ -1036,16 +995,212 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           "${now.second.toString().padLeft(2, '0')}";
       final filename = "analisis_informe_obd_$dateTimeFormatted.pdf";
 
-      final downloadsDir =
-          Directory('/storage/emulated/0/Download'); // carpeta pública
-      final file = File("${downloadsDir.path}/$filename");
-
-      await file.writeAsBytes(await pdf.save());
+      // Get a reference to the Firebase Storage bucket
+      // The path 'obd_reports/' is crucial here and matches your Firebase Rules
+      final storageRef =
+          FirebaseStorage.instance.ref().child('obd_reports').child(filename);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('✅ PDF guardado en: ${file.path}')),
+        const SnackBar(
+          content: Text('Subiendo PDF...'),
+          duration: Duration(seconds: 2),
+        ),
       );
+
+      // Upload the PDF bytes to Firebase Storage
+      final uploadTask = storageRef.putData(bytes);
+
+      // Await the completion of the upload
+      final snapshot = await uploadTask.whenComplete(() {});
+
+      if (snapshot.state == TaskState.success) {
+        final downloadUrl = await snapshot.ref.getDownloadURL();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                '✅ PDF subido a Firebase Storage: ${downloadUrl.substring(0, 50)}...'), // Truncate URL for display
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        print('PDF subido a: $downloadUrl');
+      } else {
+        // This means the upload didn't complete successfully, even if no explicit error was caught
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                '❌ Error inesperado al subir PDF. Estado: ${snapshot.state}'),
+            duration: const Duration(seconds: 7),
+          ),
+        );
+        print('Unexpected upload state: ${snapshot.state}');
+      }
+    } on FirebaseException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error de Firebase al subir PDF: ${e.message}'),
+          duration: const Duration(seconds: 7),
+        ),
+      );
+      print('Error de Firebase subiendo PDF: ${e.code} - ${e.message}');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error general al subir PDF a Firebase Storage: $e'),
+          duration: const Duration(seconds: 7),
+        ),
+      );
+      print('Error general subiendo PDF: $e');
     }
+  }
+
+  Future<void> _listPdfsInStorage(BuildContext context) async {
+    try {
+      // Show a loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cargando lista de PDFs...'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      // Get a reference to the 'obd_reports' folder
+      final ListResult result =
+          await FirebaseStorage.instance.ref('obd_reports').listAll();
+
+      // Fetch download URLs for each item
+      final List<Map<String, String>> pdfFiles = [];
+      for (var item in result.items) {
+        try {
+          final downloadUrl = await item.getDownloadURL();
+          pdfFiles.add({
+            'name': item.name,
+            'url': downloadUrl,
+          });
+        } on FirebaseException catch (e) {
+          print('Error fetching URL for ${item.name}: ${e.message}');
+          // Optionally, add a placeholder or skip this file
+        }
+      }
+
+      // Sort by name (which includes timestamp) to show most recent first
+      pdfFiles.sort((a, b) => b['name']!.compareTo(a['name']!));
+
+      // Close the initial options dialog before showing the list dialog
+      Navigator.of(context).pop();
+
+      // Show the dialog with the list of PDFs
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return AlertDialog(
+            title: const Text('PDFs Guardados'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: pdfFiles.isEmpty
+                    ? [const Text('No hay PDFs guardados en Firebase Storage.')]
+                    : pdfFiles.map((pdf) {
+                        return ListTile(
+                          title: Text(
+                            pdf['name']!,
+                            style: const TextStyle(fontSize: 14),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.open_in_new),
+                            onPressed: () async {
+                              final url = Uri.parse(pdf['url']!);
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(url,
+                                    mode: LaunchMode
+                                        .externalApplication); // Opens in external app
+                              } else {
+                                ScaffoldMessenger.of(dialogContext)
+                                    .showSnackBar(
+                                  const SnackBar(
+                                      content:
+                                          Text('No se pudo abrir el PDF.')),
+                                );
+                              }
+                            },
+                          ),
+                        );
+                      }).toList(),
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cerrar'),
+                onPressed: () {
+                  Navigator.of(dialogContext).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } on FirebaseException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error de Firebase al listar PDFs: ${e.message}'),
+          duration: const Duration(seconds: 7),
+        ),
+      );
+      print('Error de Firebase listando PDFs: ${e.code} - ${e.message}');
+      Navigator.of(context).pop(); // Close the dialog on error
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('❌ Error inesperado al listar PDFs: $e'),
+          duration: const Duration(seconds: 7),
+        ),
+      );
+      print('Error inesperado listando PDFs: $e');
+      Navigator.of(context).pop(); // Close the dialog on error
+    }
+  }
+
+  /// Function to show the main PDF options dialog (Upload or List)
+  Future<void> showPdfOptionsDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true, // User can tap outside to close the dialog
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Opciones de Informe PDF'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(dialogContext).pop(); // Close this dialog
+                    generarYGuardarPDF(context); // Call the upload function
+                  },
+                  icon: const Icon(Icons.cloud_upload),
+                  label: const Text('Subir Nuevo Informe'),
+                ),
+                const SizedBox(height: 10),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // This will fetch and show a new dialog with the list
+                    _listPdfsInStorage(dialogContext);
+                  },
+                  icon: const Icon(Icons.list),
+                  label: const Text('Ver Informes Guardados'),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cerrar'),
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
   //pruebas sin obd
 
@@ -3463,7 +3618,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             IconButton(
               icon: const Icon(Icons.document_scanner),
               onPressed: () async {
-                await generarYGuardarPDF(); // Nueva función
+                await showPdfOptionsDialog(context); // Nueva función
               },
               tooltip: "Generar PDF",
             ),
