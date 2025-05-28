@@ -3467,7 +3467,7 @@ class SpeedometerPage extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-                                  child: Text(value.toStringAsFixed(0)), // Child agregado aquí
+                                  child: Text(value.toStringAsFixed(1)), // Child agregado aquí
                                 ),
                                 AnimatedDefaultTextStyle(
                                   duration: const Duration(milliseconds: 300),

@@ -53,7 +53,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   };
 
   //pruebas sin obd
-  // bool _mockMode = true;
+  //bool _mockMode = true;
   //pruebas sin obd
   final _formKey = GlobalKey<FormState>();
 
@@ -399,6 +399,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   //     _updateSensors();
   //   });
   // }
+    //pruebas sin obd
 
   // Future<void> _requestPermissions() async {
   //   // BLUETOOTH CONNECT (Android 12+)
@@ -1822,7 +1823,7 @@ Future<void> generarYGuardarPDF(BuildContext context) async {
 
   void _sendCommand(String command) {
     //pruebas sin obd
-    // if (_mockMode) return;
+    //if (_mockMode) return;
     //pruebas sin obd
     if (_isConnected && _connection != null) {
       command = '$command\r';
@@ -3627,17 +3628,17 @@ Future<void> generarYGuardarPDF(BuildContext context) async {
               onPressed: () => _showDeviceList(context),
               tooltip: "Conectar Bluetooth",
             ),
-            IconButton(
-              icon: const Icon(Icons.logout),
-              tooltip: "Cerrar Sesión",
-              onPressed: () async {
-                await FirebaseAuth.instance.signOut();
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.logout),
+            //   tooltip: "Cerrar Sesión",
+            //   onPressed: () async {
+            //     await FirebaseAuth.instance.signOut();
+            //     Navigator.of(context).pushAndRemoveUntil(
+            //       MaterialPageRoute(builder: (context) => LoginPage()),
+            //       (Route<dynamic> route) => false,
+            //     );
+            //   },
+            // ),
           ],
         ),
         bottomNavigationBar: ButtomNavBar(
